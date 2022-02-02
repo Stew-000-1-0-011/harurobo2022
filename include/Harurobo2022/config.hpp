@@ -30,5 +30,5 @@ namespace Config
     static constexpr QuantityUnit::Literals::VelL<double> body_vell_limit{/*TODO*/10_VelL};
     static constexpr QuantityUnit::Literals::AccL<double> body_accl_limit{/*TODO*/100_AccL};
 
-    static constexpr QuantityUnit::Literals::Hz<double> under_carriage_freq{/*TODO*/20};
+    static constexpr QuantityUnit::Literals::Hz<double> under_carriage_freq{/*TODO*/20_Hz};
 }

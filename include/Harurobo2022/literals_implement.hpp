@@ -39,11 +39,12 @@ namespace QuantityUnit
 private:
         T value;
 
+public:
+
         constexpr Unit(const T value) noexcept:
             value(value)
         {}
 
-public:
         Unit() = default;
         Unit(const Unit&) = default;
         Unit(Unit&&) = default;
@@ -226,18 +227,6 @@ public:
         return l / r.value;
     }
 
-    template<int m, int s, int kg>
-    constexpr Unit<m, s, kg, unsigned long long int> make_unit(const unsigned long long int digits) noexcept
-    {
-        return digits;
-    }
-
-    template<int m, int s, int kg>
-    constexpr Unit<m, s, kg, long double> make_unit(const long double digits) noexcept
-    {
-        return digits;
-    }
-
 
     namespace TypeCalc
     {
@@ -263,4 +252,52 @@ public:
         };
     }
 
+}
+
+#include <cmath>
+#include "vec2d.hpp"
+
+namespace StewMath::Vec2DFunc
+{
+    template<int m, int s, int kg, typename T>
+    struct op_bit_not_<QuantityUnit::Unit<m, s, kg, T>> final
+    {
+        template<int m_, int s_, int kg_, typename T_>
+        using Unit = QuantityUnit::Unit<m_, s_, kg_, T_>;
+        using UnitT = Unit<m, s, kg, T>;
+
+        static constexpr Vec2D<Unit<0, 0, 0, T>> func(const UnitT x, const UnitT y) noexcept
+        {
+            const auto tmp_x = x.get_primitive();
+            const auto tmp_y = y.get_primitive();
+            const auto norm = std::sqrt(tmp_x * tmp_x + tmp_y * tmp_y);
+            return {tmp_x / norm, tmp_y / norm};
+        }
+    };
+
+    template<int m, int s, int kg, typename T>
+    struct get_angle_<QuantityUnit::Unit<m, s, kg, T>> final
+    {
+        template<int m_, int s_, int kg_, typename T_>
+        using Unit = QuantityUnit::Unit<m_, s_, kg_, T_>;
+        using UnitT = Unit<m, s, kg, T>;
+
+        static constexpr Unit<0, 0, 0, double> func(const UnitT x, const UnitT y) noexcept
+        {
+            return Unit<0, 0, 0, double>(std::atan2(y.get_primitive(), x.get_primitive()));
+        }
+    };
+
+    template<int m, int s, int kg, typename T>
+    struct abs_<QuantityUnit::Unit<m, s, kg, T>> final
+    {
+        template<int m_, int s_, int kg_, typename T_>
+        using Unit = QuantityUnit::Unit<m_, s_, kg_, T_>;
+        using UnitT = Unit<m, s, kg, T>;
+
+        static constexpr Vec2D<UnitT> func(const UnitT x, const UnitT y) noexcept
+        {
+            return {std::abs(x.get_primitive()), std::abs(y.get_primitive())};
+        }
+    };
 }
