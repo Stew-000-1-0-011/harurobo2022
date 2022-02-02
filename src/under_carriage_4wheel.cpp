@@ -3,8 +3,6 @@
 // 通信するデータはそんな大きくもないので、プロセスを別にしたほうが良さげ。ということでNodeletはつかわないつもり(何もしらないので今後変えるかも)
 // 1/27
 // basecotroller4wheelをパクることに。
-// 1/28
-// 使ってる関数の例外送出の可能性をいちいち調べるのは面倒なので、コンテナに詰めるオブジェクトのmove_ctorでもなきゃ気にしないことにした。
 */
 
 #include <ros/ros.h>
@@ -58,8 +56,8 @@ inline UnderCarriage4Wheel::UnderCarriage4Wheel():
 
 inline void UnderCarriage4Wheel::body_twist_callback(const geometry_msgs::Twist::ConstPtr& msg_p)
 {
-    body_vell = {VelL<double>(msg_p->linear.x), VelL<double>(msg_p->linear.y)};
-    body_vela = VelA<double>(msg_p->angular.z);
+    body_vell = {msg_p->linear.x, msg_p->linear.y};
+    body_vela = msg_p->angular.z;
 }
 
 inline void UnderCarriage4Wheel::publish_timer_callback(const ros::TimerEvent& event)
