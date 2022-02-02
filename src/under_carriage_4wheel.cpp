@@ -58,8 +58,8 @@ inline UnderCarriage4Wheel::UnderCarriage4Wheel():
 
 inline void UnderCarriage4Wheel::body_twist_callback(const geometry_msgs::Twist::ConstPtr& msg_p)
 {
-    body_vell = {msg_p->linear.x, msg_p->linear.y};
-    body_vela = msg_p->angular.z;
+    body_vell = {VelL<double>(msg_p->linear.x), VelL<double>(msg_p->linear.y)};
+    body_vela = VelA<double>(msg_p->angular.z);
 }
 
 inline void UnderCarriage4Wheel::publish_timer_callback(const ros::TimerEvent& event)

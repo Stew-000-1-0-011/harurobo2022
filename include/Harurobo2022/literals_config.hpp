@@ -44,28 +44,21 @@ namespace QuantityUnit::Literals
     \
 constexpr QuantityUnit::Literals::UnitTemp<unsigned long long int> operator "" _##UnitTemp(const unsigned long long int digits) noexcept \
 { \
-    return QuantityUnit::make_unit<QuantityUnit::Literals::UnitTemp<unsigned long long int>::m, QuantityUnit::Literals::UnitTemp<unsigned long long int>::s, QuantityUnit::Literals::UnitTemp<unsigned long long int>::kg>(digits); \
+    using namespace QuantityUnit; \
+    using namespace QuantityUnit::Literals; \
+    using LL = unsigned long long int; \
+    return Unit<UnitTemp<LL>::m, UnitTemp<LL>::s, UnitTemp<LL>::kg, LL>(digits); \
 } \
 \
 constexpr QuantityUnit::Literals::UnitTemp<long double> operator "" _##UnitTemp(const long double digits) noexcept \
 { \
-    return QuantityUnit::make_unit<QuantityUnit::Literals::UnitTemp<long double>::m, QuantityUnit::Literals::UnitTemp<long double>::s, QuantityUnit::Literals::UnitTemp<long double>::kg>(digits); \
+    using namespace QuantityUnit; \
+    using namespace QuantityUnit::Literals; \
+    using LD = long double; \
+    return Unit<UnitTemp<LD>::m, UnitTemp<LD>::s, UnitTemp<LD>::kg, LD>(digits); \
 }
 // define end
 
-
-// #define define_quantity_unit_literal(UnitTemp) \
-//     \
-// constexpr QuantityUnit::Literals::UnitTemp<unsigned long long int> operator "" _##UnitTemp(const unsigned long long int digits) noexcept \
-// { \
-//     return digits; \
-// } \
-// \
-// constexpr QuantityUnit::Literals::UnitTemp<long double> operator "" _##UnitTemp(const long double digits) noexcept \
-// { \
-//     return digits; \
-// }
-// // define end
 
 define_quantity_unit_literal(Dim0)
 define_quantity_unit_literal(M)
