@@ -19,7 +19,8 @@ namespace QuantityUnit
 
     /*
     物理の次元計算をコンパイル時に行う。
-    +,-,比較,(複合)代入,変換は同じ次元同士で可能。*=,/=は不可能。Dim0 <-> primitive は不可能。
+    +,-,比較,(複合)代入,変換は同じ次元同士で可能。*=,/=は不可能。
+    primitive -> Unit は可能。Unit -> primitive は不可能。
     *,/は任意の単位、primitive間で可能
     */
     template<

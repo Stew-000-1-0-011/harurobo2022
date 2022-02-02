@@ -70,12 +70,6 @@ namespace StewMath{
             y(y)
         {}
 
-        template<typename Tx, typename Ty>
-        constexpr Vec2D(const Tx x, const Ty y) noexcept:
-            x(T(x)),
-            y(T(y))
-        {}
-
         Vec2D(const Vec2D&) = default;
         Vec2D& operator=(const Vec2D&) = default;
         Vec2D(Vec2D&&) = default;
