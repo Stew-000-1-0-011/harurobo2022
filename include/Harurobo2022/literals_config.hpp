@@ -39,33 +39,33 @@ namespace QuantityUnit::Literals
 }
 
 
-// // なんでテンプレートが使えないんですか！？
-// #define define_quantity_unit_literal(UnitTemp) \
-//     \
-// constexpr UnitTemp<unsigned long long int> operator "" _##UnitTemp(const unsigned long long int digits) noexcept \
-// { \
-//     return make_unit<UnitTemp<unsigned long long int>::m, UnitTemp<unsigned long long int>::s, UnitTemp<unsigned long long int>::kg>(digits); \
-// } \
-// \
-// constexpr UnitTemp<long double> operator "" _##UnitTemp(const long double digits) noexcept \
-// { \
-//     return make_unit<UnitTemp<long double>::m, UnitTemp<long double>::s, UnitTemp<long double>::kg>(digits); \
-// }
-// // define end
-
-
+// なんでテンプレートが使えないんですか！？
 #define define_quantity_unit_literal(UnitTemp) \
     \
 constexpr QuantityUnit::Literals::UnitTemp<unsigned long long int> operator "" _##UnitTemp(const unsigned long long int digits) noexcept \
 { \
-    return digits; \
+    return QuantityUnit::make_unit<QuantityUnit::Literals::UnitTemp<unsigned long long int>::m, QuantityUnit::Literals::UnitTemp<unsigned long long int>::s, QuantityUnit::Literals::UnitTemp<unsigned long long int>::kg>(digits); \
 } \
 \
 constexpr QuantityUnit::Literals::UnitTemp<long double> operator "" _##UnitTemp(const long double digits) noexcept \
 { \
-    return digits; \
+    return QuantityUnit::make_unit<QuantityUnit::Literals::UnitTemp<long double>::m, QuantityUnit::Literals::UnitTemp<long double>::s, QuantityUnit::Literals::UnitTemp<long double>::kg>(digits); \
 }
 // define end
+
+
+// #define define_quantity_unit_literal(UnitTemp) \
+//     \
+// constexpr QuantityUnit::Literals::UnitTemp<unsigned long long int> operator "" _##UnitTemp(const unsigned long long int digits) noexcept \
+// { \
+//     return digits; \
+// } \
+// \
+// constexpr QuantityUnit::Literals::UnitTemp<long double> operator "" _##UnitTemp(const long double digits) noexcept \
+// { \
+//     return digits; \
+// }
+// // define end
 
 define_quantity_unit_literal(Dim0)
 define_quantity_unit_literal(M)
