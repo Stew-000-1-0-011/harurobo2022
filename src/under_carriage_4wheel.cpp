@@ -69,13 +69,7 @@ inline void UnderCarriage4Wheel::publish_timer_callback(const ros::TimerEvent& e
     const auto body_vell = this->body_vell;
     const auto body_vela = this->body_vela;
 
-    const Vec2D<Dim0<double>> tmp3 = rot(~Pos::FR,Constant::PI_2);
-
-    const Vec2D<M<double>> tmp2 = Config::body_radius * tmp3;
-
-    const Vec2D<M<double>> tmp = tmp2 * ~Direction::FR;
-
-    const Vec2D<VelL<double>> tmp_vela = body_vela * tmp;//(Config::body_radius * rot(~Pos::FR,Constant::PI_2) * ~Direction::FR);
+    const VelL<double> tmp_vela = body_vela * (Config::body_radius * rot(~Pos::FR,Constant::PI_2) * ~Direction::FR);
 
     VelA<double> FR = (~Direction::FR * body_vell + tmp_vela) / Config::wheel_radius;
     VelA<double> FL = (~Direction::FL * body_vell + tmp_vela) / Config::wheel_radius;
