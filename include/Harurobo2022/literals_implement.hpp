@@ -19,7 +19,7 @@ namespace QuantityUnit
 
     /*
     物理の次元計算をコンパイル時に行う。
-    +,-,比較,(複合)代入,変換は同じ次元同士で可能。*=,/=は不可能。primitive <-> Dim0 は不可能。
+    +,-,比較,(複合)代入,変換は同じ次元同士で可能。*=,/=は不可能。Dim0 <-> primitive は不可能。
     *,/は任意の単位、primitive間で可能
     */
     template<
@@ -89,19 +89,57 @@ public:
         }
 
         template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr auto operator+(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(l.value + r.value)>
-        {
-            return l.value + r.value;
-        }
+        friend constexpr auto operator+(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(l.value + r.value)>;
 
         template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr auto operator-(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(l.value - r.value)>
-        {
-            return l.value - r.value;
-        }
+        friend constexpr auto operator-(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(l.value - r.value)>;
+
+        template<int m_l, int s_l, int kg_l, typename TL, int m_r, int s_r, int kg_r, typename TR>
+        friend constexpr auto operator*(const Unit<m_l, s_l, kg_l, TL>& l, const Unit<m_r, s_r, kg_r, TR>& r) noexcept
+            -> Unit<m_l + m_r, s_l + s_r, kg_l + kg_r, decltype(l.value * r.value)>;
+
+        template<int m_l, int s_l, int kg_l, typename TL, int m_r, int s_r, int kg_r, typename TR>
+        friend constexpr auto operator/(const Unit<m_l, s_l, kg_l, TL>& l, const Unit<m_r, s_r, kg_r, TR>& r) noexcept
+            -> Unit<m_l - m_r, s_l - s_r, kg_l - kg_r, decltype(l.value / r.value)>;
+
+        template<int m, int s, int kg, typename TL, typename TR>
+        friend constexpr bool operator<(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+
+        template<int m, int s, int kg, typename TL, typename TR>
+        friend constexpr bool operator>(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+
+        template<int m, int s, int kg, typename TL, typename TR>
+        friend constexpr bool operator<=(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+
+        template<int m, int s, int kg, typename TL, typename TR>
+        friend constexpr bool operator>=(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+
+        template<int m, int s, int kg, typename TL, typename TR>
+        friend constexpr bool operator==(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+
+        template<int m, int s, int kg, typename TL, typename TR>
+        friend constexpr bool operator!=(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+
+        template<int m, int s, int kg, typename TL, typename TR>
+        friend constexpr auto operator*(const Unit<m, s, kg, TL>& l, const TR r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l.value * r)>;
+
+        template<typename TL, int m, int s, int kg, typename TR>
+        friend constexpr auto operator*(const TL l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TL>>(), l * r.value)>;
+
+        template<int m, int s, int kg, typename TL, typename TR>
+        friend constexpr auto operator/(const Unit<m, s, kg, TL>& l, const TR r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l.value / r)>;
+
+        template<typename TL, int m, int s, int kg, typename TR>
+        friend constexpr auto operator/(const TL l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TL>>(), l / r.value)>;
+
+        template<int m, int s, int kg>
+        friend constexpr Unit<m, s, kg, unsigned long long int> make_unit(const unsigned long long int digits) noexcept;
+
+        template<int m, int s, int kg>
+        friend constexpr Unit<m, s, kg, long double> make_unit(const long double digits) noexcept;
     };
 
-    // inline ⊂ constexpr (関数の場合)
+
     template<int m, int s, int kg, typename TL, typename TR>
     constexpr auto operator+(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(l.value + r.value)>
     {
@@ -164,130 +202,6 @@ public:
         return l.value != r.value;
     }
 
-    template<typename T>
-    using Dim0_ = Unit<0, 0, 0, T>;
-
-    // // Dim0は算術型と一緒に演算できなきゃいけない
-    // template<typename TL, typename TR>
-    // constexpr auto operator+(const Dim0_<TL>& l, const TR r) noexcept -> Dim0_<decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l.value + r)>
-    // {
-    //     return l.value + r;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator+(const TL l, const Dim0_<TR>& r) noexcept -> Dim0_<decltype(std::enable_if_t<std::is_arithmetic_v<TL>>(), l + r.value)>
-    // {
-    //     return l + r.value;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator-(const Dim0_<TL>& l, const TR r) noexcept -> Dim0_<decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l. value - r)>
-    // {
-    //     return l.value - r;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator-(const TL l, const Dim0_<TR>& r) noexcept -> Dim0_<decltype(std::enable_if_t<std::is_arithmetic_v<TL>>(), l - r.value)>
-    // {
-    //     return l - r.value;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator*(const Dim0_<TL>& l, const TR r) noexcept -> Dim0_<decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l. value * r)>
-    // {
-    //     return l.value * r;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator*(const TL l, const Dim0_<TR>& r) noexcept -> Dim0_<decltype(std::enable_if_t<std::is_arithmetic_v<TL>>(), l * r.value)>
-    // {
-    //     return l * r.value;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator/(const Dim0_<TL>& l, const TR r) noexcept -> Dim0_<decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l. value / r)>
-    // {
-    //     return l.value / r;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator/(const TL l, const Dim0_<TR>& r) noexcept -> Dim0_<decltype(std::enable_if_t<std::is_arithmetic_v<TL>>(), l / r.value)>
-    // {
-    //     return l / r.value;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator<(const Dim0_<TL>& l, const TR r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TR>>::type(), bool())
-    // {
-    //     return l.value < r;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator<(const TL l, const Dim0_<TR>& r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TL>>::type(), bool())
-    // {
-    //     return l < r.value;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator>(const Dim0_<TL>& l, const TR r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TR>>::type(), bool())
-    // {
-    //     return l.value > r;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator>(const TL l, const Dim0_<TR>& r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TL>>::type(), bool())
-    // {
-    //     return l > r.value;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator<=(const Dim0_<TL>& l, const TR r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TR>>::type(), bool())
-    // {
-    //     return l.value <= r;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator<=(const TL l, const Dim0_<TR>& r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TL>>::type(), bool())
-    // {
-    //     return l <= r.value;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator>=(const Dim0_<TL>& l, const TR r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TR>>::type(), bool())
-    // {
-    //     return l.value >= r;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator>=(const TL l, const Dim0_<TR>& r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TL>>::type(), bool())
-    // {
-    //     return l >= r.value;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator==(const Dim0_<TL>& l, const TR r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TR>>::type(), bool())
-    // {
-    //     return l.value == r;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator==(const TL l, const Dim0_<TR>& r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TL>>::type(), bool())
-    // {
-    //     return l == r.value;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator!=(const Dim0_<TL>& l, const TR r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TR>>::type(), bool())
-    // {
-    //     return l.value != r;
-    // }
-
-    // template<typename TL, typename TR>
-    // constexpr auto operator!=(const TL l, const Dim0_<TR>& r) noexcept -> decltype(std::enable_if_t<std::is_arithmetic_v<TL>>::type(), bool())
-    // {
-    //     return l != r.value;
-    // }
-
     template<int m, int s, int kg, typename TL, typename TR>
     constexpr auto operator*(const Unit<m, s, kg, TL>& l, const TR r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l.value * r)>
     {
@@ -312,18 +226,18 @@ public:
         return l / r.value;
     }
 
+    template<int m, int s, int kg>
+    constexpr Unit<m, s, kg, unsigned long long int> make_unit(const unsigned long long int digits) noexcept
+    {
+        return digits;
+    }
 
-    // template<int m, int s, int kg>
-    // constexpr Unit<m, s, kg, unsigned long long int> make_unit(const unsigned long long int digits) noexcept
-    // {
-    //     return digits;
-    // }
+    template<int m, int s, int kg>
+    constexpr Unit<m, s, kg, long double> make_unit(const long double digits) noexcept
+    {
+        return digits;
+    }
 
-    // template<int m, int s, int kg>
-    // constexpr Unit<m, s, kg, long double> make_unit(const long double digits) noexcept
-    // {
-    //     return digits;
-    // }
 
     namespace TypeCalc
     {
@@ -334,18 +248,12 @@ public:
             using temp = Unit<UnitL<T>::m + UnitR<T>::m, UnitL<T>::s + UnitR<T>::s, UnitL<T>::kg + UnitR<T>::kg, T>;
         };
 
-        // template<template<typename TL> class UnitL, template<typename TR> class UnitR>
-        // using mul_ = typename mul<UnitL,UnitR>::temp;
-
         template<template<typename TL> class UnitL, template<typename TR> class UnitR>
         struct div
         {
             template<typename T>
             using temp = Unit<UnitL<T>::m - UnitR<T>::m, UnitL<T>::s - UnitR<T>::s, UnitL<T>::kg - UnitR<T>::kg, T>;
         };
-
-        // template<template<typename TL> class UnitL, template<typename TR> class UnitR>
-        // using div_ = typename div<UnitL,UnitR>::temp;
 
         template<template<typename TL> class UnitL, int exp>
         struct pow
@@ -356,31 +264,3 @@ public:
     }
 
 }
-
-// #include <cmath>
-
-// namespace std
-// {
-//     template<int m, int s, int kg, typename T>
-//     constexpr auto sqrt(const QuantityUnit::Unit<m, s, kg, T>& x) noexcept
-//     {
-//         if constexpr(m % 2 || s % 2 || kg % 2)
-//         {
-//             static_assert([]{return false;}(),"Sqrt of this has non integer dim.");
-//         }
-        
-//         return QuantityUnit::Unit<m / 2, s / 2, kg / 2, T>(std::sqrt(x.get_primitive()));
-//     }
-
-//     template<int m, int s, int kg, typename T>
-//     constexpr double atan2(const QuantityUnit::Unit<m, s, kg, T>& y, const QuantityUnit::Unit<m, s, kg, T>& x) noexcept
-//     {
-//         return std::atan2(y.get_primitive(),x.get_primitive());
-//     }
-
-//     template<int m, int s, int kg, typename T>
-//     constexpr auto abs(const QuantityUnit::Unit<m, s, kg, T>& x) noexcept
-//     {
-//         return std::abs(x.get_primitive());
-//     }
-// }
