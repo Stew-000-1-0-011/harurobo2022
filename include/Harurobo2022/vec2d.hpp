@@ -16,6 +16,10 @@ namespace StewMath::Constant
     inline constexpr double ROOT_2 = 1.414'213'562'373'095'048L;
 }
 
+#include "my_utility.hpp"
+define_has_member(func, func)
+define_has_member(operator+, operator_plus)
+#undef define_has_member
 
 namespace StewMath{
 
@@ -28,29 +32,6 @@ namespace StewMath{
         template<typename T>
         struct get_angle_ final
         {};
-
-        template<typename T>
-        struct abs_ final
-        {};
-
-        namespace Implement
-        {
-            template<class T>
-            static constexpr auto is_vec2dfunc(int) noexcept -> decltype(&T::func, bool())
-            {
-                return true;
-            }
-
-            template<class T>
-            static constexpr bool is_vec2dfunc(double) noexcept
-            {
-                return false;
-            }
-
-
-            template<class T>
-            inline constexpr bool is_vec2dfunc_v = is_vec2dfunc<T>(0);
-        }
     }
 
 
@@ -120,9 +101,21 @@ namespace StewMath{
             return *this;
         }
 
-        constexpr auto operator+() const noexcept  // ノルムの二乗
+        constexpr auto operator++() const noexcept  // ノルムの二乗
         {
             return x * x + y * y;
+        }
+
+        constexpr auto operator+() const noexcept  // 絶対値を返すことも多い何か
+        {
+            if constexpr (MyUtility::has_operator_plus_v<T>)
+            {
+                return Vec2D<decltype(+x)>{+x, +y};
+            }
+            else
+            {
+                return Vec2D<decltype(x)>{(x > 0)? x : -x, (y > 0)? y : -y};
+            }
         }
 
         constexpr auto operator-() const noexcept
@@ -132,7 +125,7 @@ namespace StewMath{
 
         constexpr auto operator~() const noexcept  // ノルム
         {
-            if constexpr (!Vec2DFunc::Implement::is_vec2dfunc_v<Vec2DFunc::op_bit_not_<T>>)
+            if constexpr (!MyUtility::has_func_v<Vec2DFunc::op_bit_not_<T>>)
             {
                 const double norm = std::sqrt(x * x + y * y);
                 return Vec2D<decltype(x / norm)>(x / norm, y / norm);
@@ -150,7 +143,7 @@ namespace StewMath{
 
         constexpr auto get_angle() const noexcept // (1,0)となす角( [-π,π] )を返す
         {
-            if constexpr (!Vec2DFunc::Implement::is_vec2dfunc_v<Vec2DFunc::get_angle_<T>>)
+            if constexpr (!MyUtility::has_func_v<Vec2DFunc::get_angle_<T>>)
             {
                 return std::atan2(y, x);
             }
@@ -212,19 +205,6 @@ namespace StewMath{
         const auto tmp_x = obj.x * cos_angle - obj.y * sin_angle;
         const auto tmp_y = obj.x * sin_angle + obj.y * cos_angle;
         return Vec2D<decltype(tmp_x)>(tmp_x, tmp_y);
-    }
-
-    template<typename T>
-    constexpr inline auto abs(const Vec2D<T>& obj) noexcept
-    {
-        if constexpr (!Vec2DFunc::Implement::is_vec2dfunc_v<Vec2DFunc::abs_<T>>)
-        {
-            return Vec2D<decltype(std::abs(obj.x))>(std::abs(obj.x), std::abs(obj.y));
-        }
-        else
-        {
-            return Vec2DFunc::abs_<T>::func(obj.x, obj.y);
-        }
     }
 
 }

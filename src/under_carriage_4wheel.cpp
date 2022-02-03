@@ -31,20 +31,22 @@ class UnderCarriage4Wheel final
     Vec2D<VelL<double>> body_vell;
     VelA<double> body_vela;
 
+    std_msgs::Float32 wheels_vela_msg[4]{};
+    VelA<double> pre_wheels_vela[4]{};
+
 public:
-    inline UnderCarriage4Wheel();  // 一応明示しておく。
-    UnderCarriage4Wheel(const UnderCarriage4Wheel&) = delete;
-    UnderCarriage4Wheel(UnderCarriage4Wheel&&) = delete;
+    inline UnderCarriage4Wheel() noexcept;
     ~UnderCarriage4Wheel() = default;
 
 private:
-    inline void body_twist_callback(const geometry_msgs::Twist::ConstPtr& msg_p);
-    inline void publish_timer_callback(const ros::TimerEvent& event);
+    inline void body_twist_callback(const geometry_msgs::Twist::ConstPtr& msg_p) noexcept;
+    inline void publish_timer_callback(const ros::TimerEvent& event) noexcept;
+    inline void calc_wheels_vela() noexcept;
 };
 
-inline UnderCarriage4Wheel::UnderCarriage4Wheel():
+inline UnderCarriage4Wheel::UnderCarriage4Wheel() noexcept:
     nh{},
-    publish_timer{nh.createTimer(ros::Duration(1.0 / Config::under_carriage_freq.get_primitive()), &UnderCarriage4Wheel::publish_timer_callback, this)},
+    publish_timer{nh.createTimer(ros::Duration(1.0 / Config::under_carriage_freq.value), &UnderCarriage4Wheel::publish_timer_callback, this)},
 
     wheel_FR_vela_pub{nh.advertise<std_msgs::Float32>("wheel_FR_vela", 1)},
     wheel_FL_vela_pub{nh.advertise<std_msgs::Float32>("wheel_FL_vela", 1)},
@@ -54,25 +56,92 @@ inline UnderCarriage4Wheel::UnderCarriage4Wheel():
     body_twist_sub{nh.subscribe<geometry_msgs::Twist>("body_twist", 1, &UnderCarriage4Wheel::body_twist_callback, this)}
 {}
 
-inline void UnderCarriage4Wheel::body_twist_callback(const geometry_msgs::Twist::ConstPtr& msg_p)
+inline void UnderCarriage4Wheel::body_twist_callback(const geometry_msgs::Twist::ConstPtr& msg_p) noexcept
 {
     body_vell = {msg_p->linear.x, msg_p->linear.y};
     body_vela = msg_p->angular.z;
 }
 
-inline void UnderCarriage4Wheel::publish_timer_callback(const ros::TimerEvent& event)
+inline void UnderCarriage4Wheel::publish_timer_callback(const ros::TimerEvent& event) noexcept
+{
+    calc_wheels_vela();
+
+    wheel_FR_vela_pub.publish(wheels_vela_msg[0]);
+    wheel_FL_vela_pub.publish(wheels_vela_msg[1]);
+    wheel_BL_vela_pub.publish(wheels_vela_msg[2]);
+    wheel_BR_vela_pub.publish(wheels_vela_msg[3]);
+}
+
+inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept
 {
     using namespace Config::Wheel;
 
     const auto body_vell = this->body_vell;
     const auto body_vela = this->body_vela;
+    VelA<double> wheels_vela[4];
 
     const VelL<double> tmp_vela = body_vela * (Config::body_radius * rot(~Pos::FR,Constant::PI_2) * ~Direction::FR);
+    for(int i = 0; i < 4; ++i)
+    {
+        wheels_vela[i] = (~Direction::all[i] * body_vell + tmp_vela) / Config::wheel_radius;
+    }
 
-    VelA<double> FR = (~Direction::FR * body_vell + tmp_vela) / Config::wheel_radius;
-    VelA<double> FL = (~Direction::FL * body_vell + tmp_vela) / Config::wheel_radius;
-    VelA<double> BL = (~Direction::BL * body_vell + tmp_vela) / Config::wheel_radius;
-    VelA<double> BR = (~Direction::BR * body_vell + tmp_vela) / Config::wheel_radius;
+    if constexpr (Config::wheel_acca_limit)
+    {
+        AccA<double> diffs_vela[4];
+        for(int i = 0; i < 4; ++i)
+        {
+            diffs_vela[i] = (AccA<double>)pre_wheels_vela[i] - (AccA<double>)wheels_vela[i];
+        }
+
+        auto max = diffs_vela[0];
+        for(int i = 1; i < 4; ++i)
+        {
+            if(max < diffs_vela[i]) max = diffs_vela[i];
+        }
+        
+        if(max > Config::wheel_acca_limit)
+        {
+            ROS_WARN("under_carriage_4wheel: warning: The accelaretion of the wheels is too high. Speed is limited.");
+            auto limit_factor = Config::wheel_acca_limit / max;
+            for(int i = 0; i < 4; ++i)
+            {
+                wheels_vela[i] += pre_wheels_vela[i] + (VelA<double>)(limit_factor * diffs_vela[i]);
+            }
+        }
+
+        for(int i = 0; i < 4; ++i)
+        {
+            wheels_vela_msg[i].data = wheels_vela[i].value;
+        }
+    }
+
+    if constexpr (Config::wheel_vela_limit)
+    {
+        auto max = wheels_vela[0];
+        for(int i = 1; i < 4; ++i)
+        {
+            if(max < wheels_vela[i]) max = wheels_vela[i];
+        }
+        
+        if(max > Config::wheel_vela_limit)
+        {
+            ROS_WARN("under_carriage_4wheel: warning: The speed of the wheels is too high. Speed is limited.");
+            auto limit_factor = Config::wheel_vela_limit / max;
+            for(int i = 0; i < 4; ++i)
+            {
+                wheels_vela[i] *= limit_factor;
+            }
+        }
+    }
+
+    if constexpr(Config::wheel_acca_limit)
+    {
+        for(int i = 0; i < 4; ++i)
+        {
+            pre_wheels_vela[i] = wheels_vela[i];
+        }
+    }
 }
 
 
