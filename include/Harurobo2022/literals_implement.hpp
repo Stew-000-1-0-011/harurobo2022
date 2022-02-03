@@ -31,16 +31,13 @@ namespace QuantityUnit
     >
     struct Unit final
     {
-        using T = std::remove_reference_t<std::remove_cv_t<arg_T>>;
+        using T = std::remove_cv_t<arg_T>;
         static_assert(can_unitize_t<T>,"arg_T is not arithmetic.");
         static constexpr int m{arg_m};
         static constexpr int s{arg_s};
         static constexpr int kg{arg_kg};
 
-private:
         T value;
-
-public:
 
         constexpr Unit(const T value) noexcept:
             value(value)
@@ -55,17 +52,23 @@ public:
 
         template<typename T2>
         constexpr Unit(const Unit<m, s, kg, T2> obj) noexcept:
-            value(obj.get_primitive())
+            value(obj.value)
         {}
 
-        constexpr T get_primitive() const noexcept
+        explicit constexpr operator bool() const noexcept
+        {
+            return value;
+        }
+
+        template<int m2, int s2, int kg2>
+        explicit constexpr operator Unit<m2, s2, kg2, T>() const noexcept
         {
             return value;
         }
 
         constexpr Unit operator+() const noexcept
         {
-            return *this;
+            return (value > 0)? value : -value;
         }
 
         constexpr Unit operator-() const noexcept
@@ -73,15 +76,36 @@ public:
             return -value;
         }
 
-        constexpr Unit& operator+=(const Unit obj) noexcept
+        constexpr Unit operator~() const noexcept
+        {
+            return std::abs(value);
+        }
+
+        template<typename T2>
+        constexpr Unit& operator+=(const Unit<m, s, kg, T2> obj) noexcept
         {
             value += obj.value;
             return *this;
         }
 
-        constexpr Unit& operator-=(const Unit obj) noexcept
+        template<typename T2>
+        constexpr Unit& operator-=(const Unit<m, s, kg, T2> obj) noexcept
         {
             value -= obj.value;
+            return *this;
+        }
+
+        template<typename T2>
+        constexpr Unit& operator*=(const Unit<0, 0, 0, T2> obj) noexcept
+        {
+            value *= obj.value;
+            return *this;
+        }
+
+        template<typename T2>
+        constexpr Unit& operator/=(const Unit<0, 0, 0, T2> obj) noexcept
+        {
+            value /= obj.value;
             return *this;
         }
 
@@ -90,55 +114,49 @@ public:
             return std::string("m:") + std::to_string(m) + ", s:" + std::to_string(s) + ", kg:" + std::to_string(kg) + "\n";
         }
 
-        template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr auto operator+(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(l.value + r.value)>;
+        // template<int m, int s, int kg, typename TL, typename TR>
+        // friend constexpr auto operator+(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(l.value + r.value)>;
 
-        template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr auto operator-(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(l.value - r.value)>;
+        // template<int m, int s, int kg, typename TL, typename TR>
+        // friend constexpr auto operator-(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(l.value - r.value)>;
 
-        template<int m_l, int s_l, int kg_l, typename TL, int m_r, int s_r, int kg_r, typename TR>
-        friend constexpr auto operator*(const Unit<m_l, s_l, kg_l, TL>& l, const Unit<m_r, s_r, kg_r, TR>& r) noexcept
-            -> Unit<m_l + m_r, s_l + s_r, kg_l + kg_r, decltype(l.value * r.value)>;
+        // template<int m_l, int s_l, int kg_l, typename TL, int m_r, int s_r, int kg_r, typename TR>
+        // friend constexpr auto operator*(const Unit<m_l, s_l, kg_l, TL>& l, const Unit<m_r, s_r, kg_r, TR>& r) noexcept
+        //     -> Unit<m_l + m_r, s_l + s_r, kg_l + kg_r, decltype(l.value * r.value)>;
 
-        template<int m_l, int s_l, int kg_l, typename TL, int m_r, int s_r, int kg_r, typename TR>
-        friend constexpr auto operator/(const Unit<m_l, s_l, kg_l, TL>& l, const Unit<m_r, s_r, kg_r, TR>& r) noexcept
-            -> Unit<m_l - m_r, s_l - s_r, kg_l - kg_r, decltype(l.value / r.value)>;
+        // template<int m_l, int s_l, int kg_l, typename TL, int m_r, int s_r, int kg_r, typename TR>
+        // friend constexpr auto operator/(const Unit<m_l, s_l, kg_l, TL>& l, const Unit<m_r, s_r, kg_r, TR>& r) noexcept
+        //     -> Unit<m_l - m_r, s_l - s_r, kg_l - kg_r, decltype(l.value / r.value)>;
 
-        template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr bool operator<(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+        // template<int m, int s, int kg, typename TL, typename TR>
+        // friend constexpr bool operator<(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
 
-        template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr bool operator>(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+        // template<int m, int s, int kg, typename TL, typename TR>
+        // friend constexpr bool operator>(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
 
-        template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr bool operator<=(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+        // template<int m, int s, int kg, typename TL, typename TR>
+        // friend constexpr bool operator<=(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
 
-        template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr bool operator>=(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+        // template<int m, int s, int kg, typename TL, typename TR>
+        // friend constexpr bool operator>=(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
 
-        template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr bool operator==(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+        // template<int m, int s, int kg, typename TL, typename TR>
+        // friend constexpr bool operator==(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
 
-        template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr bool operator!=(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
+        // template<int m, int s, int kg, typename TL, typename TR>
+        // friend constexpr bool operator!=(const Unit<m, s, kg, TL>& l, const Unit<m, s, kg, TR>& r) noexcept;
 
-        template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr auto operator*(const Unit<m, s, kg, TL>& l, const TR r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l.value * r)>;
+        // template<int m, int s, int kg, typename TL, typename TR>
+        // friend constexpr auto operator*(const Unit<m, s, kg, TL>& l, const TR r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l.value * r)>;
 
-        template<typename TL, int m, int s, int kg, typename TR>
-        friend constexpr auto operator*(const TL l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TL>>(), l * r.value)>;
+        // template<typename TL, int m, int s, int kg, typename TR>
+        // friend constexpr auto operator*(const TL l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TL>>(), l * r.value)>;
 
-        template<int m, int s, int kg, typename TL, typename TR>
-        friend constexpr auto operator/(const Unit<m, s, kg, TL>& l, const TR r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l.value / r)>;
+        // template<int m, int s, int kg, typename TL, typename TR>
+        // friend constexpr auto operator/(const Unit<m, s, kg, TL>& l, const TR r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TR>>(), l.value / r)>;
 
-        template<typename TL, int m, int s, int kg, typename TR>
-        friend constexpr auto operator/(const TL l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TL>>(), l / r.value)>;
-
-        template<int m, int s, int kg>
-        friend constexpr Unit<m, s, kg, unsigned long long int> make_unit(const unsigned long long int digits) noexcept;
-
-        template<int m, int s, int kg>
-        friend constexpr Unit<m, s, kg, long double> make_unit(const long double digits) noexcept;
+        // template<typename TL, int m, int s, int kg, typename TR>
+        // friend constexpr auto operator/(const TL l, const Unit<m, s, kg, TR>& r) noexcept -> Unit<m, s, kg, decltype(std::enable_if_t<std::is_arithmetic_v<TL>>(), l / r.value)>;
     };
 
 
@@ -269,8 +287,8 @@ namespace StewMath::Vec2DFunc
 
         static constexpr Vec2D<Unit<0, 0, 0, T>> func(const UnitT x, const UnitT y) noexcept
         {
-            const auto tmp_x = x.get_primitive();
-            const auto tmp_y = y.get_primitive();
+            const auto tmp_x = x.value;
+            const auto tmp_y = y.value;
             const auto norm = std::sqrt(tmp_x * tmp_x + tmp_y * tmp_y);
             return {tmp_x / norm, tmp_y / norm};
         }
@@ -285,20 +303,8 @@ namespace StewMath::Vec2DFunc
 
         static constexpr Unit<0, 0, 0, double> func(const UnitT x, const UnitT y) noexcept
         {
-            return Unit<0, 0, 0, double>(std::atan2(y.get_primitive(), x.get_primitive()));
+            return Unit<0, 0, 0, double>(std::atan2(y.value, x.value));
         }
     };
 
-    template<int m, int s, int kg, typename T>
-    struct abs_<QuantityUnit::Unit<m, s, kg, T>> final
-    {
-        template<int m_, int s_, int kg_, typename T_>
-        using Unit = QuantityUnit::Unit<m_, s_, kg_, T_>;
-        using UnitT = Unit<m, s, kg, T>;
-
-        static constexpr Vec2D<UnitT> func(const UnitT x, const UnitT y) noexcept
-        {
-            return {std::abs(x.get_primitive()), std::abs(y.get_primitive())};
-        }
-    };
 }
