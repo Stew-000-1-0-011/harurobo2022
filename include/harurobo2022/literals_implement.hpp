@@ -76,11 +76,6 @@ namespace QuantityUnit
             return -value;
         }
 
-        constexpr Unit operator~() const noexcept
-        {
-            return std::abs(value);
-        }
-
         template<typename T2>
         constexpr Unit& operator+=(const Unit<m, s, kg, T2> obj) noexcept
         {

@@ -2,7 +2,7 @@
 // 1/25
 // 通信するデータはそんな大きくもないので、プロセスを別にしたほうが良さげ。ということでNodeletはつかわないつもり(何もしらないので今後変えるかも)
 // 1/27
-// basecotroller4wheelをパクることに。
+// basecotroller4wheelを参考にした
 */
 
 #include <ros/ros.h>

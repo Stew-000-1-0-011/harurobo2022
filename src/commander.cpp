@@ -1,7 +1,28 @@
 /*
-// コントローラーの入力ないしオドメトリの情報と自分の状態(今やろうとしていること)から
-// 現在の機体の速度(並進速度、加速度)を計算する
-// このときPathPlannerを使う
-// これをunder_carriage_managerに渡す
+
+In(Node) -> message
+Node(message) -> message
+message -> Out(Node)
+
+In(Joy) -> buttons
+
+ManualCommander(buttons) ->
+        under_carriage_commands,
+        collector_commands -> Out(UsbCan),
+        wheel_lift_commands -> Out(UsbCan),
+        emergency_commands -> Out(UsbCan)
+
+UnderCarriage4Wheel(under_carriage_commands) -> drive_motors_vela -> Out(UsbCan)
+
+In(UsbCan) -> odometory
+
+CalcPos(odmetory) -> position
+
+OrbitManager(pos) ->
+        next_pos,
+        commands
+
+
+
 
 */
