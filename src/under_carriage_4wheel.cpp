@@ -9,9 +9,9 @@
 #include <std_msgs/Float32.h>
 #include <geometry_msgs/Twist.h>
 
-#include "Harurobo2022/vec2d.hpp"
-#include "Harurobo2022/config.hpp"
-#include "Harurobo2022/literals_config.hpp"
+#include "harurobo2022/vec2d.hpp"
+#include "harurobo2022/config.hpp"
+#include "harurobo2022/literals_config.hpp"
 
 using namespace StewMath;
 using namespace QuantityUnit::Literals;
