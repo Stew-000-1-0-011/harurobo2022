@@ -12,30 +12,32 @@
 #include "harurobo2022/vec2d.hpp"
 #include "harurobo2022/config.hpp"
 #include "harurobo2022/literals_config.hpp"
+#include "harurobo2022/topic_message_alias.hpp"
 
 using namespace StewMath;
 using namespace QuantityUnit::Literals;
+using namespace TopicMessageTypeAlias;
 
 class UnderCarriage4Wheel final
 {
-    ros::NodeHandle nh;
-    ros::Timer publish_timer;
+    ros::NodeHandle nh{};
+    ros::Timer publish_timer{nh.createTimer(ros::Duration(1.0 / Config::under_carriage_freq.value), &UnderCarriage4Wheel::publish_timer_callback, this)};
 
-    ros::Publisher wheel_FR_vela_pub;
-    ros::Publisher wheel_FL_vela_pub;
-    ros::Publisher wheel_BL_vela_pub;
-    ros::Publisher wheel_BR_vela_pub;
+    ros::Publisher wheel_FR_vela_pub{nh.advertise<wheel_FR_vela>(TOPIC(wheel_FR_vela), 1)};
+    ros::Publisher wheel_FL_vela_pub{nh.advertise<wheel_FL_vela>(TOPIC(wheel_FL_vela), 1)};
+    ros::Publisher wheel_BL_vela_pub{nh.advertise<wheel_BL_vela>(TOPIC(wheel_BL_vela), 1)};
+    ros::Publisher wheel_BR_vela_pub{nh.advertise<wheel_BR_vela>(TOPIC(wheel_BR_vela), 1)};
 
-    ros::Subscriber body_twist_sub;
+    ros::Subscriber body_twist_sub{nh.subscribe<body_twist>(TOPIC(body_twist), 1, &UnderCarriage4Wheel::body_twist_callback, this)};
 
-    Vec2D<VelL<double>> body_vell;
-    VelA<double> body_vela;
+    Vec2D<VelL<double>> body_vell{};
+    VelA<double> body_vela{};
 
     std_msgs::Float32 wheels_vela_msg[4]{};
     VelA<double> pre_wheels_vela[4]{};
 
 public:
-    inline UnderCarriage4Wheel() noexcept;
+    UnderCarriage4Wheel() = default;
     ~UnderCarriage4Wheel() = default;
 
 private:
@@ -43,18 +45,6 @@ private:
     inline void publish_timer_callback(const ros::TimerEvent& event) noexcept;
     inline void calc_wheels_vela() noexcept;
 };
-
-inline UnderCarriage4Wheel::UnderCarriage4Wheel() noexcept:
-    nh{},
-    publish_timer{nh.createTimer(ros::Duration(1.0 / Config::under_carriage_freq.value), &UnderCarriage4Wheel::publish_timer_callback, this)},
-
-    wheel_FR_vela_pub{nh.advertise<std_msgs::Float32>("wheel_FR_vela", 1)},
-    wheel_FL_vela_pub{nh.advertise<std_msgs::Float32>("wheel_FL_vela", 1)},
-    wheel_BL_vela_pub{nh.advertise<std_msgs::Float32>("wheel_BL_vela", 1)},
-    wheel_BR_vela_pub{nh.advertise<std_msgs::Float32>("wheel_BR_vela", 1)},
-
-    body_twist_sub{nh.subscribe<geometry_msgs::Twist>("body_twist", 1, &UnderCarriage4Wheel::body_twist_callback, this)}
-{}
 
 inline void UnderCarriage4Wheel::body_twist_callback(const geometry_msgs::Twist::ConstPtr& msg_p) noexcept
 {
@@ -149,7 +139,7 @@ int main(int argc, char ** argv)
 {
     ros::init(argc, argv, "under_carriage_4wheel");
 
-    auto under_carriage_4wheel = UnderCarriage4Wheel();
+    UnderCarriage4Wheel under_carriage_4wheel;
 
     ROS_INFO("under_carriage_4wheel node has started.");
 
