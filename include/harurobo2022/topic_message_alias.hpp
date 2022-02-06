@@ -3,6 +3,12 @@
 #include <geometry_msgs/Twist.h>
 #include <harurobo2022/CanFrame.h>
 
+// さすがにどうかと思うので、もしかしたらトピックに固有の型からそのトピックの型とCanSubscriberから見たIDを返すような型を作るかも。
+//
+// ある一つのメッセージ型が複数のトピックで使われるのだから、メッセージはトピックじゃないのはわかる。
+// でも、一つのトピックは一つのメッセージ型しか使えなさそうだ。そんなことはないのか？
+// もし仮にそうなんだとしたら、なぜトピックは型にしないんだろうか。トピックからメッセージ型がコンパイル時に取れるようにしないんだろうか。
+// なぜトピック型によって特殊化できるテンプレートを作ることができないんだろうか...
 #define TOPIC(message_type) #message_type
 
 // #define PUBLISHER(node_handle, message_type, buffer_size) \
