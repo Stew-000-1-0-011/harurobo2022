@@ -12,26 +12,21 @@
 #include "harurobo2022/vec2d.hpp"
 #include "harurobo2022/config.hpp"
 #include "harurobo2022/literals_config.hpp"
-#include "harurobo2022/topic_message_alias.hpp"
+#include "harurobo2022/topics.hpp"
 #include "harurobo2022/can_publish.hpp"
 
 using namespace StewMath;
 using namespace QuantityUnit::Literals;
-using namespace TopicMessageTypeAlias;
+using namespace Topics;
 
 class UnderCarriage4Wheel final
 {
     ros::NodeHandle nh{};
     ros::Timer publish_timer{nh.createTimer(ros::Duration(1.0 / Config::under_carriage_freq.value), &UnderCarriage4Wheel::publish_timer_callback, this)};
 
-    // ros::Publisher wheel_FR_vela_pub{nh.advertise<wheel_FR_vela>(TOPIC(wheel_FR_vela), 1)};
-    // ros::Publisher wheel_FL_vela_pub{nh.advertise<wheel_FL_vela>(TOPIC(wheel_FL_vela), 1)};
-    // ros::Publisher wheel_BL_vela_pub{nh.advertise<wheel_BL_vela>(TOPIC(wheel_BL_vela), 1)};
-    // ros::Publisher wheel_BR_vela_pub{nh.advertise<wheel_BR_vela>(TOPIC(wheel_BR_vela), 1)};
+    ros::Publisher can_tx_pub{nh.advertise<can_tx::Message>(can_tx::topic, 1)};
 
-    ros::Publisher can_tx_pub{nh.advertise<can_tx>(TOPIC(can_tx), 1)};
-
-    ros::Subscriber body_twist_sub{nh.subscribe<body_twist>(TOPIC(body_twist), 1, &UnderCarriage4Wheel::body_twist_callback, this)};
+    ros::Subscriber body_twist_sub{nh.subscribe<body_twist::Message>(body_twist::topic, 1, &UnderCarriage4Wheel::body_twist_callback, this)};
 
     Vec2D<VelL<double>> body_vell{};
     VelA<double> body_vela{};
@@ -44,12 +39,12 @@ public:
     ~UnderCarriage4Wheel() = default;
 
 private:
-    inline void body_twist_callback(const body_twist::ConstPtr& msg_p) noexcept;
+    inline void body_twist_callback(const body_twist::Message::ConstPtr& msg_p) noexcept;
     inline void publish_timer_callback(const ros::TimerEvent& event) noexcept;
     inline void calc_wheels_vela() noexcept;
 };
 
-inline void UnderCarriage4Wheel::body_twist_callback(const body_twist::ConstPtr& msg_p) noexcept
+inline void UnderCarriage4Wheel::body_twist_callback(const body_twist::Message::ConstPtr& msg_p) noexcept
 {
     body_vell = {msg_p->linear.x, msg_p->linear.y};
     body_vela = msg_p->angular.z;
@@ -66,7 +61,7 @@ inline void UnderCarriage4Wheel::publish_timer_callback(const ros::TimerEvent& e
     
     for(int i = 0; i < 4; ++i)
     {
-        CanPublish::can_publish(can_tx_pub, Config::CanId::DriveMotor::all[i], wheels_vela_msg[i]);
+        CanPublish::can_publish(can_tx_pub, Config::CanId::Tx::DriveMotor::all[i], wheels_vela_msg[i]);
     }
 }
 
