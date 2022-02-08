@@ -40,28 +40,36 @@ namespace Config
 
     namespace CanId
     {
-        namespace DriveMotor
+        namespace Tx
         {
-            inline constexpr std::uint16_t FR{/*TODO*/};
-            inline constexpr std::uint16_t FL{/*TODO*/};
-            inline constexpr std::uint16_t BL{/*TODO*/};
-            inline constexpr std::uint16_t BR{/*TODO*/};
+                namespace DriveMotor
+            {
+                inline constexpr std::uint16_t FR{/*TODO*/};
+                inline constexpr std::uint16_t FL{/*TODO*/};
+                inline constexpr std::uint16_t BL{/*TODO*/};
+                inline constexpr std::uint16_t BR{/*TODO*/};
 
-            inline constexpr std::uint16_t all[4]{FR, FL, BL, BR};
+                inline constexpr std::uint16_t all[4]{FR, FL, BL, BR};
+            }
+
+            namespace LiftMotor
+            {
+                inline constexpr std::uint16_t FR{/*TODO*/};
+                inline constexpr std::uint16_t FL{/*TODO*/};
+                inline constexpr std::uint16_t BL{/*TODO*/};
+                inline constexpr std::uint16_t BR{/*TODO*/};
+
+                inline constexpr std::uint16_t subX{/*TODO*/};
+                inline constexpr std::uint16_t subY{/*TODO*/};
+            }
+
+            inline constexpr std::uint16_t collect{/*TODO*/};
+            // まだ数枚ある
         }
 
-        namespace LiftMotor
+        namespace Rx
         {
-            inline constexpr std::uint16_t FR{/*TODO*/};
-            inline constexpr std::uint16_t FL{/*TODO*/};
-            inline constexpr std::uint16_t BL{/*TODO*/};
-            inline constexpr std::uint16_t BR{/*TODO*/};
-
-            inline constexpr std::uint16_t subX{/*TODO*/};
-            inline constexpr std::uint16_t subY{/*TODO*/};
+            inline constexpr std::uint16_t odometry{/*TODO*/};
         }
-
-        inline constexpr std::uint16_t collect{/*TODO*/};
-        // まだ数枚ある
     }
 }

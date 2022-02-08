@@ -52,6 +52,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   can_msgs/CanFrame.msg
+  Odometry.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -140,6 +141,14 @@ add_executable(under_carriage_4wheel
   src/under_carriage_4wheel.cpp
 )
 
+# add_executable(usb_can_node
+#   src/usb_can_node.cpp
+# )
+
+add_executable(can_subscriber
+  src/can_subscriber.cpp
+)
+
 add_executable(hoge
   src/hoge.cpp
 )
@@ -159,6 +168,14 @@ add_executable(hoge
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(under_carriage_4wheel
+  ${catkin_LIBRARIES}
+)
+
+# target_link_libraries(usb_can_node
+#   ${catkin_LIBRARIES}
+# )
+
+target_link_libraries(can_subscriber
   ${catkin_LIBRARIES}
 )
 
