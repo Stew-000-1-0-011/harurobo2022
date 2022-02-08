@@ -5,6 +5,12 @@
 *      Author: yusaku
 */
 
+/*
+春ロボ2022 田巻
+メッセージをうまくビルドできず、CanFrameクラスの名前空間とCanFrame.hのディレクトリがharurobo2022になってしまいました。
+そのためその部分を変更しました。
+*/
+
 #include <ros/ros.h>
 
 #include <string>
@@ -17,7 +23,7 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 
-#include <can_msgs/CanFrame.h>
+#include <harurobo2022/CanFrame.h>
 
 using namespace std;
 using namespace boost::asio;
@@ -55,7 +61,7 @@ private:
     void canRxTask(void);
     void processRxFrame(const uint8_t * const str_buf, const uint16_t str_len);
 
-    void canTxCallback(const can_msgs::CanFrame::ConstPtr &msg);
+    void canTxCallback(const harurobo2022::CanFrame::ConstPtr &msg);
 
     // return true if aborted
     // return false on success
@@ -70,7 +76,7 @@ private:
     void onReceive(const boost::system::error_code& error);
     void receive(void);
 
-    can_msgs::CanFrame can_rx_msg;
+    harurobo2022::CanFrame can_rx_msg;
     ros::Publisher can_rx_pub;
     ros::Subscriber can_tx_sub;
 
@@ -147,8 +153,8 @@ UsbCanNode::UsbCanNode(void)
     this->_service_threads.create_thread(boost::bind((std::size_t (boost::asio::io_service::*)())&boost::asio::io_service::run, _io));
     this->_service_threads.create_thread(boost::bind((std::size_t (boost::asio::io_service::*)())&boost::asio::io_service::run, _io));
 
-    this->can_tx_sub = _nh.subscribe<can_msgs::CanFrame>("/can_tx", 10, &UsbCanNode::canTxCallback, this);
-    this->can_rx_pub = _nh.advertise<can_msgs::CanFrame>("/can_rx", 1);
+    this->can_tx_sub = _nh.subscribe<harurobo2022::CanFrame>("/can_tx", 10, &UsbCanNode::canTxCallback, this);
+    this->can_rx_pub = _nh.advertise<harurobo2022::CanFrame>("/can_rx", 1);
 
     //this->can_rx_thread = new std::thread(&UsbCanNode::canRxTask, this);
 }
@@ -462,7 +468,7 @@ void UsbCanNode::processRxFrame(const uint8_t * const str_buf, const uint16_t st
     //ROS_INFO("frame received");
 }
 
-void UsbCanNode::canTxCallback(const can_msgs::CanFrame::ConstPtr &msg)
+void UsbCanNode::canTxCallback(const harurobo2022::CanFrame::ConstPtr &msg)
 {
     std::lock_guard<std::mutex> _lock(this->_mtx);
 
