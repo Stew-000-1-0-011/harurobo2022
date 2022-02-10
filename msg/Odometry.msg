@@ -1,9 +1,4 @@
 Header header
-float32 acc_x
-float32 acc_y
-float32 acc_z
-float32 rot_x
-float32 rot_y
-float32 rot_z
 float32 pos_x
 float32 pos_y
+float32 rot_z
