@@ -8,10 +8,8 @@
 
 #include <boost/array.hpp>
 
+#include "raw_data/raw_data_all.hpp"
 #include "topics.hpp"
-
-using namespace Topics;
-using namespace harurobo2022;
 
 // // GCCだと認められるらしい(GNU拡張)？
 // // C++標準では未定義動作？(Strict Alias Ruleわからない)
@@ -28,62 +26,55 @@ using namespace harurobo2022;
 // 参考：https://yohhoy.hatenadiary.jp/entry/20120220/p1
 
 
-namespace CanPublish
+namespace Harurobo2022
 {
-
-    template <class T, bool is_not_larger_than_8byte = !(sizeof(T) > 8)>
-    struct Convertor final
+    namespace CanPublish::Implement
     {
-        using Data = boost::array<std::uint8_t, 8>;
-
-        static constexpr std::size_t bytes_size = sizeof(T) / 8 - (sizeof(T) % 8)? 1 : 0;
-        static constexpr std::uint8_t last_size = sizeof(T) % 8;
-
-        Data bytes[bytes_size];
-        Data last_byte;
-
-        Convertor(const T& src) noexcept
+        template <class Message, bool is_not_larger_than_8byte = !(sizeof(RawData<Message>) > 8)>
+        struct Convertor final
         {
-            // int[N]の参照がint(&)[N]であることを思い出す
-            std::uint8_t dest[bytes_size + 1][8];
-            std::memcpy(dest, &src, sizeof(T));
+            using RawData = Harurobo2022::RawData<Message>;
+            using Array = boost::array<std::uint8_t, 8>;
 
-            for(int i = 0; i < bytes_size; ++i) for(int j = 0; j < 8; ++j)
+            static constexpr std::size_t bytes_size = sizeof(T) / 8 - (sizeof(T) % 8)? 1 : 0;
+            static constexpr std::uint8_t last_size = sizeof(T) % 8;
+
+            Array bytes[bytes_size];
+            Array last_byte;
+
+            Convertor(const RawData& src) noexcept
             {
-                bytes[i][j] = dest[i][j];
+                for(size_t i = 0; i < bytes_size; ++i)
+                {
+                    std::memcpy(&bytes[i][0], (char *)&src + , 8);
+                }
             }
-
-            for(int j = 0; j < last_size; ++j)
-            {
-                last_byte[j] = dest[bytes_size][j];
-            }
-        }
-    };
-
-    // こっちのがよくつかわれる
-    template <class T>
-    struct Convertor<T, true> final
-    {
-        using Data = boost::array<std::uint8_t, 8>;
-
-        static constexpr std::size_t bytes_size = 0;
-        static constexpr std::uint8_t last_size = sizeof(T) % 8;
-
-        Data last_byte;
-
-        Convertor(const T& src) noexcept
-        {
-            // int[N]の参照がint(&)[N]であることを思い出す
-            std::uint8_t dest[8];
-            std::memcpy(dest, &src, sizeof(T));
-
-            for(int j = 0; j < last_size; ++j)
-            {
-                last_byte[j] = dest[j];
-            }
-        }
         };
 
+        // こっちのがよくつかわれる
+        template <class T>
+        struct Convertor<T, true> final
+        {
+            using Data = boost::array<std::uint8_t, 8>;
+
+            static constexpr std::size_t bytes_size = 0;
+            static constexpr std::uint8_t last_size = sizeof(T) % 8;
+
+            Data last_byte;
+
+            Convertor(const T& src) noexcept
+            {
+                // int[N]の参照がint(&)[N]であることを思い出す
+                std::uint8_t dest[8];
+                std::memcpy(dest, &src, sizeof(T));
+
+                for(int j = 0; j < last_size; ++j)
+                {
+                    last_byte[j] = dest[j];
+                }
+            }
+        };
+    }
 
     template<class T>
     void can_publish(const ros::Publisher& can_tx_pub, const std::uint16_t id, const T& data) noexcept
@@ -119,4 +110,19 @@ namespace CanPublish
 
         can_tx_pub.publish(can_frame);
     }
+
+    template<class Topic>
+    struct CanPublisher final
+    {
+        const ros::Publisher& can_tx_pub;
+        
+        CanPublisher(ros::Publisher& can_tx_pub) noexcept:
+            can_tx_pub(can_tx_pub)
+        {}
+
+        inline void publish(const Topic::Message& msg) const noexcept
+        {
+            
+        }
+    };
 }

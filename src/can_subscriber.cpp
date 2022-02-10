@@ -97,21 +97,21 @@ public:
     CanSubscriber() = default;
     ~CanSubscriber() = default;
 
-    inline void can_rx_callback(const can_rx::Message::ConstPtr& msg_p) const noexcept;
+    inline void can_rx_callback(const can_rx::Message::ConstPtr& msg_p) noexcept;
 };
 
-inline void CanSubscriber::can_rx_callback(const can_rx::Message::ConstPtr& msg_p) const noexcept
+inline void CanSubscriber::can_rx_callback(const can_rx::Message::ConstPtr& msg_p) noexcept
 {
     const auto id = msg_p->id;
 
-    // switch(id)
-    // {
-    //     case /*TODO*/:
-    //     odometry_unpacker.push(msg_p);
+    switch(id)
+    {
+        case odometry::id:
+        odometry_unpacker.push(msg_p);
 
-    //     default:
-    //     ROS_ERROR("Unknown message arrived from usb_can_node.");
-    // }
+        default:
+        ROS_ERROR("Unknown message arrived from usb_can_node.");
+    }
 }
 
 int main(int argc, char ** argv)
