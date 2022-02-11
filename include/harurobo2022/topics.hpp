@@ -1,10 +1,16 @@
 #pragma once
 #include <cstdint>
+#include <type_traits>
 
 #include <ros/ros.h>
+
 #include <std_msgs/Float32.h>
+#include <std_msgs/Bool.h>
+#include <std_msgs/Empty.h>
 #include <geometry_msgs/Twist.h>
+
 #include <harurobo2022/Odometry.h>
+
 #include <can_plugins/Frame.h>
 
 #include "harurobo2022/lib/cheap_string.hpp"
@@ -29,9 +35,12 @@ namespace Harurobo2022
             static constexpr const char * topic = topic_;
             using Message = Message_;
         };
+    }
 
+    namespace CanTxTopics::Implement
+    {
         template<auto topic_, class Message_, std::uint16_t id_>
-        struct CanTopic final
+        struct CanTxTopic final
         {
             static constexpr const char * topic = topic_;
             using Message = Message_;
@@ -39,18 +48,73 @@ namespace Harurobo2022
         };
     }
 
+    namespace CanRxTopics::Implement
+    {
+        template<auto topic_, class Message_, std::uint16_t id_>
+        struct CanRxTopic final
+        {
+            static constexpr const char * topic = topic_;
+            using Message = Message_;
+            static constexpr uint16_t id = id_;
+        };
+    }
+
+    template<class T>
+    struct is_topic: std::false_type
+    {};
+
+    template<auto topic_, class Message_>
+    struct is_topic<Topics::Implement::Topic<topic_, Message_>>: std::true_type
+    {};
+
+    template<class T>
+    inline constexpr bool is_topic_v = is_topic<T>::value;
+
+    template<class T>
+    struct is_can_tx_topic: std::false_type
+    {};
+
+    template<auto topic_, class Message_, std::uint16_t id_>
+    struct is_can_tx_topic<CanTxTopics::Implement::CanTxTopic<topic_, Message_, id_>>: std::true_type
+    {};
+
+    template<class T>
+    inline constexpr bool is_can_tx_topic_v = is_can_tx_topic<T>::value;
+
+    template<class T>
+    struct is_can_rx_topic: std::false_type
+    {};
+
+    template<auto topic_, class Message_, std::uint16_t id_>
+    struct is_can_rx_topic<CanRxTopics::Implement::CanRxTopic<topic_, Message_, id_>>: std::true_type
+    {};
+
+    template<class T>
+    inline constexpr bool is_can_rx_topic_v = is_can_rx_topic<T>::value;
+
     namespace Topics
     {
-        using wheel_FR_vela = Implement::CanTopic<CheapString::String("wheel_FR_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::FR>;
-        using wheel_FL_vela = Implement::CanTopic<CheapString::String("wheel_FL_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::FL>;
-        using wheel_BL_vela = Implement::CanTopic<CheapString::String("wheel_BL_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::BL>;
-        using wheel_BR_vela = Implement::CanTopic<CheapString::String("wheel_BR_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::BR>;
-
         using body_twist = Implement::Topic<CheapString::String("body_twist"), geometry_msgs::Twist>;
-
-        using odometry = Implement::CanTopic<CheapString::String("odometry"), harurobo2022::Odometry, Config::CanId::Rx::odometry>;
 
         using can_rx = Implement::Topic<CheapString::String("can_rx"), can_plugins::Frame>;
         using can_tx = Implement::Topic<CheapString::String("can_tx"), can_plugins::Frame>;
+
+        using shutdown = Implement::Topic<CheapString::String("shutdown"), std_msgs::Empty>;
+    }
+
+    namespace CanTxTopics
+    {
+        using wheel_FR_vela = Implement::CanTxTopic<CheapString::String("wheel_FR_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::FR>;
+        using wheel_FL_vela = Implement::CanTxTopic<CheapString::String("wheel_FL_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::FL>;
+        using wheel_BL_vela = Implement::CanTxTopic<CheapString::String("wheel_BL_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::BL>;
+        using wheel_BR_vela = Implement::CanTxTopic<CheapString::String("wheel_BR_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::BR>;
+
+        using emergency_stop = Implement::CanTxTopic<CheapString::String("emergency_stop"), std_msgs::Bool, Config::CanId::Tx::Emergency::power>;
+    }
+    
+    namespace CanRxTopics
+    {
+        using odometry = Implement::CanRxTopic<CheapString::String("odometry"), harurobo2022::Odometry, Config::CanId::Rx::odometry>;
+        using stopped = Implement::CanRxTopic<CheapString::String("stopped"), std_msgs::Empty, Config::CanId::Rx::stopped>;
     }
 }

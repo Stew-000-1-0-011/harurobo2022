@@ -6,22 +6,25 @@
 
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/raw_data/raw_data_all.hpp"
+#include "harurobo2022/shutdowner.hpp"
 
 using namespace Harurobo2022;
 
 
-template<class CanTopic>
+template<class CanRxTopic>
 struct CanRxBuffer final
 {
-    using RawData = Harurobo2022::RawData<typename CanTopic::Message>;
+    static_assert(is_can_rx_topic_v<CanRxTopic>);
+
+    using RawData = Harurobo2022::RawData<typename CanRxTopic::Message>;
 
     std::uint8_t buffer[sizeof(RawData)];
     std::uint8_t * p{buffer};  // 一度書いてみたかったやつ
 
     const ros::Publisher data_pub;
 
-    inline CanRxBuffer(ros::NodeHandle nh) noexcept:
-        data_pub(nh.advertise<typename CanTopic::Message>(CanTopic::topic, 1))
+    CanRxBuffer(ros::NodeHandle& nh) noexcept:
+        data_pub(nh.advertise<typename CanRxTopic::Message>(CanRxTopic::topic, 1))
     {}
 
     inline void push(const Topics::can_rx::Message::ConstPtr& msg_p) noexcept
@@ -36,7 +39,7 @@ struct CanRxBuffer final
             p = buffer;
             RawData data;
             std::memcpy(&data, buffer, sizeof(RawData));
-            typename CanTopic::Message msg = data;
+            typename CanRxTopic::Message msg = data;
             data_pub.publish(msg);
         }
     }
@@ -49,8 +52,10 @@ class CanSubscriber final
 
     ros::Subscriber can_rx_sub{nh.subscribe<Topics::can_rx::Message>(Topics::can_rx::topic, 1000, &CanSubscriber::can_rx_callback, this)};
 
-    ros::Publisher odometry_pub{/*TODO*/};
-    CanRxBuffer<Topics::odometry> odometry_unpacker{nh};
+    CanRxBuffer<CanRxTopics::odometry> odometry_unpacker{nh};
+    CanRxBuffer<CanRxTopics::stopped> stopped_unpacker{nh};
+
+    ShutDowner shutdowner{nh};
 
 public:
     CanSubscriber() = default;
@@ -65,8 +70,11 @@ inline void CanSubscriber::can_rx_callback(const Topics::can_rx::Message::ConstP
 
     switch(id)
     {
-        case Topics::odometry::id:
+        case CanRxTopics::odometry::id:
         odometry_unpacker.push(msg_p);
+
+        case CanRxTopics::stopped::id:
+        stopped_unpacker.push(msg_p);
 
         default:
         ROS_ERROR("Unknown message arrived from usb_can_node.");

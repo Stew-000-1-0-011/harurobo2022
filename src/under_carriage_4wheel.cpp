@@ -13,6 +13,7 @@
 #include "harurobo2022/config.hpp"
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/can_publisher.hpp"
+#include "harurobo2022/shutdowner.hpp"
 
 using namespace StewMath;
 using namespace Harurobo2022;
@@ -22,7 +23,9 @@ class UnderCarriage4Wheel final
     ros::NodeHandle nh{};
     ros::Timer publish_timer{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::under_carriage_freq), &UnderCarriage4Wheel::publish_timer_callback, this)};
 
-#define WheelVelaPublisher(topic_name) Harurobo2022::CanPublisher<Topics::topic_name> topic_name##_pub{nh.advertise<Topics::topic_name::Message>(Topics::topic_name::topic, 1)};
+    ros::Publisher can_tx_pub{nh.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, 1)};
+
+#define WheelVelaPublisher(topic_name) Harurobo2022::CanPublisher<CanTxTopics::topic_name> topic_name##_canpub{can_tx_pub};
     WheelVelaPublisher(wheel_FR_vela)
     WheelVelaPublisher(wheel_FL_vela)
     WheelVelaPublisher(wheel_BL_vela)
@@ -30,6 +33,8 @@ class UnderCarriage4Wheel final
 #undef WheelVelaPublisher
 
     ros::Subscriber body_twist_sub{nh.subscribe<Topics::body_twist::Message>(Topics::body_twist::topic, 1, &UnderCarriage4Wheel::body_twist_callback, this)};
+
+    ShutDowner shutdowner{nh};
 
     Vec2D<double> body_vell{};
     double body_vela{};
@@ -57,10 +62,10 @@ inline void UnderCarriage4Wheel::publish_timer_callback(const ros::TimerEvent& e
 {
     calc_wheels_vela();
 
-    wheel_FR_vela_pub.publish(wheels_vela[0]);
-    wheel_FL_vela_pub.publish(wheels_vela[1]);
-    wheel_BL_vela_pub.publish(wheels_vela[2]);
-    wheel_BR_vela_pub.publish(wheels_vela[3]);
+    wheel_FR_vela_canpub.publish(wheels_vela[0]);
+    wheel_FL_vela_canpub.publish(wheels_vela[1]);
+    wheel_BL_vela_canpub.publish(wheels_vela[2]);
+    wheel_BR_vela_canpub.publish(wheels_vela[3]);
 }
 
 inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept

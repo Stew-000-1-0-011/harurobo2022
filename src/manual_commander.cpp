@@ -12,6 +12,7 @@
 ・アクセス指定子を整えた。伴って変数をクラスの始めで定義するようにした(ごめん)。
 ・インデントを整えた(ごめん)。
 ・if(0 < last_joy_.axes.size())を消した。
+・移動以外を書いている。
 */
 
 
@@ -22,29 +23,55 @@
 
 
 #include <ros/ros.h>
+
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Joy.h>
-#include "harurobo2022/config.hpp"
 
+#include "harurobo2022/config.hpp"
 #include "harurobo2022/topics.hpp"
+#include "harurobo2022/can_publisher.hpp"
+#include "harurobo2022/shutdowner.hpp"
+
 
 using namespace Harurobo2022;
 
+namespace Keys
+{
+    enum Axes : std::uint8_t
+    {
+        l_stick_LR = 0,
+        l_stick_UD,
+        r_stick_LR,
+        r_stick_UD
+    };
+
+    namespace Buttons
+    {
+
+    }
+
+}
+
 class ManualCommand
 {
-    ros::NodeHandle nh_;
-    ros::Publisher cmd_pub_;
-    ros::Subscriber joy_sub_;
-    ros::Timer timer_;
-    sensor_msgs::Joy last_joy_;
+    ros::NodeHandle nh_{};
+
+    ros::Publisher can_tx_pub_{nh_.advertise<Topics::can_tx>(Topics::can_tx::topic, 1)};
+    ros::Publisher body_twist_pub_{nh_.advertise<Topics::body_twist>(Topics::body_twist::topic, 1)};
+
+    CanPublisher<CanTxTopics::emergency_stop> emergency_stop_canpub_{can_tx_pub_};
+
+    ros::Subscriber joy_sub_{nh_.subscribe("joy", 1, &ManualCommand::joyCallback, this)};
+
+    ShutDowner shutdowner{nh_};
+    
+    ros::Timer timer_{nh_.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::manual_commander_freq), &ManualCommand::timerCallback, this)};
+
+    sensor_msgs::Joy last_joy_{};
+
 
 public:
-    ManualCommand() noexcept
-    {
-        cmd_pub_ = nh_.advertise<Topics::body_twist>(Topics::body_twist::topic, 1);
-        joy_sub_ = nh_.subscribe("joy", 1, &ManualCommand::joyCallback, this);
-        timer_ = nh_.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::manual_commander_freq), &ManualCommand::timerCallback, this);
-    }
+    ManualCommand() = default;
 
 private:
     void joyCallback(const sensor_msgs::Joy& joy_msg)
@@ -57,11 +84,11 @@ private:
 
         geometry_msgs::Twist cmd_vel;
 
-        cmd_vel.linear.x = Config::Limitation::body_vell / 2 * last_joy_.axes[0];     //[0]はコントローラーの左スティック左右の割り当て
-        cmd_vel.linear.y = Config::Limitation::body_vell / 2 * last_joy_.axes[1];     //[1]はコントローラーの左スティック上下の割り当て
-        cmd_vel.angular.z = Config::Limitation::body_vela * last_joy_.axes[2];     //[2]はコントローラーの右スティック左右の割り当て
+        cmd_vel.linear.x = Config::Limitation::body_vell / 2 * last_joy_.axes[Keys::Axes::l_stick_LR];  //[0]はコントローラーの左スティック左右の割り当て
+        cmd_vel.linear.y = Config::Limitation::body_vell / 2 * last_joy_.axes[Keys::Axes::l_stick_UD];  //[1]はコントローラーの左スティック上下の割り当て
+        cmd_vel.angular.z = Config::Limitation::body_vela * last_joy_.axes[Keys::Axes::r_stick_LR];  //[2]はコントローラーの右スティック左右の割り当て
         
-        cmd_pub_.publish(cmd_vel);
+        body_twist_pub_.publish(cmd_vel);
     }
 };
 

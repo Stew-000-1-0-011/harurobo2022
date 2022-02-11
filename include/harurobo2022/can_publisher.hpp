@@ -109,22 +109,25 @@ namespace Harurobo2022
     //     can_tx_pub.publish(can_frame);
     // }
 
-    template<class CanTopic>
+    template<class CanTxTopic>
     struct CanPublisher final
     {
-        using Topic = CanTopic;
-        using RawData = Harurobo2022::RawData<typename CanTopic::Message>;
-        static constexpr std::int16_t rx_id = CanTopic::id;
+        static_assert(is_can_tx_topic_v<CanTxTopic>);
+
+        using Topic = CanTxTopic;
+        using Message = CanTxTopic::Message;
+        using RawData = Harurobo2022::RawData<typename CanTxTopic::Message>;
+        static constexpr std::int16_t rx_id = CanTxTopic::id;
 
         const ros::Publisher can_tx_pub;
         
-        CanPublisher(const ros::Publisher& can_tx_pub) noexcept:
+        CanPublisher(ros::Publisher& can_tx_pub) noexcept:
             can_tx_pub(can_tx_pub)
         {}
 
         inline void publish(const RawData& data) const noexcept
         {
-            CanPublish::Implement::Convertor<typename CanTopic::Message> convertor{data};
+            CanPublish::Implement::Convertor<Message> convertor{data};
             can_plugins::Frame frame;
             frame.id = rx_id;
 
