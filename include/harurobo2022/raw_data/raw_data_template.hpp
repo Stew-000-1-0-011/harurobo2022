@@ -6,6 +6,7 @@ namespace Harurobo2022
     template<class Message_>
     struct RawData
     {
+        static_assert(ros::message_traits::IsMessage<Message_>::value);
         using Message = Message_;
         Message::_data_type data{};
 
