@@ -146,6 +146,10 @@ add_executable(can_subscriber_node
   src/can_subscriber_node.cpp
 )
 
+add_executable(emergency_controller
+  src/emergency_controller.cpp
+)
+
 add_executable(hoge
   src/hoge.cpp
 )
@@ -169,6 +173,10 @@ target_link_libraries(under_carriage_4wheel
 )
 
 target_link_libraries(can_subscriber_node
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(emergency_controller
   ${catkin_LIBRARIES}
 )
 
