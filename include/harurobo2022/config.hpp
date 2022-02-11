@@ -52,13 +52,14 @@ namespace Harurobo2022
         {
             inline constexpr double under_carriage_freq{/*TODO*/1000};
             inline constexpr double manual_commander_freq{/*TODO*/1000};
+            inline constexpr double not_emergency_signal_freq{/*TODO*/100};
         }
 
         namespace CanId
         {
             namespace Tx
             {
-                    namespace DriveMotor
+                namespace DriveMotor
                 {
                     inline constexpr std::uint16_t FR{/*TODO*/};
                     inline constexpr std::uint16_t FL{/*TODO*/};
@@ -80,12 +81,19 @@ namespace Harurobo2022
                 }
 
                 inline constexpr std::uint16_t collect{/*TODO*/};
+
+                namespace Emergency
+                {
+                    inline constexpr std::uint16_t power{/*TODO*/0x0};
+                }
+
                 // まだ数枚ある
             }
 
             namespace Rx
             {
-                inline constexpr std::uint16_t odometry{/*TODO*/};
+                inline constexpr std::uint16_t odometry{/*TODO*/0x10};
+                inline constexpr std::uint16_t stopped{/*TODO*/0x8};
             }
         }
     }
