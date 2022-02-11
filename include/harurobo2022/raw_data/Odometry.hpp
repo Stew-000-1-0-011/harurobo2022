@@ -20,7 +20,7 @@ namespace Harurobo2022
         RawData& operator=(RawData&&) = default;
         ~RawData() = default;
 
-        constexpr RawData(const float pos_x, const float pos_y, const float rot_z) noexcept
+        constexpr RawData(const float pos_x, const float pos_y, const float rot_z) noexcept:
             pos_x(pos_x),
             pos_y(pos_y),
             rot_z(rot_z)

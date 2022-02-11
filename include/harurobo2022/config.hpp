@@ -2,8 +2,7 @@
 
 #include <cstdint>
 
-#include "vec2d.hpp"
-#include "literals_config.hpp"
+#include "lib/vec2d.hpp"
 
 namespace Harurobo2022
 {
@@ -13,32 +12,47 @@ namespace Harurobo2022
         {
             namespace Pos
             {
-                inline constexpr StewMath::Vec2D<QuantityUnit::Literals::M<double>> FR{/*TODO*/};
-                inline constexpr StewMath::Vec2D<QuantityUnit::Literals::M<double>> FL{-FR.x, FR.y};
-                inline constexpr StewMath::Vec2D<QuantityUnit::Literals::M<double>> BL{-FR};
-                inline constexpr StewMath::Vec2D<QuantityUnit::Literals::M<double>> BR{FR.x, -FR.x};
+                inline constexpr StewMath::Vec2D<double> FR{/*TODO*/};
+                inline constexpr StewMath::Vec2D<double> FL{-FR.x, FR.y};
+                inline constexpr StewMath::Vec2D<double> BL{-FR};
+                inline constexpr StewMath::Vec2D<double> BR{FR.x, -FR.x};
 
-                inline constexpr StewMath::Vec2D<QuantityUnit::Literals::M<double>> all[4]{FR, FL, BL, BR};
+                inline constexpr StewMath::Vec2D<double> all[4]{FR, FL, BL, BR};
             }
 
             namespace Direction
             {
-                inline constexpr StewMath::Vec2D<QuantityUnit::Literals::Dim0<double>> FR{/*TODO*/};
-                inline constexpr StewMath::Vec2D<QuantityUnit::Literals::Dim0<double>> FL{FR.x, -FR.y};
-                inline constexpr StewMath::Vec2D<QuantityUnit::Literals::Dim0<double>> BL{-FR};
-                inline constexpr StewMath::Vec2D<QuantityUnit::Literals::Dim0<double>> BR{-FR.x, FR.y};
+                inline constexpr StewMath::Vec2D<double> FR{/*TODO*/};
+                inline constexpr StewMath::Vec2D<double> FL{FR.x, -FR.y};
+                inline constexpr StewMath::Vec2D<double> BL{-FR};
+                inline constexpr StewMath::Vec2D<double> BR{-FR.x, FR.y};
 
-                inline constexpr StewMath::Vec2D<QuantityUnit::Literals::Dim0<double>> all[4]{FR, FL, BL, BR};
+                inline constexpr StewMath::Vec2D<double> all[4]{FR, FL, BL, BR};
             }
         }
 
-        inline constexpr QuantityUnit::Literals::M<double> body_radius{/*TODO*/};
-        inline constexpr QuantityUnit::Literals::M<double> wheel_radius{/*TODO*/};
+        inline constexpr double body_radius{/*TODO*/};
+        inline constexpr double wheel_radius{/*TODO*/};
 
-        inline constexpr QuantityUnit::Literals::VelA<double> wheel_vela_limit{/*TODO*/10};
-        inline constexpr QuantityUnit::Literals::AccA<double> wheel_acca_limit{/*TODO*/100};
+        namespace Limitation
+        {
+            // 0に設定すると制限がかからなくなる。
+            inline constexpr double wheel_vela{/*TODO*/100};
+            inline constexpr double wheel_acca{/*TODO*/100};
+        
+            inline constexpr double body_vell_ratio{/*TODO*/0.9};
+            inline constexpr double body_vela_ratio{/*TODO*/0.1};
 
-        inline constexpr QuantityUnit::Literals::Hz<double> under_carriage_freq{/*TODO*/20};
+            inline constexpr double body_vell{/*TODO*/wheel_vela * body_vell_ratio};
+            inline constexpr double body_vela{/*TODO*/wheel_vela * body_vela_ratio};
+        }
+
+
+        namespace ExecutionInterval
+        {
+            inline constexpr double under_carriage_freq{/*TODO*/1000};
+            inline constexpr double manual_commander_freq{/*TODO*/1000};
+        }
 
         namespace CanId
         {

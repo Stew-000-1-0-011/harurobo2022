@@ -9,42 +9,45 @@
 #include <std_msgs/Float32.h>
 #include <geometry_msgs/Twist.h>
 
-#include "harurobo2022/vec2d.hpp"
+#include "harurobo2022/lib/vec2d.hpp"
 #include "harurobo2022/config.hpp"
-#include "harurobo2022/literals_config.hpp"
 #include "harurobo2022/topics.hpp"
-#include "harurobo2022/can_publish.hpp"
+#include "harurobo2022/can_publisher.hpp"
 
 using namespace StewMath;
-using namespace QuantityUnit::Literals;
-using namespace Topics;
+using namespace Harurobo2022;
 
 class UnderCarriage4Wheel final
 {
     ros::NodeHandle nh{};
-    ros::Timer publish_timer{nh.createTimer(ros::Duration(1.0 / Config::under_carriage_freq.value), &UnderCarriage4Wheel::publish_timer_callback, this)};
+    ros::Timer publish_timer{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::under_carriage_freq), &UnderCarriage4Wheel::publish_timer_callback, this)};
 
-    ros::Publisher can_tx_pub{nh.advertise<can_tx::Message>(can_tx::topic, 1)};
+#define WheelVelaPublisher(topic_name) Harurobo2022::CanPublisher<Topics::topic_name> topic_name##_pub{nh.advertise<Topics::topic_name::Message>(Topics::topic_name::topic, 1)};
+    WheelVelaPublisher(wheel_FR_vela)
+    WheelVelaPublisher(wheel_FL_vela)
+    WheelVelaPublisher(wheel_BL_vela)
+    WheelVelaPublisher(wheel_BR_vela)
+#undef WheelVelaPublisher
 
-    ros::Subscriber body_twist_sub{nh.subscribe<body_twist::Message>(body_twist::topic, 1, &UnderCarriage4Wheel::body_twist_callback, this)};
+    ros::Subscriber body_twist_sub{nh.subscribe<Topics::body_twist::Message>(Topics::body_twist::topic, 1, &UnderCarriage4Wheel::body_twist_callback, this)};
 
-    Vec2D<VelL<double>> body_vell{};
-    VelA<double> body_vela{};
+    Vec2D<double> body_vell{};
+    double body_vela{};
 
-    std_msgs::Float32 wheels_vela_msg[4]{};
-    VelA<double> pre_wheels_vela[4]{};
+    double wheels_vela[4]{};
+    double pre_wheels_vela[4]{};
 
 public:
     UnderCarriage4Wheel() = default;
     ~UnderCarriage4Wheel() = default;
 
 private:
-    inline void body_twist_callback(const body_twist::Message::ConstPtr& msg_p) noexcept;
+    inline void body_twist_callback(const Topics::body_twist::Message::ConstPtr& msg_p) noexcept;
     inline void publish_timer_callback(const ros::TimerEvent& event) noexcept;
     inline void calc_wheels_vela() noexcept;
 };
 
-inline void UnderCarriage4Wheel::body_twist_callback(const body_twist::Message::ConstPtr& msg_p) noexcept
+inline void UnderCarriage4Wheel::body_twist_callback(const Topics::body_twist::Message::ConstPtr& msg_p) noexcept
 {
     body_vell = {msg_p->linear.x, msg_p->linear.y};
     body_vela = msg_p->angular.z;
@@ -54,15 +57,10 @@ inline void UnderCarriage4Wheel::publish_timer_callback(const ros::TimerEvent& e
 {
     calc_wheels_vela();
 
-    // wheel_FR_vela_pub.publish(wheels_vela_msg[0]);
-    // wheel_FL_vela_pub.publish(wheels_vela_msg[1]);
-    // wheel_BL_vela_pub.publish(wheels_vela_msg[2]);
-    // wheel_BR_vela_pub.publish(wheels_vela_msg[3]);
-    
-    for(int i = 0; i < 4; ++i)
-    {
-        CanPublish::can_publish(can_tx_pub, Config::CanId::Tx::DriveMotor::all[i], wheels_vela_msg[i]);
-    }
+    wheel_FR_vela_pub.publish(wheels_vela[0]);
+    wheel_FL_vela_pub.publish(wheels_vela[1]);
+    wheel_BL_vela_pub.publish(wheels_vela[2]);
+    wheel_BR_vela_pub.publish(wheels_vela[3]);
 }
 
 inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept
@@ -71,20 +69,20 @@ inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept
 
     const auto body_vell = this->body_vell;
     const auto body_vela = this->body_vela;
-    VelA<double> wheels_vela[4];
+    double wheels_vela[4];
 
-    const VelL<double> tmp_vela = body_vela * (Config::body_radius * rot(~Pos::FR,Constant::PI_2) * ~Direction::FR);
+    const double tmp_vela = body_vela * (Config::body_radius * rot(~Pos::FR,Constant::PI_2) * ~Direction::FR);
     for(int i = 0; i < 4; ++i)
     {
         wheels_vela[i] = (~Direction::all[i] * body_vell + tmp_vela) / Config::wheel_radius;
     }
 
-    if constexpr (Config::wheel_acca_limit)
+    if constexpr (Config::Limitation::wheel_acca)
     {
-        AccA<double> diffs_vela[4];
+        double diffs_vela[4];
         for(int i = 0; i < 4; ++i)
         {
-            diffs_vela[i] = (AccA<double>)pre_wheels_vela[i] - (AccA<double>)wheels_vela[i];
+            diffs_vela[i] = pre_wheels_vela[i] - wheels_vela[i];
         }
 
         auto max = diffs_vela[0];
@@ -93,23 +91,23 @@ inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept
             if(max < diffs_vela[i]) max = diffs_vela[i];
         }
         
-        if(max > Config::wheel_acca_limit)
+        if(max > Config::Limitation::wheel_acca)
         {
             ROS_WARN("under_carriage_4wheel: warning: The accelaretion of the wheels is too high. Speed is limited.");
-            auto limit_factor = Config::wheel_acca_limit / max;
+            auto limit_factor = Config::Limitation::wheel_acca / max;
             for(int i = 0; i < 4; ++i)
             {
-                wheels_vela[i] += pre_wheels_vela[i] + (VelA<double>)(limit_factor * diffs_vela[i]);
+                wheels_vela[i] += pre_wheels_vela[i] + (limit_factor * diffs_vela[i]);
             }
         }
 
         for(int i = 0; i < 4; ++i)
         {
-            wheels_vela_msg[i].data = wheels_vela[i].value;
+            this->wheels_vela[i] = wheels_vela[i];
         }
     }
 
-    if constexpr (Config::wheel_vela_limit)
+    if constexpr (Config::Limitation::wheel_vela)
     {
         auto max = wheels_vela[0];
         for(int i = 1; i < 4; ++i)
@@ -117,10 +115,10 @@ inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept
             if(max < wheels_vela[i]) max = wheels_vela[i];
         }
         
-        if(max > Config::wheel_vela_limit)
+        if(max > Config::Limitation::wheel_vela)
         {
             ROS_WARN("under_carriage_4wheel: warning: The speed of the wheels is too high. Speed is limited.");
-            auto limit_factor = Config::wheel_vela_limit / max;
+            auto limit_factor = Config::Limitation::wheel_vela / max;
             for(int i = 0; i < 4; ++i)
             {
                 wheels_vela[i] *= limit_factor;
@@ -128,7 +126,7 @@ inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept
         }
     }
 
-    if constexpr(Config::wheel_acca_limit)
+    if constexpr(Config::Limitation::wheel_acca)
     {
         for(int i = 0; i < 4; ++i)
         {
