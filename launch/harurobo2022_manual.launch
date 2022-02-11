@@ -1,5 +1,6 @@
 <launch>
   <node name="under_carriage_4wheel" pkg="harurobo2022" type="under_carriage_4wheel" />
   <node name="can_subscriber_node" pkg="harurobo2022" type="can_subscriber_node" />
-  <node name="slcan_bridge" pkg="can_plugins" type="slcan_bridge">
+  <node name="slcan_bridge" pkg="can_plugins" type="slcan_bridge" />
+  <node name="joy_node" pkg="joy" type="joy_node" />
 </launch>
