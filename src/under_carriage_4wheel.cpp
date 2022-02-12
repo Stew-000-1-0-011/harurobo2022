@@ -1,8 +1,6 @@
 /*
-// 1/25
-// 通信するデータはそんな大きくもないので、プロセスを別にしたほうが良さげ。ということでNodeletはつかわないつもり(何もしらないので今後変えるかも)
-// 1/27
-// basecotroller4wheelを参考にした
+base_controllerを参考にした。
+機体に固定された座標でのgeometry::Twistを受け取り、各モーターへの速度をslcan_bridgeに向けてpublishしている。
 */
 
 #include <ros/ros.h>
