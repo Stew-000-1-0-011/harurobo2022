@@ -52,6 +52,7 @@ namespace Harurobo2022
         {
             inline constexpr double under_carriage_freq{/*TODO*/1000};
             inline constexpr double manual_commander_freq{/*TODO*/1000};
+            inline constexpr double auto_commander_freq{/*TODO*/1000};
             inline constexpr double not_emergency_signal_freq{/*TODO*/100};
         }
 
