@@ -89,7 +89,11 @@ int main(int argc, char ** argv)
 
     ROS_INFO("can_subscriber node has started.");
 
-    ros::spin();
+    while(ros::ok())
+    {
+        //if()
+    }
+    
 
     ROS_INFO("can_subscriber node has terminated.");
 

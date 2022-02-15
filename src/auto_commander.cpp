@@ -17,7 +17,7 @@ using namespace Harurobo2022;
 class AutoCommander final
 {
     ros::NodeHandle nh{};
-    
+
     ros::Subscriber odometry_sub{nh.subscribe<CanRxTopics::odometry::Message>(CanRxTopics::odometry::topic, 1, &AutoCommander::odometry_callback, this)};
     
     ros::Timer check_position{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::auto_commander_freq), &AutoCommander::check_position_callback)};

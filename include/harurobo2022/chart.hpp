@@ -6,23 +6,20 @@
 #include "../include/harurobo2022/lib/vec2d.hpp"
 #include "../include/harurobo2022/lib/circle.hpp"
 
+#include "work.hpp"
+
 namespace Harurobo2022
 {
     enum Work : std::uint8_t
     {
         transit = 0,
-        
-        change_to_manual,
-        change_to_auto,
-        
+
         collector_up,
         collector_down,
         collector_shovel,
         collector_tablecloth,
 
-        change_to_over_fence,
-        back_to_start
-
+        change_to_over_fence
     };
 
     struct Command final
@@ -35,7 +32,7 @@ namespace Harurobo2022
     {
         inline std::list<Command> chart
         {
-            #include "chart.csv"
+            #include "../../others/chart.csv"
         };
 
         std::list<Command> make_trajectory(std::list<Command> chart) noexcept
