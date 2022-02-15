@@ -67,6 +67,7 @@
   <build_depend>message_generation</build_depend>
   <exec_depend>message_runtime</exec_depend>
 
+  <depend>can_plugins</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
