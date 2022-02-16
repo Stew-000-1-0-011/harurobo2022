@@ -138,6 +138,15 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/harurobo2022_node.cpp)
+
+# add_executable(auto_commander
+#   src/auto_commander.cpp
+# )
+
+add_executable(manual_commander
+  src/manual_commander.cpp
+)
+
 add_executable(under_carriage_4wheel
   src/under_carriage_4wheel.cpp
 )
@@ -148,10 +157,6 @@ add_executable(can_subscriber_node
 
 add_executable(emergency_controller
   src/emergency_controller.cpp
-)
-
-add_executable(hoge
-  src/hoge.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -168,6 +173,15 @@ add_executable(hoge
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+# target_link_libraries(auto_commander
+#   ${catkin_LIBRARIES}
+# )
+
+target_link_libraries(manual_commander
+  ${catkin_LIBRARIES}
+)
+
 target_link_libraries(under_carriage_4wheel
   ${catkin_LIBRARIES}
 )
@@ -177,10 +191,6 @@ target_link_libraries(can_subscriber_node
 )
 
 target_link_libraries(emergency_controller
-  ${catkin_LIBRARIES}
-)
-
-target_link_libraries(hoge
   ${catkin_LIBRARIES}
 )
 

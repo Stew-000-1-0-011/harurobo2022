@@ -10,6 +10,7 @@
 
 using namespace Harurobo2022;
 
+const char *const node_name = "can_subscriber";
 
 template<class CanRxTopic>
 struct CanRxBuffer final
@@ -84,14 +85,14 @@ inline void CanSubscriber::can_rx_callback(const Topics::can_rx::Message::ConstP
 
 int main(int argc, char ** argv)
 {
-    ros::init(argc, argv, "can_subscriber");
+    ros::init(argc, argv, node_name);
 
     CanSubscriber can_subscriber;
 
-    ROS_INFO("can_subscriber node has started.");
+    ROS_INFO("%s node has started.", node_name);
 
     ros::spin();
 
-    ROS_INFO("can_subscriber node has terminated.");
+    ROS_INFO("%s node has terminated.", node_name);
 
 }

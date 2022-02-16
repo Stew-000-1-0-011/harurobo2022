@@ -151,13 +151,13 @@ int main(int argc, char ** argv)
 
     UnderCarriage4Wheel under_carriage_4wheel;
 
-    ROS_INFO("under_carriage_4wheel node has started.");
+    ROS_INFO("%s node has started.", node_name);
 
     while(ros::ok())
     {
         if(under_carriage_4wheel.disable_sub.is_active()) ros::spinOnce();
     }
 
-    ROS_INFO("under_carriage_4wheel node has terminated.");
+    ROS_INFO("%s node has terminated.", node_name);
 
 }

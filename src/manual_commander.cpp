@@ -36,6 +36,8 @@
 
 using namespace Harurobo2022;
 
+const char *const node_name = "manual_commander";
+
 namespace Keys
 {
     enum Axes : std::uint8_t
@@ -53,27 +55,27 @@ namespace Keys
 
 }
 
-class ManualCommand
+class ManualCommander
 {
     ros::NodeHandle nh_{};
 
-    ros::Publisher can_tx_pub_{nh_.advertise<Topics::can_tx>(Topics::can_tx::topic, 1)};
-    ros::Publisher body_twist_pub_{nh_.advertise<Topics::body_twist>(Topics::body_twist::topic, 1)};
+    ros::Publisher can_tx_pub_{nh_.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, 1)};
+    ros::Publisher body_twist_pub_{nh_.advertise<Topics::body_twist::Message>(Topics::body_twist::topic, 1)};
 
     CanPublisher<CanTxTopics::emergency_stop> emergency_stop_canpub_{can_tx_pub_};
 
-    ros::Subscriber joy_sub_{nh_.subscribe("joy", 1, &ManualCommand::joyCallback, this)};
+    ros::Subscriber joy_sub_{nh_.subscribe("joy", 1, &ManualCommander::joyCallback, this)};
 
     ShutDownSubscriber shutdown_sub{nh_};
     StateManager state_manager{nh_};
     
-    ros::Timer timer_{nh_.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::manual_commander_freq), &ManualCommand::timerCallback, this)};
+    ros::Timer timer_{nh_.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::manual_commander_freq), &ManualCommander::timerCallback, this)};
 
     sensor_msgs::Joy last_joy_{};
 
 
 public:
-    ManualCommand() = default;
+    ManualCommander() = default;
 
 private:
     void joyCallback(const sensor_msgs::Joy& joy_msg)
@@ -96,15 +98,15 @@ private:
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "manual_command");
+    ros::init(argc, argv, node_name);
 
-    ManualCommand manual_command;
+    ManualCommander manual_commander;
     
-    ROS_INFO("manual_command node has started.");
+    ROS_INFO("%s node has started.", node_name);
     
     ros::spin();
     
-    ROS_INFO("manual_command node has terminated.");
+    ROS_INFO("%s node has terminated.", node_name);
     
     return 0;
 }

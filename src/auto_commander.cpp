@@ -24,10 +24,9 @@ class AutoCommander final
 
     ros::Subscriber odometry_sub{nh.subscribe<CanRxTopics::odometry::Message>(CanRxTopics::odometry::topic, 1, &AutoCommander::odometry_callback, this)};
     
-    ros::Timer check_position{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::auto_commander_freq), &AutoCommander::check_position_callback)};
+    ros::Timer check_position{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::auto_commander_freq), &AutoCommander::check_position_callback, this)};
 
     ShutDownSubscriber shutdown_sub{nh};
-    DisableSubscriber disable_sub{node_name, nh};
     StateManager state_manager{nh};
 
     // ひとまずは位置と姿勢をP制御で追う。目標位置姿勢と現在位置姿勢の差を定数倍して並進速度角速度にする。
@@ -36,6 +35,8 @@ class AutoCommander final
     Vec2D<float> target_pos{};
     float target_rot_z{};
 
+public:
+    DisableSubscriber disable_sub{node_name, nh};
 
 public:
     AutoCommander() = default;
@@ -54,4 +55,21 @@ inline void AutoCommander::odometry_callback(const CanRxTopics::odometry::Messag
 inline void check_position_callback(const ros::TimerEvent& event) noexcept
 {
 
+}
+
+
+int main(int argc, char ** argv)
+{
+    ros::init(argc, argv, node_name);
+
+    AutoCommander auto_commander;
+
+    ROS_INFO("%s node has started.", node_name);
+
+    while(ros::ok())
+    {
+        if(auto_commander.disable_sub.is_active()) ros::spinOnce();
+    }
+
+    ROS_INFO("%s node has terminated.", node_name);
 }
