@@ -5,6 +5,8 @@
 
 using namespace Harurobo2022;
 
+const char *const node_name = "emergency_controller";
+
 class EmergencyController final
 {
     ros::NodeHandle nh{};
@@ -42,14 +44,14 @@ inline void EmergencyController::stopped_callback(const CanRxTopics::stopped::Me
 
 int main(int argc, char ** argv)
 {
-    ros::init(argc, argv, "emergency_controller");
+    ros::init(argc, argv, node_name);
 
     EmergencyController emergency_controller;
 
-    ROS_INFO("emergency_controller node has started.");
+    ROS_INFO("%s node has started.", node_name);
 
     ros::spin();
 
-    ROS_INFO("emergency_controller node has terminated.");
+    ROS_INFO("%s node has terminated.", node_name);
 
 }
