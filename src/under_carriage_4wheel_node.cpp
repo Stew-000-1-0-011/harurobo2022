@@ -12,17 +12,17 @@ base_controllerを参考にした。
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/can_publisher.hpp"
 #include "harurobo2022/shutdown_subscriber.hpp"
-#include "harurobo2022/disable_subscriber.hpp"
+#include "harurobo2022/activate_subscriber.hpp"
 
 using namespace StewMath;
 using namespace Harurobo2022;
 
 const char *const node_name = "under_carriage_4wheel";
 
-class UnderCarriage4Wheel final
+class UnderCarriage4WheelNode final
 {
     ros::NodeHandle nh{};
-    ros::Timer publish_timer{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::under_carriage_freq), &UnderCarriage4Wheel::publish_timer_callback, this)};
+    ros::Timer publish_timer{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::under_carriage_freq), &UnderCarriage4WheelNode::publish_timer_callback, this)};
 
     ros::Publisher can_tx_pub{nh.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, 1)};
 
@@ -33,7 +33,7 @@ class UnderCarriage4Wheel final
     WheelVelaPublisher(wheel_BR_vela)
 #undef WheelVelaPublisher
 
-    ros::Subscriber body_twist_sub{nh.subscribe<Topics::body_twist::Message>(Topics::body_twist::topic, 1, &UnderCarriage4Wheel::body_twist_callback, this)};
+    ros::Subscriber body_twist_sub{nh.subscribe<Topics::body_twist::Message>(Topics::body_twist::topic, 1, &UnderCarriage4WheelNode::body_twist_callback, this)};
 
     ShutDownSubscriber shutdown_sub{nh};
 
@@ -44,26 +44,29 @@ class UnderCarriage4Wheel final
     double pre_wheels_vela[4]{};
 
 public:
-    DisableSubscriber disable_sub{node_name, nh};
+    ActivateSubscriber activate_sub{node_name, nh};
 
 public:
-    UnderCarriage4Wheel() = default;
-    ~UnderCarriage4Wheel() = default;
+    UnderCarriage4WheelNode() = default;
+    ~UnderCarriage4WheelNode() = default;
 
 private:
     inline void body_twist_callback(const Topics::body_twist::Message::ConstPtr& msg_p) noexcept;
     inline void publish_timer_callback(const ros::TimerEvent& event) noexcept;
+    
     inline void calc_wheels_vela() noexcept;
 };
 
-inline void UnderCarriage4Wheel::body_twist_callback(const Topics::body_twist::Message::ConstPtr& msg_p) noexcept
+inline void UnderCarriage4WheelNode::body_twist_callback(const Topics::body_twist::Message::ConstPtr& msg_p) noexcept
 {
+    if(!activate_sub.is_active()) return;
     body_vell = {msg_p->linear.x, msg_p->linear.y};
     body_vela = msg_p->angular.z;
 }
 
-inline void UnderCarriage4Wheel::publish_timer_callback(const ros::TimerEvent& event) noexcept
+inline void UnderCarriage4WheelNode::publish_timer_callback(const ros::TimerEvent& event) noexcept
 {
+    if(!activate_sub.is_active()) return;
     calc_wheels_vela();
 
     wheel_FR_vela_canpub.publish(wheels_vela[0]);
@@ -72,7 +75,7 @@ inline void UnderCarriage4Wheel::publish_timer_callback(const ros::TimerEvent& e
     wheel_BR_vela_canpub.publish(wheels_vela[3]);
 }
 
-inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept
+inline void UnderCarriage4WheelNode::calc_wheels_vela() noexcept
 {
     using namespace Config::Wheel;
 
@@ -102,7 +105,7 @@ inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept
         
         if(max > Config::Limitation::wheel_acca)
         {
-            ROS_WARN("under_carriage_4wheel: warning: The accelaretion of the wheels is too high. Speed is limited.");
+            ROS_WARN("%s: warning: The accelaretion of the wheels is too high. Speed is limited.", node_name);
             auto limit_factor = Config::Limitation::wheel_acca / max;
             for(int i = 0; i < 4; ++i)
             {
@@ -126,7 +129,7 @@ inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept
         
         if(max > Config::Limitation::wheel_vela)
         {
-            ROS_WARN("under_carriage_4wheel: warning: The speed of the wheels is too high. Speed is limited.");
+            ROS_WARN("%s: warning: The speed of the wheels is too high. Speed is limited.", node_name);
             auto limit_factor = Config::Limitation::wheel_vela / max;
             for(int i = 0; i < 4; ++i)
             {
@@ -149,14 +152,11 @@ int main(int argc, char ** argv)
 {
     ros::init(argc, argv, node_name);
 
-    UnderCarriage4Wheel under_carriage_4wheel;
+    UnderCarriage4WheelNode under_carriage_4wheel_node;
 
     ROS_INFO("%s node has started.", node_name);
 
-    while(ros::ok())
-    {
-        if(under_carriage_4wheel.disable_sub.is_active()) ros::spinOnce();
-    }
+    ros::spin();
 
     ROS_INFO("%s node has terminated.", node_name);
 

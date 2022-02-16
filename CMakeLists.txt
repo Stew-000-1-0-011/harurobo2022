@@ -144,11 +144,11 @@ include_directories(
 # )
 
 add_executable(manual_commander
-  src/manual_commander.cpp
+  src/manual_commander_node.cpp
 )
 
 add_executable(under_carriage_4wheel
-  src/under_carriage_4wheel.cpp
+  src/under_carriage_4wheel_node.cpp
 )
 
 add_executable(can_subscriber_node
@@ -156,7 +156,7 @@ add_executable(can_subscriber_node
 )
 
 add_executable(emergency_controller
-  src/emergency_controller.cpp
+  src/emergency_controller_node.cpp
 )
 
 ## Rename C++ executable without prefix

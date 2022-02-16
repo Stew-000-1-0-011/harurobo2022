@@ -6,22 +6,23 @@
 
 namespace Harurobo2022
 {
+
     class ShutDownSubscriber final
     {
-        const ros::Subscriber shutdown_sub;
+        const ros::Subscriber sub;
 
     public:
         inline ShutDownSubscriber(ros::NodeHandle& nh) noexcept;
 
     private:
-        inline void shutdown_callback(const Topics::shutdown::Message msg) noexcept;
+        inline void callback(const Topics::shutdown_::Message msg) noexcept;
     };
 
     inline ShutDownSubscriber::ShutDownSubscriber(ros::NodeHandle& nh) noexcept:
-        shutdown_sub{nh.subscribe<Topics::shutdown::Message>(Topics::shutdown::topic, 1, &ShutDownSubscriber::shutdown_callback, this)}
+        sub{nh.subscribe<Topics::shutdown_::Message>(Topics::shutdown_::topic, 1, &ShutDownSubscriber::callback, this)}
     {}
 
-    inline void ShutDownSubscriber::shutdown_callback(const Topics::shutdown::Message msg) noexcept
+    inline void ShutDownSubscriber::callback(const Topics::shutdown_::Message msg) noexcept
     {
         ros::shutdown();
     }

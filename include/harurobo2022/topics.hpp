@@ -10,10 +10,11 @@
 #include <std_msgs/Empty.h>
 #include <geometry_msgs/Twist.h>
 
-#include <harurobo2022/Odometry.h>
-
 #include <can_plugins/Frame.h>
 
+#include <harurobo2022/Odometry.h>
+
+#include "harurobo2022/lib/shirasu_util.hpp"
 #include "harurobo2022/lib/cheap_string.hpp"
 #include "harurobo2022/config.hpp"
 
@@ -100,21 +101,22 @@ namespace Harurobo2022
 
     namespace Topics
     {
-        using state = Implement::Topic<CheapString::String("state"), std_msgs::UInt8>;
         using body_twist = Implement::Topic<CheapString::String("body_twist"), geometry_msgs::Twist>;
 
         using can_rx = Implement::Topic<CheapString::String("can_rx"), can_plugins::Frame>;
         using can_tx = Implement::Topic<CheapString::String("can_tx"), can_plugins::Frame>;
 
-        using shutdown = Implement::Topic<CheapString::String("shutdown"), std_msgs::Empty>;
+        using state_ = Implement::Topic<CheapString::String("state"), std_msgs::UInt8>;
+
+        using shutdown_ = Implement::Topic<CheapString::String("shutdown"), std_msgs::Empty>;
     }
 
     namespace CanTxTopics
     {
-        using wheel_FR_vela = Implement::CanTxTopic<CheapString::String("wheel_FR_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::FR>;
-        using wheel_FL_vela = Implement::CanTxTopic<CheapString::String("wheel_FL_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::FL>;
-        using wheel_BL_vela = Implement::CanTxTopic<CheapString::String("wheel_BL_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::BL>;
-        using wheel_BR_vela = Implement::CanTxTopic<CheapString::String("wheel_BR_vela"), std_msgs::Float32, Config::CanId::Tx::DriveMotor::BR>;
+        using wheel_FR_vela = Implement::CanTxTopic<CheapString::String("wheel_FR_vela"), std_msgs::Float32, ShirasuUtil::target_id(Config::CanId::Tx::DriveMotor::FR)>;
+        using wheel_FL_vela = Implement::CanTxTopic<CheapString::String("wheel_FL_vela"), std_msgs::Float32, ShirasuUtil::target_id(Config::CanId::Tx::DriveMotor::FL)>;
+        using wheel_BL_vela = Implement::CanTxTopic<CheapString::String("wheel_BL_vela"), std_msgs::Float32, ShirasuUtil::target_id(Config::CanId::Tx::DriveMotor::BL)>;
+        using wheel_BR_vela = Implement::CanTxTopic<CheapString::String("wheel_BR_vela"), std_msgs::Float32, ShirasuUtil::target_id(Config::CanId::Tx::DriveMotor::BR)>;
 
         using emergency_stop = Implement::CanTxTopic<CheapString::String("emergency_stop"), std_msgs::Bool, Config::CanId::Tx::Emergency::power>;
     }
