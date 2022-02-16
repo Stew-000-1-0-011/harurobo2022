@@ -30,7 +30,8 @@
 #include "harurobo2022/config.hpp"
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/can_publisher.hpp"
-#include "harurobo2022/shutdowner.hpp"
+#include "harurobo2022/shutdown_subscriber.hpp"
+#include "harurobo2022/state_manager.hpp"
 
 
 using namespace Harurobo2022;
@@ -63,7 +64,8 @@ class ManualCommand
 
     ros::Subscriber joy_sub_{nh_.subscribe("joy", 1, &ManualCommand::joyCallback, this)};
 
-    ShutDowner shutdowner{nh_};
+    ShutDownSubscriber shutdown_sub{nh_};
+    StateManager state_manager{nh_};
     
     ros::Timer timer_{nh_.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::manual_commander_freq), &ManualCommand::timerCallback, this)};
 
