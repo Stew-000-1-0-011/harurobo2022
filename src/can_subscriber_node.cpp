@@ -6,7 +6,7 @@
 
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/raw_data/raw_data_all.hpp"
-#include "harurobo2022/shutdowner.hpp"
+#include "harurobo2022/shutdown_subscriber.hpp"
 
 using namespace Harurobo2022;
 
@@ -55,7 +55,8 @@ class CanSubscriber final
     CanRxBuffer<CanRxTopics::odometry> odometry_unpacker{nh};
     CanRxBuffer<CanRxTopics::stopped> stopped_unpacker{nh};
 
-    ShutDowner shutdowner{nh};
+    ShutDownSubscriber shutdown_sub{nh};
+    
 
 public:
     CanSubscriber() = default;
@@ -89,11 +90,7 @@ int main(int argc, char ** argv)
 
     ROS_INFO("can_subscriber node has started.");
 
-    while(ros::ok())
-    {
-        //if()
-    }
-    
+    ros::spin();
 
     ROS_INFO("can_subscriber node has terminated.");
 

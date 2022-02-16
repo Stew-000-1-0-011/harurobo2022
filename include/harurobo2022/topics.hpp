@@ -4,6 +4,7 @@
 
 #include <ros/ros.h>
 
+#include <std_msgs/UInt8.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Empty.h>
@@ -99,6 +100,7 @@ namespace Harurobo2022
 
     namespace Topics
     {
+        using state = Implement::Topic<CheapString::String("state"), std_msgs::UInt8>;
         using body_twist = Implement::Topic<CheapString::String("body_twist"), geometry_msgs::Twist>;
 
         using can_rx = Implement::Topic<CheapString::String("can_rx"), can_plugins::Frame>;

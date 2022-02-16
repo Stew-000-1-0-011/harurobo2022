@@ -8,11 +8,15 @@
 #include "harurobo2022/lib/circle.hpp"
 
 #include "harurobo2022/topics.hpp"
-#include "harurobo2022/shutdowner.hpp"
+#include "harurobo2022/shutdown_subscriber.hpp"
+#include "harurobo2022/disable_subscriber.hpp"
+#include "harurobo2022/state_manager.hpp"
 
 
 using namespace StewMath;
 using namespace Harurobo2022;
+
+const char *const node_name = "auto_commander";
 
 class AutoCommander final
 {
@@ -22,7 +26,9 @@ class AutoCommander final
     
     ros::Timer check_position{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::auto_commander_freq), &AutoCommander::check_position_callback)};
 
-    ShutDowner ShutDowner{nh};
+    ShutDownSubscriber shutdown_sub{nh};
+    DisableSubscriber disable_sub{node_name, nh};
+    StateManager state_manager{nh};
 
     // ひとまずは位置と姿勢をP制御で追う。目標位置姿勢と現在位置姿勢の差を定数倍して並進速度角速度にする。
     Vec2D<float> now_pos{};

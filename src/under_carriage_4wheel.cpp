@@ -11,10 +11,13 @@ base_controllerを参考にした。
 #include "harurobo2022/config.hpp"
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/can_publisher.hpp"
-#include "harurobo2022/shutdowner.hpp"
+#include "harurobo2022/shutdown_subscriber.hpp"
+#include "harurobo2022/disable_subscriber.hpp"
 
 using namespace StewMath;
 using namespace Harurobo2022;
+
+const char *const node_name = "under_carriage_4wheel";
 
 class UnderCarriage4Wheel final
 {
@@ -32,13 +35,16 @@ class UnderCarriage4Wheel final
 
     ros::Subscriber body_twist_sub{nh.subscribe<Topics::body_twist::Message>(Topics::body_twist::topic, 1, &UnderCarriage4Wheel::body_twist_callback, this)};
 
-    ShutDowner shutdowner{nh};
+    ShutDownSubscriber shutdown_sub{nh};
 
     Vec2D<double> body_vell{};
     double body_vela{};
 
     double wheels_vela[4]{};
     double pre_wheels_vela[4]{};
+
+public:
+    DisableSubscriber disable_sub{node_name, nh};
 
 public:
     UnderCarriage4Wheel() = default;
@@ -141,13 +147,16 @@ inline void UnderCarriage4Wheel::calc_wheels_vela() noexcept
 
 int main(int argc, char ** argv)
 {
-    ros::init(argc, argv, "under_carriage_4wheel");
+    ros::init(argc, argv, node_name);
 
     UnderCarriage4Wheel under_carriage_4wheel;
 
     ROS_INFO("under_carriage_4wheel node has started.");
 
-    ros::spin();
+    while(ros::ok())
+    {
+        if(under_carriage_4wheel.disable_sub.is_active()) ros::spinOnce();
+    }
 
     ROS_INFO("under_carriage_4wheel node has terminated.");
 
