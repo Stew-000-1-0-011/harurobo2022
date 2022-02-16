@@ -4,14 +4,17 @@
 
 #include <ros/ros.h>
 
-#include "topics.hpp"
+#include <std_msgs/UInt8.h>
+
+#include "harurobo2022/topics.hpp"
 
 
 namespace Harurobo2022
 {
     enum class State: std::uint8_t
     {
-        reset = 0,
+        shutdown,
+        reset,
         automatic,
         manual,
         over_fence
@@ -19,8 +22,8 @@ namespace Harurobo2022
 
     class StateManager final
     {
-        ros::Publisher state_pub;
-        ros::Subscriber state_sub;
+        ros::Publisher pub;
+        ros::Subscriber sub;
         State state;
 
     public:
@@ -30,13 +33,13 @@ namespace Harurobo2022
         inline void set_state(const State state) noexcept;
 
     private:
-        inline void state_callback(const Topics::state::Message::ConstPtr& msg_p) noexcept;
+        inline void callback(const Topics::state_::Message::ConstPtr& msg_p) noexcept;
 
     };
 
     inline StateManager::StateManager(ros::NodeHandle& nh) noexcept:
-        state_pub{nh.advertise<Topics::state::Message>(Topics::state::topic, 1)},
-        state_sub{nh.subscribe<Topics::state::Message>(Topics::state::topic, 1, &StateManager::state_callback, this)}
+        pub{nh.advertise<Topics::state_::Message>(Topics::state_::topic, 1)},
+        sub{nh.subscribe<Topics::state_::Message>(Topics::state_::topic, 1, &StateManager::callback, this)}
     {}
 
     inline State StateManager::get_state() noexcept
@@ -47,12 +50,12 @@ namespace Harurobo2022
     inline void StateManager::set_state(const State state) noexcept
     {
         this->state = state;
-        Topics::state::Message msg;
+        Topics::state_::Message msg;
         msg.data = static_cast<std::uint8_t>(state);
-        state_pub.publish(msg);
+        pub.publish(msg);
     }
 
-    inline void StateManager::state_callback(const Topics::state::Message::ConstPtr& msg_p) noexcept
+    inline void StateManager::callback(const Topics::state_::Message::ConstPtr& msg_p) noexcept
     {
         this->state = static_cast<State>(msg_p->data);
     }

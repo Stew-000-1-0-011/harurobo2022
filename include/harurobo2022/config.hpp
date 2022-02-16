@@ -79,9 +79,12 @@ namespace Harurobo2022
 
                     inline constexpr std::uint16_t subX{/*TODO*/};
                     inline constexpr std::uint16_t subY{/*TODO*/};
+
+                    inline constexpr std::uint16_t collect{/*TODO*/};
                 }
 
-                inline constexpr std::uint16_t collect{/*TODO*/};
+                inline constexpr std::uint16_t homing_ids[] = {LiftMotor::FR, LiftMotor::FL, LiftMotor::BL, LiftMotor::BR, LiftMotor::subX, LiftMotor::subY, LiftMotor::collect};
+                inline constexpr std::size_t homing_ids_size = sizeof(homing_ids) / sizeof(homing_ids[0]);
 
                 namespace Emergency
                 {

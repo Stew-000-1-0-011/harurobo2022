@@ -117,7 +117,7 @@ namespace Harurobo2022
         using Topic = CanTxTopic;
         using Message = CanTxTopic::Message;
         using RawData = Harurobo2022::RawData<typename CanTxTopic::Message>;
-        static constexpr std::int16_t rx_id = CanTxTopic::id;
+        static constexpr std::int16_t tx_id = CanTxTopic::id;
 
         const ros::Publisher can_tx_pub;
         
@@ -129,7 +129,7 @@ namespace Harurobo2022
         {
             CanPublish::Implement::Convertor<Message> convertor{data};
             can_plugins::Frame frame;
-            frame.id = rx_id;
+            frame.id = tx_id;
 
             if constexpr (convertor.bytes_size)
             {
@@ -146,4 +146,27 @@ namespace Harurobo2022
             can_tx_pub.publish(frame);
         }
     };
+
+    template<class Message>
+    void can_publish(const ros::Publisher& can_tx_pub, const std::uint16_t tx_id, const Harurobo2022::RawData<Message>& data) noexcept
+    {
+
+        CanPublish::Implement::Convertor<Message> convertor{data};
+        can_plugins::Frame frame;
+        frame.id = tx_id;
+
+        if constexpr (convertor.bytes_size)
+        {
+            frame.dlc = 8;
+            for(std::size_t i = 0; i < convertor.bytes_size; ++i)
+            {
+                frame.data = convertor.bytes[i];
+                can_tx_pub.publish(frame);
+            }
+        }
+
+        frame.dlc = convertor.last_size;
+        frame.data = convertor.last_byte;
+        can_tx_pub.publish(frame);
+    }
 }

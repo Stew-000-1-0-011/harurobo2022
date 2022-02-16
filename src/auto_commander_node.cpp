@@ -9,8 +9,8 @@
 
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/shutdown_subscriber.hpp"
-#include "harurobo2022/disable_subscriber.hpp"
-#include "harurobo2022/state_manager.hpp"
+#include "harurobo2022/activate_subscriber.hpp"
+#include "harurobo2022/state.hpp"
 
 
 using namespace StewMath;
@@ -18,13 +18,13 @@ using namespace Harurobo2022;
 
 const char *const node_name = "auto_commander";
 
-class AutoCommander final
+class AutoCommanderNode final
 {
     ros::NodeHandle nh{};
 
-    ros::Subscriber odometry_sub{nh.subscribe<CanRxTopics::odometry::Message>(CanRxTopics::odometry::topic, 1, &AutoCommander::odometry_callback, this)};
+    ros::Subscriber odometry_sub{nh.subscribe<CanRxTopics::odometry::Message>(CanRxTopics::odometry::topic, 1, &AutoCommanderNode::odometry_callback, this)};
     
-    ros::Timer check_position{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::auto_commander_freq), &AutoCommander::check_position_callback, this)};
+    ros::Timer check_position{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::auto_commander_freq), &AutoCommanderNode::check_position_callback, this)};
 
     ShutDownSubscriber shutdown_sub{nh};
     StateManager state_manager{nh};
@@ -36,25 +36,26 @@ class AutoCommander final
     float target_rot_z{};
 
 public:
-    DisableSubscriber disable_sub{node_name, nh};
+    ActivateSubscriber activate_sub{node_name, nh};
 
 public:
-    AutoCommander() = default;
+    AutoCommanderNode() = default;
 
 private:
     inline void odometry_callback(const CanRxTopics::odometry::Message::ConstPtr& msg_p) noexcept;
     inline void check_position_callback(const ros::TimerEvent& event) noexcept;
 };
 
-inline void AutoCommander::odometry_callback(const CanRxTopics::odometry::Message::ConstPtr& msg_p) noexcept
+inline void AutoCommanderNode::odometry_callback(const CanRxTopics::odometry::Message::ConstPtr& msg_p) noexcept
 {
+    if(!activate_sub.is_active()) return;
     now_pos = {msg_p->pos_x, msg_p->pos_y};
     now_rot_z = msg_p->rot_z;
 }
 
-inline void check_position_callback(const ros::TimerEvent& event) noexcept
+inline void AutoCommanderNode::check_position_callback(const ros::TimerEvent& event) noexcept
 {
-
+    if(!activate_sub.is_active()) return;
 }
 
 
@@ -62,14 +63,11 @@ int main(int argc, char ** argv)
 {
     ros::init(argc, argv, node_name);
 
-    AutoCommander auto_commander;
+    AutoCommanderNode auto_commander_node;
 
     ROS_INFO("%s node has started.", node_name);
 
-    while(ros::ok())
-    {
-        if(auto_commander.disable_sub.is_active()) ros::spinOnce();
-    }
+    ros::spin();
 
     ROS_INFO("%s node has terminated.", node_name);
 }

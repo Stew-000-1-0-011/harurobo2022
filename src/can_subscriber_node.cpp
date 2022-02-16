@@ -46,12 +46,12 @@ struct CanRxBuffer final
     }
 };
 
-class CanSubscriber final
+class CanSubscriberNode final
 {
 
     ros::NodeHandle nh{};
 
-    ros::Subscriber can_rx_sub{nh.subscribe<Topics::can_rx::Message>(Topics::can_rx::topic, 1000, &CanSubscriber::can_rx_callback, this)};
+    ros::Subscriber can_rx_sub{nh.subscribe<Topics::can_rx::Message>(Topics::can_rx::topic, 1000, &CanSubscriberNode::can_rx_callback, this)};
 
     CanRxBuffer<CanRxTopics::odometry> odometry_unpacker{nh};
     CanRxBuffer<CanRxTopics::stopped> stopped_unpacker{nh};
@@ -60,13 +60,13 @@ class CanSubscriber final
     
 
 public:
-    CanSubscriber() = default;
-    ~CanSubscriber() = default;
+    CanSubscriberNode() = default;
+    ~CanSubscriberNode() = default;
 
     inline void can_rx_callback(const Topics::can_rx::Message::ConstPtr& msg_p) noexcept;
 };
 
-inline void CanSubscriber::can_rx_callback(const Topics::can_rx::Message::ConstPtr& msg_p) noexcept
+inline void CanSubscriberNode::can_rx_callback(const Topics::can_rx::Message::ConstPtr& msg_p) noexcept
 {
     const auto id = msg_p->id;
 
@@ -87,7 +87,7 @@ int main(int argc, char ** argv)
 {
     ros::init(argc, argv, node_name);
 
-    CanSubscriber can_subscriber;
+    CanSubscriberNode can_subscriber_node;
 
     ROS_INFO("%s node has started.", node_name);
 
