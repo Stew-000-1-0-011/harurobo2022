@@ -3,5 +3,5 @@
 
 ・NUCでビルドする場合
 # Stew
-set(CMAKE_C_COMPILE "/usr/bin/gcc-9")
-set(CMAKE_CXX_COMPILE "/usr/bin/g++-9")
+set(CMAKE_C_COMPILER "/usr/bin/gcc-9")
+set(CMAKE_CXX_COMPILER "/usr/bin/g++-9")
