@@ -1,2 +1,7 @@
 
 ・座標系は機体前方をy軸、ｙ軸正を向き水平に右手側をx軸、その時の上方向をz軸とした。
+
+・NUCでビルドする場合
+# Stew
+set(CMAKE_C_COMPILE "/usr/bin/gcc-9")
+set(CMAKE_CXX_COMPILE "/usr/bin/g++-9")
