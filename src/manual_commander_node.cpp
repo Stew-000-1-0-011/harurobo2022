@@ -40,19 +40,31 @@ const char *const node_name = "manual_commander";
 
 namespace Keys
 {
-    enum Axes : std::uint8_t
+    namespace Axes
     {
-        l_stick_LR = 0,
-        l_stick_UD,
-        r_stick_LR,
-        r_stick_UD
-    };
+        enum Axes : std::uint8_t
+        {
+            l_stick_LR = 0,
+            l_stick_UD,
+            r_stick_LR,
+            r_stick_UD,
+
+            N
+        };
+    }
 
     namespace Buttons
     {
+        enum Buttons : std::uint8_t
+        {
+            select = 0,
+            l3,
+            r3,
+            start,
 
+            N
+        };
     }
-
 }
 
 class ManualCommanderNode
@@ -71,7 +83,7 @@ class ManualCommanderNode
     
     ros::Timer timer_{nh_.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::manual_commander_freq), &ManualCommanderNode::timerCallback, this)};
 
-    sensor_msgs::Joy last_joy_{};
+    sensor_msgs::Joy last_joy_{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Keys::Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Keys::Buttons::N, 0); return msg;}()};
 
 
 public:
@@ -97,7 +109,7 @@ private:
             break;
 
         case State::reset:
-            /* TODO: 各位置制御モーターをposition_modeに。state */
+            case_reset();
             break;
 
         default:
@@ -105,6 +117,12 @@ private:
         }
 
         /* TODO: 緊急停止などいつでも操作せねばならない部分 */
+        if(last_joy_.buttons[Keys::Buttons::select])
+        {
+            CanTxTopics::emergency_stop::Message msg;
+            msg.data = true;
+            emergency_stop_canpub_.publish(msg);
+        }
     }
 
     void case_manual() noexcept
@@ -118,6 +136,15 @@ private:
         body_twist_pub_.publish(cmd_vel);
 
         /* TODO: ちりとりや足上げの制御 */
+    }
+
+    void case_reset() noexcept
+    {
+        if(last_joy_.buttons[Keys::Buttons::start])
+        {
+            state_manager.set_state(State::manual);
+            // state_manager.set_state(State::automatic);
+        }
     }
 };
 
