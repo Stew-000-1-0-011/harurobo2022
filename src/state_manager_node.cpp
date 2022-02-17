@@ -1,7 +1,7 @@
 
 #include <ros/ros.h>
 
-#include "harurobo2022/shirasu_util.hpp"
+#include "harurobo2022/lib/shirasu_util.hpp"
 
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/state.hpp"
@@ -77,7 +77,7 @@ inline void StateManagerNode::case_manual() noexcept
 
     for(std::size_t i = 0; i < Config::CanId::Tx::homing_ids_size; ++i)
     {
-        can_publish(can_tx_pub, Config::CanId::Tx::homing_ids[i], ShirasuUtil::position_mode);
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::homing_ids[i], ShirasuUtil::position_mode);
     }
 }
 
@@ -88,7 +88,7 @@ inline void StateManagerNode::case_reset() noexcept
 
     for(std::size_t i = 0; i < Config::CanId::Tx::homing_ids_size; ++i)
     {
-        can_publish(can_tx_pub, Config::CanId::Tx::homing_ids[i], ShirasuUtil::homing_mode);
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::homing_ids[i], ShirasuUtil::homing_mode);
     }
 }
 
@@ -99,6 +99,8 @@ inline void StateManagerNode::case_automatic() noexcept
 
 int main(int argc, char ** argv)
 {
+    ros::init(argc, argv, node_name);
+
     StateManagerNode state_manager_node;
 
     ROS_INFO("%s node has started.", node_name);
