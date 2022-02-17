@@ -26,10 +26,12 @@ class StateManagerNode final
     ActivatePublisher under_carriage_4wheel_activatepub{"under_carriage_4wheel", nh};
     ActivatePublisher auto_commander_activatepub{"auto_commander", nh};
 
-    State state;
+    State state{State::reset};
 
 public:
     StateManagerNode() = default;
+
+    inline void startup() noexcept;
 
 private:
     inline void state_callback(const Topics::state_::Message::ConstPtr& msg_p) noexcept;
@@ -42,6 +44,7 @@ private:
 
 inline void StateManagerNode::state_callback(const Topics::state_::Message::ConstPtr& msg_p) noexcept
 {
+    ROS_INFO("state is subscribed.");
     switch(static_cast<State>(msg_p->data))
     {
     case State::shutdown:
@@ -67,11 +70,16 @@ inline void StateManagerNode::state_callback(const Topics::state_::Message::Cons
 
 inline void StateManagerNode::case_shutdown() noexcept
 {
+    ROS_INFO("State changed to ShutDown.");
+
     shutdown_pub.publish(Topics::shutdown_::Message());
+    ros::shutdown();
 }
 
 inline void StateManagerNode::case_manual() noexcept
 {
+    ROS_INFO("State changed to Manual.");
+
     under_carriage_4wheel_activatepub.activate();
     auto_commander_activatepub.deactivate();
 
@@ -83,6 +91,8 @@ inline void StateManagerNode::case_manual() noexcept
 
 inline void StateManagerNode::case_reset() noexcept
 {
+    ROS_INFO("State changed to Reset.");
+
     under_carriage_4wheel_activatepub.deactivate();
     auto_commander_activatepub.deactivate();
 
@@ -94,7 +104,14 @@ inline void StateManagerNode::case_reset() noexcept
 
 inline void StateManagerNode::case_automatic() noexcept
 {
+    ROS_INFO("State changed to Automatic.");
+
     /* TODO */
+}
+
+inline void StateManagerNode::startup() noexcept
+{
+    case_reset();
 }
 
 int main(int argc, char ** argv)
@@ -105,7 +122,8 @@ int main(int argc, char ** argv)
 
     ROS_INFO("%s node has started.", node_name);
 
+    state_manager_node.startup();
     ros::spin();
-    
+
     ROS_INFO("%s node has terminated.", node_name);
 }
