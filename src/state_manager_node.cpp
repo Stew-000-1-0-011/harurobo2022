@@ -75,9 +75,9 @@ inline void StateManagerNode::case_manual() noexcept
     under_carriage_4wheel_activatepub.activate();
     auto_commander_activatepub.deactivate();
 
-    for(std::size_t i = 0; i < Config::CanId::Tx::homing_ids_size; ++i)
+    for(std::size_t i = 0; i < Config::CanId::Tx::position_controll_ids_size; ++i)
     {
-        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::homing_ids[i], ShirasuUtil::position_mode);
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::position_mode);
     }
 }
 
@@ -86,9 +86,9 @@ inline void StateManagerNode::case_reset() noexcept
     under_carriage_4wheel_activatepub.deactivate();
     auto_commander_activatepub.deactivate();
 
-    for(std::size_t i = 0; i < Config::CanId::Tx::homing_ids_size; ++i)
+    for(std::size_t i = 0; i < Config::CanId::Tx::position_controll_ids_size; ++i)
     {
-        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::homing_ids[i], ShirasuUtil::homing_mode);
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::homing_mode);
     }
 }
 
