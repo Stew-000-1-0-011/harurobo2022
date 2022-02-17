@@ -13,8 +13,8 @@ namespace Harurobo2022
 {
     enum class State: std::uint8_t
     {
-        shutdown,
         reset,
+        shutdown,
         automatic,
         manual,
         over_fence
@@ -24,7 +24,7 @@ namespace Harurobo2022
     {
         ros::Publisher pub;
         ros::Subscriber sub;
-        State state;
+        State state{State::reset};
 
     public:
         inline StateManager(ros::NodeHandle& nh) noexcept;
