@@ -9,10 +9,10 @@ namespace ShirasuUtil
         disable_mode = 0,
         default_mode,
         homing_mode,
-        reserved,
-        current,
-        velocity,
-        position
+        reserved_mode,
+        current_mode,
+        velocity_mode,
+        position_mode
     };
 
     inline constexpr std::uint16_t target_id(const std::uint16_t base_id) noexcept

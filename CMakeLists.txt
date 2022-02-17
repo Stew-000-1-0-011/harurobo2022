@@ -151,12 +151,16 @@ add_executable(under_carriage_4wheel
   src/under_carriage_4wheel_node.cpp
 )
 
-add_executable(can_subscriber_node
+add_executable(can_subscriber
   src/can_subscriber_node.cpp
 )
 
 add_executable(emergency_controller
   src/emergency_controller_node.cpp
+)
+
+add_executable(state_manager
+  src/state_manager_node.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -186,11 +190,15 @@ target_link_libraries(under_carriage_4wheel
   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(can_subscriber_node
+target_link_libraries(can_subscriber
   ${catkin_LIBRARIES}
 )
 
 target_link_libraries(emergency_controller
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(state_manager
   ${catkin_LIBRARIES}
 )
 

@@ -4,8 +4,9 @@
   <node name="emergency_controller" pkg="harurobo2022" type="emergency_controller" output="screen" />
   <node name="manual_commander" pkg="harurobo2022" type="manual_commander" output="screen" />
   <node name="state_manager" pkg="harurobo2022" type="state_manager" output="screen" />
-  <!-- <node name="slcan_bridge" pkg="can_plugins" type="slcan_bridge" output="screen" /> -->
   <node name="joy_node" pkg="joy" type="joy_node" output="screen" />
+
+  <!-- <node name="slcan_bridge" pkg="can_plugins" type="slcan_bridge" output="screen" /> -->
 
   <!-- can_plaginsからコピペ -->
   <arg name="manager_name" default="nodelet_manager" />
