@@ -62,7 +62,7 @@ namespace Harurobo2022
             {
                 namespace DriveMotor
                 {
-                    inline constexpr std::uint16_t FR{/*TODO*/};
+                    inline constexpr std::uint16_t FR{/*TODO*/458};
                     inline constexpr std::uint16_t FL{/*TODO*/};
                     inline constexpr std::uint16_t BL{/*TODO*/};
                     inline constexpr std::uint16_t BR{/*TODO*/};
