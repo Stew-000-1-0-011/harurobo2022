@@ -116,7 +116,7 @@ private:
             break;
         
         case State::automatic:
-            /* TODO: 手動操作への切り替え */
+            case_automatic();
             break;
 
         case State::reset:
