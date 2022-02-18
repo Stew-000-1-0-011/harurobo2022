@@ -7,6 +7,7 @@ harurobo2022のCMakeLists.txtに
 # Stew
 set(CMAKE_C_COMPILER "/usr/bin/gcc-9")
 set(CMAKE_CXX_COMPILER "/usr/bin/g++-9")
+また、コンパイラオプションの-pedantic-errorsを削除する(ROSのファイルからエラーが出てくるので。)
 
 can_pluginsのCMakeLists.txtに
 add_dependencies(${PROJECT_NAME} ${TARGET_NAME} ${catkin_EXPORTED_TARGETS})
