@@ -90,8 +90,12 @@ struct JoyInput final
 
     bool is_pushed_once(const Buttons::Buttons button) noexcept
     {
-        once_pushed[button] = true;
-        return old_joy.buttons[button] && !latest_joy.buttons[button];
+        if(old_joy.buttons[button] && !latest_joy.buttons[button] && !once_pushed[button])
+        {
+            once_pushed[button] = true;
+            return true;
+        }
+        return false;
     }
 
     void update(const sensor_msgs::Joy& joy) noexcept
