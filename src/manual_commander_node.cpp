@@ -11,7 +11,7 @@
 ・波括弧は改行後に入れるよう変更した(ごめん)。
 ・アクセス指定子を整えた。伴って変数をクラスの始めで定義するようにした(ごめん)。
 ・インデントを整えた(ごめん)。
-・if(0 < last_joy_.axes.size())を消した。
+・if(0 < latest_joy.axes.size())を消した。
 ・移動以外を書いている。
 */
 
@@ -39,47 +39,70 @@ using namespace Harurobo2022;
 const char *const node_name = "manual_commander";
 
 // XInputにのみ対応
-namespace Keys
+namespace Axes
 {
-    namespace Axes
+    enum Axes : std::uint8_t
     {
-        enum Axes : std::uint8_t
-        {
-            l_stick_LR = 0,
-            l_stick_UD,
-            l_trigger,
-            r_stick_LR,
-            r_stick_UD,
-            r_trigger,
-            cross_LR,
-            cross_UD,
+        l_stick_LR = 0,
+        l_stick_UD,
+        l_trigger,
+        r_stick_LR,
+        r_stick_UD,
+        r_trigger,
+        cross_LR,
+        cross_UD,
 
-            N
-        };
-    }
-
-    namespace Buttons
-    {
-        enum Buttons : std::uint8_t
-        {
-            a = 0,
-            b,
-            x,
-            y,
-            lb,
-            rb,
-            back,  // 緊急停止
-            start,
-            l_push,
-            r_push,
-
-            N
-        };
-    }
+        N
+    };
 }
+
+namespace Buttons
+{
+    enum Buttons : std::uint8_t
+    {
+        a = 0,
+        b,
+        x,
+        y,
+        lb,
+        rb,
+        back,  // 緊急停止
+        start,
+        l_push,
+        r_push,
+
+        N
+    };
+}
+
+struct JoyInput final
+{
+    sensor_msgs::Joy latest_joy{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Buttons::N, 0); return msg;}()};
+    sensor_msgs::Joy old_joy{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Buttons::N, 0); return msg;}()};
+
+    JoyInput() = default;
+
+    bool is_being_pushed(const Buttons::Buttons button) noexcept
+    {
+        return latest_joy.buttons[button];
+    }
+
+    bool is_pushed_once(const Buttons::Buttons button) noexcept
+    {
+        return old_joy.buttons[button] && !latest_joy.buttons[button];
+    }
+
+    void update(const sensor_msgs::Joy& joy) noexcept
+    {
+        old_joy = latest_joy;
+        latest_joy = joy;
+    }
+};
 
 class ManualCommanderNode
 {
+    friend JoyInput;
+
     ros::NodeHandle nh_{};
 
     ros::Publisher can_tx_pub_{nh_.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, 1)};
@@ -91,10 +114,10 @@ class ManualCommanderNode
 
     ShutDownSubscriber shutdown_sub{nh_};
     StateManager state_manager{nh_};
-    
+
     ros::Timer timer_{nh_.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::manual_commander_freq), &ManualCommanderNode::timerCallback, this)};
 
-    sensor_msgs::Joy last_joy_{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Keys::Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Keys::Buttons::N, 0); return msg;}()};
+    JoyInput joy_input{};
 
 
 public:
@@ -103,7 +126,7 @@ public:
 private:
     void joyCallback(const sensor_msgs::Joy& joy_msg)
     {
-        last_joy_ = joy_msg;
+        joy_input.update(joy_msg);
     }
 
     void timerCallback(const ros::TimerEvent& e)
@@ -127,8 +150,9 @@ private:
             break;
         }
 
-        if(last_joy_.buttons[Keys::Buttons::back])
+        if(joy_input.is_being_pushed(Buttons::back))
         {
+            ROS_ERROR("!!!!!! Robot has emergency stopped. !!!!!!");
             CanTxTopics::emergency_stop::Message msg;
             msg.data = true;
             emergency_stop_canpub_.publish(msg);
@@ -139,9 +163,9 @@ private:
     {
         geometry_msgs::Twist cmd_vel;
 
-        cmd_vel.linear.x = Config::Limitation::body_vell / 2 * last_joy_.axes[Keys::Axes::l_stick_LR];  //[0]はコントローラーの左スティック左右の割り当て
-        cmd_vel.linear.y = Config::Limitation::body_vell / 2 * last_joy_.axes[Keys::Axes::l_stick_UD];  //[1]はコントローラーの左スティック上下の割り当て
-        cmd_vel.angular.z = Config::Limitation::body_vela * last_joy_.axes[Keys::Axes::r_stick_LR];  //[2]はコントローラーの右スティック左右の割り当て
+        cmd_vel.linear.x = Config::Limitation::body_vell / 2 * joy_input.latest_joy.axes[Axes::l_stick_LR];  //[0]はコントローラーの左スティック左右の割り当て
+        cmd_vel.linear.y = Config::Limitation::body_vell / 2 * joy_input.latest_joy.axes[Axes::l_stick_UD];  //[1]はコントローラーの左スティック上下の割り当て
+        cmd_vel.angular.z = Config::Limitation::body_vela * joy_input.latest_joy.axes[Axes::r_stick_LR];  //[2]はコントローラーの右スティック左右の割り当て
 
         body_twist_pub_.publish(cmd_vel);
 
@@ -150,7 +174,7 @@ private:
 
     void case_reset() noexcept
     {
-        if(last_joy_.buttons[Keys::Buttons::start])
+        if(joy_input.is_pushed_once(Buttons::start))
         {
             // state_manager.set_state(State::manual);
             state_manager.set_state(State::automatic);
@@ -159,7 +183,7 @@ private:
 
     void case_automatic() noexcept
     {
-        if(last_joy_.buttons[Keys::Buttons::start])
+        if(joy_input.is_pushed_once(Buttons::start))
         {
             state_manager.set_state(State::manual);
         }
