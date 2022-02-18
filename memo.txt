@@ -18,3 +18,6 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 これしなくても、Groovy以降なら(多分NUCに入っているKineticでも)target_link_librariesで依存関係を加えてくれるらしい。
 
 上記変更を加えると、catkin_makeが通る。catkin buildはharurobo2022が通らない(can_pluginsは通る)。cmakeを読み込み続けてしまう。
+
+・rostopic pub で/joyをパブリッシュする方法(WSLでも無理やり操作できる)
+rostopic pub -1 /joy sensor_msgs/Joy "{header: auto, axes: [0,0,0,0,0,0,0,0], buttons: [0,0,0,0,0,0,0,0,0,0]}" 
