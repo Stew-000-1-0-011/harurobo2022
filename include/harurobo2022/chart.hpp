@@ -6,7 +6,6 @@
 #include "../include/harurobo2022/lib/vec2d.hpp"
 #include "../include/harurobo2022/lib/circle.hpp"
 
-#include "work.hpp"
 
 namespace Harurobo2022
 {
@@ -41,9 +40,28 @@ namespace Harurobo2022
             return chart;
         }
 
-        std::list<Command>
+        std::list<std::list<Command>> make_steps(const std::list<Command>& chart) noexcept
+        {
+            std::list<std::list<Command>> steps;
+            steps.emplace_back();
+            auto part_steps = steps.end();
+            --part_steps;
+
+            for(const auto& command: chart)
+            {
+                if(command.work == transit)
+                {
+                    steps.emplace_back();
+                    ++part_steps;
+                }
+
+                part_steps->emplace_back(command);
+            }
+
+            return steps;
+        }
     }
 
     inline const std::list<Command> trajectory = Chart::Implement::make_trajectory(Chart::Implement::chart);
-    inline const std::list<std::list<Command>> steps = 
+    inline const std::list<std::list<Command>> steps = Chart::Implement::make_steps(Chart::Implement::chart);
 }

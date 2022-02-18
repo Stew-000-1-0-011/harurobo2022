@@ -38,6 +38,7 @@ using namespace Harurobo2022;
 
 const char *const node_name = "manual_commander";
 
+// XInputにのみ対応
 namespace Keys
 {
     namespace Axes
@@ -46,8 +47,12 @@ namespace Keys
         {
             l_stick_LR = 0,
             l_stick_UD,
+            l_trigger,
             r_stick_LR,
             r_stick_UD,
+            r_trigger,
+            cross_LR,
+            cross_UD,
 
             N
         };
@@ -57,10 +62,16 @@ namespace Keys
     {
         enum Buttons : std::uint8_t
         {
-            select = 0,
-            l3,
-            r3,
+            a = 0,
+            b,
+            x,
+            y,
+            lb,
+            rb,
+            back,  // 緊急停止
             start,
+            l_push,
+            r_push,
 
             N
         };
@@ -116,8 +127,7 @@ private:
             break;
         }
 
-        /* TODO: 緊急停止などいつでも操作せねばならない部分 */
-        if(last_joy_.buttons[Keys::Buttons::select])
+        if(last_joy_.buttons[Keys::Buttons::back])
         {
             CanTxTopics::emergency_stop::Message msg;
             msg.data = true;
@@ -142,8 +152,16 @@ private:
     {
         if(last_joy_.buttons[Keys::Buttons::start])
         {
+            // state_manager.set_state(State::manual);
+            state_manager.set_state(State::automatic);
+        }
+    }
+
+    void case_automatic() noexcept
+    {
+        if(last_joy_.buttons[Keys::Buttons::start])
+        {
             state_manager.set_state(State::manual);
-            // state_manager.set_state(State::automatic);
         }
     }
 };
