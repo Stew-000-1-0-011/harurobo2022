@@ -79,16 +79,18 @@ struct JoyInput final
 {
     sensor_msgs::Joy latest_joy{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Buttons::N, 0); return msg;}()};
     sensor_msgs::Joy old_joy{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Buttons::N, 0); return msg;}()};
+    bool once_pushed[Buttons::N]{};
 
     JoyInput() = default;
 
-    bool is_being_pushed(const Buttons::Buttons button) noexcept
+    bool is_being_pushed(const Buttons::Buttons button) const noexcept
     {
         return latest_joy.buttons[button];
     }
 
     bool is_pushed_once(const Buttons::Buttons button) noexcept
     {
+        once_pushed[button] = true;
         return old_joy.buttons[button] && !latest_joy.buttons[button];
     }
 
@@ -96,6 +98,10 @@ struct JoyInput final
     {
         old_joy = latest_joy;
         latest_joy = joy;
+        for(int i = 0; i < Buttons::N; ++i)
+        {
+            once_pushed[i] = false;
+        }
     }
 };
 
