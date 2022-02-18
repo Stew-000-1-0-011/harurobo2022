@@ -69,11 +69,6 @@ inline void UnderCarriage4WheelNode::publish_timer_callback(const ros::TimerEven
     if(!activate_sub.is_active()) return;
     calc_wheels_vela();
 
-    for(int i = 0; i < 4; ++i)
-    {
-        ROS_INFO("%lf", wheels_vela[i]);
-    }
-
     wheel_FR_vela_canpub.publish(wheels_vela[0]);
     wheel_FL_vela_canpub.publish(wheels_vela[1]);
     wheel_BL_vela_canpub.publish(wheels_vela[2]);

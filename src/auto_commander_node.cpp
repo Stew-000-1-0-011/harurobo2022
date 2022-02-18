@@ -11,6 +11,7 @@
 #include "harurobo2022/shutdown_subscriber.hpp"
 #include "harurobo2022/activate_subscriber.hpp"
 #include "harurobo2022/state.hpp"
+#include "harurobo2022/chart.hpp"
 
 
 using namespace StewMath;
