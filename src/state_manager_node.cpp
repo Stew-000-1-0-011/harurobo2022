@@ -32,6 +32,9 @@ public:
     StateManagerNode() = default;
 
     inline void startup() noexcept;
+    inline void motors_activate() noexcept;
+    inline void motors_deactivate() noexcept;
+    inline void motors_reset() noexcept;
 
 private:
     inline void state_callback(const Topics::state_::Message::ConstPtr& msg_p) noexcept;
@@ -83,10 +86,7 @@ inline void StateManagerNode::case_manual() noexcept
     under_carriage_4wheel_activatepub.activate();
     auto_commander_activatepub.deactivate();
 
-    for(std::size_t i = 0; i < Config::CanId::Tx::position_controll_ids_size; ++i)
-    {
-        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::position_mode);
-    }
+    motors_activate();
 }
 
 inline void StateManagerNode::case_reset() noexcept
@@ -96,17 +96,56 @@ inline void StateManagerNode::case_reset() noexcept
     under_carriage_4wheel_activatepub.deactivate();
     auto_commander_activatepub.deactivate();
 
-    for(std::size_t i = 0; i < Config::CanId::Tx::position_controll_ids_size; ++i)
-    {
-        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::homing_mode);
-    }
+    motors_reset();
 }
 
 inline void StateManagerNode::case_automatic() noexcept
 {
     ROS_INFO("State changed to Automatic.");
 
-    /* TODO */
+    under_carriage_4wheel_activatepub.activate();
+    auto_commander_activatepub.activate();
+
+    motors_activate();
+}
+
+inline void StateManagerNode::motors_activate() noexcept
+{
+    for(std::size_t i = 0; i < Config::CanId::Tx::position_controll_ids_size; ++i)
+    {
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::position_mode);
+    }
+
+    for(int i = 0; i < 4; ++i)
+    {
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::velocity_mode);
+    }
+}
+
+inline void StateManagerNode::motors_deactivate() noexcept
+{
+    for(std::size_t i = 0; i < Config::CanId::Tx::position_controll_ids_size; ++i)
+    {
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::disable_mode);
+    }
+
+    for(int i = 0; i < 4; ++i)
+    {
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::disable_mode);
+    }
+}
+
+inline void StateManagerNode::motors_reset() noexcept
+{
+    for(std::size_t i = 0; i < Config::CanId::Tx::position_controll_ids_size; ++i)
+    {
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::homing_mode);
+    }
+
+    for(int i = 0; i < 4; ++i)
+    {
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::disable_mode);
+    }
 }
 
 inline void StateManagerNode::startup() noexcept
