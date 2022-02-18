@@ -2,6 +2,18 @@
 ・座標系は機体前方をy軸、ｙ軸正を向き水平に右手側をx軸、その時の上方向をz軸とした。
 
 ・NUCでビルドする場合
+
+harurobo2022のCMakeLists.txtに
 # Stew
 set(CMAKE_C_COMPILER "/usr/bin/gcc-9")
 set(CMAKE_CXX_COMPILER "/usr/bin/g++-9")
+
+can_pluginsのCMakeLists.txtに
+add_dependencies(${PROJECT_NAME} ${TARGET_NAME} ${catkin_EXPORTED_TARGETS})
+の行を
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+に変更。
+(TARGET_NAMEがNUCでも田巻のPCでも空になったので、多分違うのではないかと変更)
+これしなくても、Groovy以降なら(多分NUCに入っているKineticでも)target_link_librariesで依存関係を加えてくれるらしい。
+
+上記変更を加えると、catkin_makeが通る。catkin buildはharurobo2022が通らない(can_pluginsは通る)。cmakeを読み込み続けてしまう。
