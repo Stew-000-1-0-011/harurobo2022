@@ -9,7 +9,7 @@
 
 namespace Harurobo2022
 {
-    enum Work : std::uint8_t
+    enum class Work : std::uint8_t
     {
         transit = 0,
 
@@ -24,7 +24,7 @@ namespace Harurobo2022
     struct Command final
     {
         StewMath::Circle<float> pass_near_circle{};
-        Work work{transit};
+        Work work{Work::transit};
     };
 
     namespace Chart::Implement
@@ -36,7 +36,7 @@ namespace Harurobo2022
 
         std::list<Command> make_trajectory(std::list<Command> chart) noexcept
         {
-            chart.remove_if([](const Command& command){return command.work != transit;});
+            chart.remove_if([](const Command& command){return command.work != Work::transit;});
             return chart;
         }
 
@@ -49,7 +49,7 @@ namespace Harurobo2022
 
             for(const auto& command: chart)
             {
-                if(command.work == transit)
+                if(command.work == Work::transit)
                 {
                     steps.emplace_back();
                     ++part_steps;
@@ -63,5 +63,5 @@ namespace Harurobo2022
     }
 
     inline const std::list<Command> trajectory = Chart::Implement::make_trajectory(Chart::Implement::chart);
-    inline const std::list<std::list<Command>> steps = Chart::Implement::make_steps(Chart::Implement::chart);
+    inline std::list<std::list<Command>> steps = Chart::Implement::make_steps(Chart::Implement::chart);
 }

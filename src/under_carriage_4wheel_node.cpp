@@ -24,7 +24,7 @@ class UnderCarriage4WheelNode final
     ros::NodeHandle nh{};
     ros::Timer publish_timer{nh.createTimer(ros::Duration(1.0 / Config::ExecutionInterval::under_carriage_freq), &UnderCarriage4WheelNode::publish_timer_callback, this)};
 
-    ros::Publisher can_tx_pub{nh.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, 1)};
+    ros::Publisher can_tx_pub{nh.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, 20)};
 
 #define WheelVelaPublisher(topic_name) Harurobo2022::CanPublisher<CanTxTopics::topic_name> topic_name##_canpub{can_tx_pub};
     WheelVelaPublisher(wheel_FR_vela)
@@ -83,10 +83,10 @@ inline void UnderCarriage4WheelNode::calc_wheels_vela() noexcept
     const auto body_vela = this->body_vela;
     double wheels_vela[4];
 
-    const double tmp_vela = body_vela * (Config::body_radius * rot(~Pos::FR,Constant::PI_2) * ~Direction::FR);
+    const double tmp_vell = body_vela * (Config::body_radius * rot(~Pos::FR,Constant::PI_2) * ~Direction::FR);
     for(int i = 0; i < 4; ++i)
     {
-        wheels_vela[i] = (~Direction::all[i] * body_vell + tmp_vela) / Config::wheel_radius;
+        wheels_vela[i] = (~Direction::all[i] * body_vell + tmp_vell) / Config::wheel_radius;
     }
 
     if constexpr (Config::Limitation::wheel_acca)

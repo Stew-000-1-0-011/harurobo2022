@@ -13,7 +13,7 @@ class EmergencyControllerNode final
 {
     ros::NodeHandle nh{};
 
-    ros::Publisher can_tx_pub{nh.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, 10)};
+    ros::Publisher can_tx_pub{nh.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, 1)};
     ros::Publisher shutdown_pub{nh.advertise<Topics::shutdown_::Message>(Topics::shutdown_::topic, 1)};
 
     CanPublisher<CanTxTopics::emergency_stop> emergency_stop_canpub{can_tx_pub};
