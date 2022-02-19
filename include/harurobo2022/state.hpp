@@ -13,6 +13,7 @@ namespace Harurobo2022
 {
     enum class State: std::uint8_t
     {
+        desable,
         reset,
         shutdown,
         automatic,
@@ -24,7 +25,7 @@ namespace Harurobo2022
     {
         ros::Publisher pub;
         ros::Subscriber sub;
-        State state{State::reset};
+        State state{State::desable};
 
     public:
         inline StateManager(ros::NodeHandle& nh) noexcept;

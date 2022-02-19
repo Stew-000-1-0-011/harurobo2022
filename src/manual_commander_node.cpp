@@ -143,6 +143,9 @@ private:
     {
         switch(state_manager.get_state())
         {
+        case State::desable:
+            case_desable();
+            break;
 
         case State::manual:
             case_manual();
@@ -166,6 +169,14 @@ private:
             CanTxTopics::emergency_stop::Message msg;
             msg.data = true;
             emergency_stop_canpub_.publish(msg);
+        }
+    }
+
+    void case_desable() noexcept
+    {
+        if(joy_input.is_pushed_once(Buttons::start))
+        {
+            state_manager.set_state(State::reset);
         }
     }
 

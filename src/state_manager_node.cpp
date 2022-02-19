@@ -26,7 +26,7 @@ class StateManagerNode final
     ActivatePublisher under_carriage_4wheel_activatepub{"under_carriage_4wheel", nh};
     ActivatePublisher auto_commander_activatepub{"auto_commander", nh};
 
-    State state{State::reset};
+    State state{State::desable};
 
 public:
     StateManagerNode() = default;
@@ -43,6 +43,7 @@ private:
     inline void case_manual() noexcept;
     inline void case_reset() noexcept;
     inline void case_automatic() noexcept;
+    inline void case_desable() noexcept;
 };
 
 inline void StateManagerNode::state_callback(const Topics::state_::Message::ConstPtr& msg_p) noexcept
@@ -50,6 +51,10 @@ inline void StateManagerNode::state_callback(const Topics::state_::Message::Cons
     ROS_INFO("state is subscribed.");
     switch(static_cast<State>(msg_p->data))
     {
+    case State::desable:
+        case_desable();
+        break;
+
     case State::shutdown:
         case_shutdown();
         break;
@@ -109,6 +114,15 @@ inline void StateManagerNode::case_automatic() noexcept
     motors_activate();
 }
 
+inline void StateManagerNode::case_desable() noexcept
+{
+    ROS_INFO("State changed to Desable.");
+    under_carriage_4wheel_activatepub.deactivate();
+    auto_commander_activatepub.deactivate();
+
+    motors_deactivate();
+}
+
 inline void StateManagerNode::motors_activate() noexcept
 {
     for(std::size_t i = 0; i < Config::CanId::Tx::position_controll_ids_size; ++i)
@@ -161,7 +175,6 @@ int main(int argc, char ** argv)
 
     ROS_INFO("%s node has started.", node_name);
 
-    state_manager_node.startup();
     ros::spin();
 
     ROS_INFO("%s node has terminated.", node_name);
