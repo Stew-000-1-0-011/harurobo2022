@@ -37,11 +37,11 @@ namespace Harurobo2022
         namespace Limitation
         {
             // 0に設定すると制限がかからなくなる。
-            inline constexpr double wheel_vela{/*TODO*/10};
+            inline constexpr double wheel_vela{/*TODO*/0.7};
             inline constexpr double wheel_acca{/*TODO*/10};
         
-            inline constexpr double body_vell_ratio{/*TODO*/0.9};
-            inline constexpr double body_vela_ratio{/*TODO*/0.1};
+            inline constexpr double body_vell_ratio{/*TODO*/0.5};
+            inline constexpr double body_vela_ratio{/*TODO*/0.5};
 
             /*TODO: 計算式の修正(片方が最大でもこれだとダメ。body_radiusとwheel_radiusの比を考えなきゃ。)*/
             inline constexpr double body_vell{/*TODO*/wheel_vela * body_vell_ratio * wheel_radius};
