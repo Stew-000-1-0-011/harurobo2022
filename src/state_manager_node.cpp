@@ -118,7 +118,7 @@ inline void StateManagerNode::motors_activate() noexcept
 
     for(int i = 0; i < 4; ++i)
     {
-        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::velocity_mode);
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::DriveMotor::all[i], ShirasuUtil::velocity_mode);
     }
 }
 
@@ -131,7 +131,7 @@ inline void StateManagerNode::motors_deactivate() noexcept
 
     for(int i = 0; i < 4; ++i)
     {
-        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::disable_mode);
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::DriveMotor::all[i], ShirasuUtil::disable_mode);
     }
 }
 
@@ -144,7 +144,7 @@ inline void StateManagerNode::motors_reset() noexcept
 
     for(int i = 0; i < 4; ++i)
     {
-        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::position_controll_ids[i], ShirasuUtil::disable_mode);
+        can_publish<std_msgs::UInt8>(can_tx_pub, Config::CanId::Tx::DriveMotor::all[i], ShirasuUtil::disable_mode);
     }
 }
 
