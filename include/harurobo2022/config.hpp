@@ -44,8 +44,8 @@ namespace Harurobo2022
             inline constexpr double body_vela_ratio{/*TODO*/0.1};
 
             /*TODO: 計算式の修正(片方が最大でもこれだとダメ。body_radiusとwheel_radiusの比を考えなきゃ。)*/
-            inline constexpr double body_vell{/*TODO*/wheel_vela * body_vell_ratio};
-            inline constexpr double body_vela{/*TODO*/wheel_vela * body_vela_ratio};
+            inline constexpr double body_vell{/*TODO*/wheel_vela * body_vell_ratio * wheel_radius};
+            inline constexpr double body_vela{/*TODO*/wheel_vela * body_vela_ratio * wheel_radius / body_radius};
         }
 
 
