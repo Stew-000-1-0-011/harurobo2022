@@ -26,39 +26,67 @@
 // 参考：https://yohhoy.hatenadiary.jp/entry/20120220/p1
 
 
+// 0xABCDEF01は、AB,CD,EF,01の順に格納されてた！(ビッグエンディアン)
+
 namespace Harurobo2022
 {
     namespace CanPublish::Implement
     {
-        // 一応memcpyできるはず
+        // エンディアンが違うときにこれじゃダメだ。メモリレイアウトによっては8バイトずつでリバースというわけにもいかない。
+
+        // // 一応memcpyできるはず
+        // template <class Message, bool is_not_larger_than_8byte = !(sizeof(RawData<Message>) > 8)>
+        // struct Convertor final
+        // {
+        //     using RawData = Harurobo2022::RawData<Message>;
+        //     using Array = boost::array<std::uint8_t, 8>;
+
+        //     static constexpr std::size_t bytes_size = sizeof(RawData) / 8 - (sizeof(RawData) % 8)? 1 : 0;
+        //     static constexpr std::uint8_t last_size = sizeof(RawData) % 8;
+
+        //     Array bytes[bytes_size];
+        //     Array last_byte;
+
+        //     Convertor(const RawData& src) noexcept
+        //     {
+        //         for(size_t i = 0; i < bytes_size; ++i)
+        //         {
+        //             // memcpyしていいかどうかってどうやって判断したらいいんだろうか。
+        //             std::memcpy(&bytes[i][0], (const char *)&src + 8 * i, 8);
+        //         }
+
+        //         std::memcpy(&last_byte[0], (const char *)&src + 8 * bytes_size, last_size);
+        //     }
+        // };
+
+        // // こっちのがよくつかわれる
+        // template <class Message>
+        // struct Convertor<Message, true> final
+        // {
+        //     using RawData = Harurobo2022::RawData<Message>;
+        //     using Array = boost::array<std::uint8_t, 8>;
+
+        //     static constexpr std::size_t bytes_size = 0;
+        //     static constexpr std::uint8_t last_size = sizeof(RawData);
+
+        //     Array last_byte;
+
+        //     Convertor(const RawData& src) noexcept
+        //     {
+        //         std::memcpy(&last_byte[0], &src, last_size);
+        //     }
+        // };
+
         template <class Message, bool is_not_larger_than_8byte = !(sizeof(RawData<Message>) > 8)>
         struct Convertor final
         {
-            using RawData = Harurobo2022::RawData<Message>;
-            using Array = boost::array<std::uint8_t, 8>;
-
-            static constexpr std::size_t bytes_size = sizeof(RawData) / 8 - (sizeof(RawData) % 8)? 1 : 0;
-            static constexpr std::uint8_t last_size = sizeof(RawData) % 8;
-
-            Array bytes[bytes_size];
-            Array last_byte;
-
-            Convertor(const RawData& src) noexcept
-            {
-                for(size_t i = 0; i < bytes_size; ++i)
-                {
-                    // memcpyしていいかどうかってどうやって判断したらいいんだろうか。
-                    std::memcpy(&bytes[i][0], (const char *)&src + 8 * i, 8);
-                }
-
-                std::memcpy(&last_byte[0], (const char *)&src + 8 * bytes_size, last_size);
-            }
+            static_assert([]{return false;}(), "tamaki: unimplemented.");
         };
 
-        // こっちのがよくつかわれる
         template <class Message>
         struct Convertor<Message, true> final
         {
+            static_assert(std::endian::native == std::endian::big || std::endian::native == std::endian::little, "tamaki: unimplemented.");
             using RawData = Harurobo2022::RawData<Message>;
             using Array = boost::array<std::uint8_t, 8>;
 
@@ -70,44 +98,19 @@ namespace Harurobo2022
             Convertor(const RawData& src) noexcept
             {
                 std::memcpy(&last_byte[0], &src, last_size);
+
+                if constexpr (std::endian::native == std::endian::little)
+                {
+                    for(int i = 0; i < last_size / 2; ++i)
+                    {
+                        const auto tmp = last_byte[i];
+                        last_byte[i] = last_byte[last_size - 1 - i];
+                        last_byte[last_size - 1 - i] = tmp;
+                    }
+                }
             }
         };
     }
-
-    // template<class T>
-    // void can_publish(const ros::Publisher& can_tx_pub, const std::uint16_t id, const T& data) noexcept
-    // {
-
-    //     CanFrame can_frame;
-    //     auto conv = Convertor{data};
-
-    //     if constexpr(Convertor<T>::bytes_size)
-    //     {
-    //         for(std::size_t i = 0; i < Convertor<T>::bytes_size; ++i)
-    //         {
-    //             can_frame.data = conv.bytes[i];
-    //             can_frame.dlc = 8;
-    //             can_frame.id= id;
-
-    //             // ここはよくわからないので過去のコードを見てfalseにしている。
-    //             can_frame.is_error = false;
-    //             can_frame.is_extended = false;
-    //             can_frame.is_rtr = false;
-
-    //             can_tx_pub.publish(can_frame);
-    //         }
-    //     }
-
-    //     can_frame.data = conv.last_byte;
-    //     can_frame.dlc = Convertor<T>::last_size;
-    //     can_frame.id= id;
-
-    //     can_frame.is_error = false;
-    //     can_frame.is_extended = false;
-    //     can_frame.is_rtr = false;
-
-    //     can_tx_pub.publish(can_frame);
-    // }
 
     template<class CanTxTopic>
     struct CanPublisher final
