@@ -79,14 +79,23 @@ inline void UnderCarriage4WheelNode::calc_wheels_vela() noexcept
 {
     using namespace Config::Wheel;
 
+    constexpr double rot_factors[4] =
+    {
+        Config::body_radius * rot(~Pos::FR,Constant::PI_2) * ~Direction::FR,
+        Config::body_radius * rot(~Pos::FL,Constant::PI_2) * ~Direction::FL,
+        Config::body_radius * rot(~Pos::BL,Constant::PI_2) * ~Direction::BL,
+        Config::body_radius * rot(~Pos::BR,Constant::PI_2) * ~Direction::BR
+    };
+
     const auto body_vell = this->body_vell;
     const auto body_vela = this->body_vela;
     double wheels_vela[4];
 
-    const double tmp_vell = body_vela * (Config::body_radius * rot(~Pos::FR,Constant::PI_2) * ~Direction::FR);
     for(int i = 0; i < 4; ++i)
     {
-        wheels_vela[i] = (~Direction::all[i] * body_vell + tmp_vell) / Config::wheel_radius;
+        wheels_vela[i] = (~Direction::all[i] * body_vell + rot_factors[i] * body_vela) / Config::wheel_radius;
+        // debug
+        ROS_INFO("rot_factors %d: %lf", i, rot_factors[i]);
     }
 
     if constexpr (Config::Limitation::wheel_acca)

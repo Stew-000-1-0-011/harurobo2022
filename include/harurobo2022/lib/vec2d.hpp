@@ -106,7 +106,7 @@ namespace StewMath{
             return x * x + y * y;
         }
 
-        constexpr auto operator+() const noexcept  // 絶対値を返すことも多い何か
+        constexpr auto operator+() const noexcept  // ノルム
         {
             if constexpr (MyUtility::has_operator_plus_v<T>)
             {
@@ -114,7 +114,7 @@ namespace StewMath{
             }
             else
             {
-                return Vec2D<decltype(x)>{(x > 0)? x : -x, (y > 0)? y : -y};
+                return std::sqrt(x * x + y * y);
             }
         }
 
@@ -123,7 +123,7 @@ namespace StewMath{
             return Vec2D<decltype(-x)>(-x, -y);
         }
 
-        constexpr auto operator~() const noexcept  // ノルム
+        constexpr auto operator~() const noexcept
         {
             if constexpr (!MyUtility::has_func_v<Vec2DFunc::op_bit_not_<T>>)
             {
