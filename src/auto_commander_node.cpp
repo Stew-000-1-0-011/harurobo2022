@@ -10,6 +10,7 @@
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/shutdown_subscriber.hpp"
 #include "harurobo2022/activate_subscriber.hpp"
+#include "harurobo2022/can_publisher.hpp"
 #include "harurobo2022/state.hpp"
 #include "harurobo2022/chart.hpp"
 
@@ -22,6 +23,10 @@ const char *const node_name = "auto_commander";
 class AutoCommanderNode final
 {
     ros::NodeHandle nh{};
+
+    ros::Publisher can_tx_pub{nh.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, /*TODO*/20)};
+
+    CanPublisher<CanTxTopics::> collector_lift{};
 
     ros::Subscriber odometry_sub{nh.subscribe<CanRxTopics::odometry::Message>(CanRxTopics::odometry::topic, 1, &AutoCommanderNode::odometry_callback, this)};
     
@@ -46,7 +51,11 @@ public:
 private:
     inline void odometry_callback(const CanRxTopics::odometry::Message::ConstPtr& msg_p) noexcept;
     inline void check_position_callback(const ros::TimerEvent& event) noexcept;
-    inline static void do_work(const Work work) noexcept;
+    inline void do_work(const Work work) noexcept;
+    inline void case_collector_down() noexcept;
+    inline void case_collector_up() noexcept;
+    inline void case_collector_shovel() noexcept;
+    inline void case_collector_tablecloth() noexcept;
 };
 
 inline void AutoCommanderNode::odometry_callback(const CanRxTopics::odometry::Message::ConstPtr& msg_p) noexcept
@@ -86,20 +95,29 @@ inline void AutoCommanderNode::do_work(const Work work) noexcept
         break;
     
     case Work::collector_down:
+        case_collector_down();
         break;
     
     case Work::collector_up:
+        case_collector_up();
         break;
 
     case Work::collector_shovel:
+        case_collector_shovel();
         break;
     
     case Work::collector_tablecloth:
+        case_collector_tablecloth();
         break;
 
     case Work::change_to_over_fence:
         break;
     }
+}
+
+inline void AutoCommanderNode::case_collector_down() noexcept
+{
+    can_publish(can_tx_pub, )
 }
 
 

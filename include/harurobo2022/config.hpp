@@ -23,8 +23,8 @@ namespace Harurobo2022
             namespace Direction
             {
                 inline constexpr StewMath::Vec2D<double> FR{/*TODO*/0.819152, -0.573576};
-                inline constexpr StewMath::Vec2D<double> FL{/*TODO*/-0.819152, -0.573576};
-                inline constexpr StewMath::Vec2D<double> BL{/*TODO*/-0.819152, 0.573576};
+                inline constexpr StewMath::Vec2D<double> FL{/*TODO*/0.819152, 0.573576};
+                inline constexpr StewMath::Vec2D<double> BL{/*TODO*/0.819152, -0.573576};
                 inline constexpr StewMath::Vec2D<double> BR{/*TODO*/0.819152, 0.573576};
 
                 inline constexpr StewMath::Vec2D<double> all[4]{FR, FL, BL, BR};
