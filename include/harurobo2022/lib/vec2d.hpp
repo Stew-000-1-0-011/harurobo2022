@@ -23,6 +23,30 @@ define_has_member(operator+, operator_plus)
 
 namespace StewMath{
 
+    template<typename T>
+    constexpr T sqrt(const T x) noexcept
+    {
+        if(!x) return 0;
+
+        if(std::is_constant_evaluated())
+        {
+                T last_x = x / 2;
+            T now_x = (x + 1) / 4;
+
+            while(now_x != last_x && !(now_x - now_x))
+            {
+                last_x = now_x;
+                now_x = (now_x +  x / now_x) / 2;
+            }
+
+            return now_x;
+        }
+        else
+        {
+            return std::sqrt(x);
+        }
+    }
+
     namespace Vec2DFunc
     {
         template<typename T>
@@ -114,7 +138,7 @@ namespace StewMath{
             }
             else
             {
-                return std::sqrt(x * x + y * y);
+                return sqrt(x * x + y * y);
             }
         }
 
@@ -127,7 +151,7 @@ namespace StewMath{
         {
             if constexpr (!MyUtility::has_func_v<Vec2DFunc::op_bit_not_<T>>)
             {
-                const double norm = std::sqrt(x * x + y * y);
+                const double norm = sqrt(x * x + y * y);
                 return Vec2D<decltype(x / norm)>(x / norm, y / norm);
             }
             else
