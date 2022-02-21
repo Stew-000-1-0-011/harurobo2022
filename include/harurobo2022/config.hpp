@@ -12,7 +12,7 @@ namespace Harurobo2022
         {
             namespace Pos
             {
-                inline constexpr StewMath::Vec2D<double> FR{/*TODO*/265.51225, -139.42435};
+                inline constexpr StewMath::Vec2D<double> FR{/*TODO*/265.51225, 139.42435};
                 inline constexpr StewMath::Vec2D<double> FL{-FR.x, FR.y};
                 inline constexpr StewMath::Vec2D<double> BL{-FR};
                 inline constexpr StewMath::Vec2D<double> BR{FR.x, -FR.x};
@@ -22,7 +22,7 @@ namespace Harurobo2022
 
             namespace Direction
             {
-                inline constexpr StewMath::Vec2D<double> FR{/*TODO*/0.819152, 0.573576};
+                inline constexpr StewMath::Vec2D<double> FR{/*TODO*/-0.819152, 0.573576};
                 inline constexpr StewMath::Vec2D<double> FL{FR.x, -FR.y};
                 inline constexpr StewMath::Vec2D<double> BL{-FR};
                 inline constexpr StewMath::Vec2D<double> BR{-FR.x, FR.y};
