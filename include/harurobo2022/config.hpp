@@ -15,23 +15,23 @@ namespace Harurobo2022
                 inline constexpr StewMath::Vec2D<double> FR{/*TODO*/265.51225, 139.42435};
                 inline constexpr StewMath::Vec2D<double> FL{-FR.x, FR.y};
                 inline constexpr StewMath::Vec2D<double> BL{-FR};
-                inline constexpr StewMath::Vec2D<double> BR{FR.x, -FR.x};
+                inline constexpr StewMath::Vec2D<double> BR{FR.x, -FR.y};
 
                 inline constexpr StewMath::Vec2D<double> all[4]{FR, FL, BL, BR};
             }
 
             namespace Direction
             {
-                inline constexpr StewMath::Vec2D<double> FR{/*TODO*/-0.819152, 0.573576};
-                inline constexpr StewMath::Vec2D<double> FL{FR.x, -FR.y};
-                inline constexpr StewMath::Vec2D<double> BL{-FR};
-                inline constexpr StewMath::Vec2D<double> BR{-FR.x, FR.y};
+                inline constexpr StewMath::Vec2D<double> FR{/*TODO*/0.819152, -0.573576};
+                inline constexpr StewMath::Vec2D<double> FL{/*TODO*/-0.819152, -0.573576};
+                inline constexpr StewMath::Vec2D<double> BL{/*TODO*/-0.819152, 0.573576};
+                inline constexpr StewMath::Vec2D<double> BR{/*TODO*/0.819152, 0.573576};
 
                 inline constexpr StewMath::Vec2D<double> all[4]{FR, FL, BL, BR};
             }
         }
 
-        inline constexpr double body_radius{/*TODO*/++Wheel::Pos::FR};
+        inline constexpr double body_radius{/*TODO*/+Wheel::Pos::FR};
         inline constexpr double wheel_radius{/*TODO*/30};
 
         namespace Limitation
@@ -62,10 +62,10 @@ namespace Harurobo2022
             {
                 namespace DriveMotor
                 {
-                    inline constexpr std::uint16_t FR{/*TODO*/0x444};
-                    inline constexpr std::uint16_t FL{/*TODO*/};
-                    inline constexpr std::uint16_t BL{/*TODO*/};
-                    inline constexpr std::uint16_t BR{/*TODO*/};
+                    inline constexpr std::uint16_t FR{/*TODO*/0x450};
+                    inline constexpr std::uint16_t FL{/*TODO*/0x444};
+                    inline constexpr std::uint16_t BL{/*TODO*/0x458};
+                    inline constexpr std::uint16_t BR{/*TODO*/0x440};
 
                     inline constexpr std::uint16_t all[4]{FR, FL, BL, BR};
                 }
