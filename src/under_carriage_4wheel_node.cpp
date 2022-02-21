@@ -94,8 +94,6 @@ inline void UnderCarriage4WheelNode::calc_wheels_vela() noexcept
     for(int i = 0; i < 4; ++i)
     {
         wheels_vela[i] = (~Direction::all[i] * body_vell + rot_factors[i] * body_vela) / Config::wheel_radius;
-        // debug
-        ROS_INFO("rot_factors %d: %lf", i, rot_factors[i]);
     }
 
     if constexpr (Config::Limitation::wheel_acca)
