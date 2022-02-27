@@ -11,6 +11,9 @@
 
 namespace Harurobo2022
 {
+    namespace
+    {
+
     enum class State: std::uint8_t
     {
         desable,

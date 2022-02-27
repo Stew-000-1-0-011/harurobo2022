@@ -8,6 +8,9 @@
 
 namespace Harurobo2022
 {
+    namespace
+    {
+
     class ActivatePublisher final
     {
         ros::Publisher pub;

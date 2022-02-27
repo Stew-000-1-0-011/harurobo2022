@@ -9,6 +9,9 @@
 
 namespace Harurobo2022
 {
+    namespace
+    {
+
     enum class Work : std::uint8_t
     {
         transit = 0,
