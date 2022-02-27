@@ -26,7 +26,7 @@ class AutoCommanderNode final
 
     ros::Publisher can_tx_pub{nh.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, /*TODO*/20)};
 
-    CanPublisher<CanTxTopics::> collector_lift{};
+    CanPublisher<CanTxTopics::LiftMotor::collect::Message> collector_lift_canpub{can_tx_pub};
 
     ros::Subscriber odometry_sub{nh.subscribe<CanRxTopics::odometry::Message>(CanRxTopics::odometry::topic, 1, &AutoCommanderNode::odometry_callback, this)};
     
@@ -117,7 +117,12 @@ inline void AutoCommanderNode::do_work(const Work work) noexcept
 
 inline void AutoCommanderNode::case_collector_down() noexcept
 {
-    can_publish(can_tx_pub, )
+    collector_lift_canpub.publish(Config::collector_bottom_position);
+}
+
+inline void AutoCommanderNode::case_collector_down() noexcept
+{
+    collector_lift_canpub.publish(Config::collector_bottom_position);
 }
 
 

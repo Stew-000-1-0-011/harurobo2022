@@ -26,11 +26,11 @@ class UnderCarriage4WheelNode final
 
     ros::Publisher can_tx_pub{nh.advertise<Topics::can_tx::Message>(Topics::can_tx::topic, 20)};
 
-#define WheelVelaPublisher(topic_name) Harurobo2022::CanPublisher<CanTxTopics::topic_name> topic_name##_canpub{can_tx_pub};
-    WheelVelaPublisher(wheel_FR_vela)
-    WheelVelaPublisher(wheel_FL_vela)
-    WheelVelaPublisher(wheel_BL_vela)
-    WheelVelaPublisher(wheel_BR_vela)
+#define WheelVelaPublisher(motor) Harurobo2022::CanPublisher<CanTxTopics::DriveMotor::motor> motor##_canpub{can_tx_pub};
+    WheelVelaPublisher(FR)
+    WheelVelaPublisher(FL)
+    WheelVelaPublisher(BL)
+    WheelVelaPublisher(BR)
 #undef WheelVelaPublisher
 
     ros::Subscriber body_twist_sub{nh.subscribe<Topics::body_twist::Message>(Topics::body_twist::topic, 1, &UnderCarriage4WheelNode::body_twist_callback, this)};
@@ -69,10 +69,10 @@ inline void UnderCarriage4WheelNode::publish_timer_callback(const ros::TimerEven
     if(!activate_sub.is_active()) return;
     calc_wheels_vela();
 
-    wheel_FR_vela_canpub.publish(wheels_vela[0]);
-    wheel_FL_vela_canpub.publish(wheels_vela[1]);
-    wheel_BL_vela_canpub.publish(wheels_vela[2]);
-    wheel_BR_vela_canpub.publish(wheels_vela[3]);
+    FR_canpub.publish(wheels_vela[0]);
+    FL_canpub.publish(wheels_vela[1]);
+    BL_canpub.publish(wheels_vela[2]);
+    BR_canpub.publish(wheels_vela[3]);
 }
 
 inline void UnderCarriage4WheelNode::calc_wheels_vela() noexcept

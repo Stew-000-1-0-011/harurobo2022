@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(harurobo2022)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++2a -g -O3 -Wall -pedantic-errors)
+add_compile_options(-std=c++2a -g -O3 -Wall -Wextra -pedantic-errors)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -143,24 +143,28 @@ include_directories(
 #   src/auto_commander_node.cpp
 # )
 
-add_executable(manual_commander
-  src/manual_commander_node.cpp
-)
+# add_executable(manual_commander
+#   src/manual_commander_node.cpp
+# )
 
-add_executable(under_carriage_4wheel
-  src/under_carriage_4wheel_node.cpp
-)
+# add_executable(under_carriage_4wheel
+#   src/under_carriage_4wheel_node.cpp
+# )
 
-add_executable(can_subscriber
-  src/can_subscriber_node.cpp
-)
+# add_executable(can_subscriber
+#   src/can_subscriber_node.cpp
+# )
 
-add_executable(emergency_controller
-  src/emergency_controller_node.cpp
-)
+# add_executable(emergency_controller
+#   src/emergency_controller_node.cpp
+# )
 
-add_executable(state_manager
-  src/state_manager_node.cpp
+# add_executable(state_manager
+#   src/state_manager_node.cpp
+# )
+
+add_executable(hoge
+  src/hoge_node.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -182,23 +186,27 @@ add_executable(state_manager
 #   ${catkin_LIBRARIES}
 # )
 
-target_link_libraries(manual_commander
-  ${catkin_LIBRARIES}
-)
+# target_link_libraries(manual_commander
+#   ${catkin_LIBRARIES}
+# )
 
-target_link_libraries(under_carriage_4wheel
-  ${catkin_LIBRARIES}
-)
+# target_link_libraries(under_carriage_4wheel
+#   ${catkin_LIBRARIES}
+# )
 
-target_link_libraries(can_subscriber
-  ${catkin_LIBRARIES}
-)
+# target_link_libraries(can_subscriber
+#   ${catkin_LIBRARIES}
+# )
 
-target_link_libraries(emergency_controller
-  ${catkin_LIBRARIES}
-)
+# target_link_libraries(emergency_controller
+#   ${catkin_LIBRARIES}
+# )
 
-target_link_libraries(state_manager
+# target_link_libraries(state_manager
+#   ${catkin_LIBRARIES}
+# )
+
+target_link_libraries(hoge
   ${catkin_LIBRARIES}
 )
 

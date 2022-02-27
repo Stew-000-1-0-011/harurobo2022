@@ -21,3 +21,6 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 
 ・rostopic pub で/joyをパブリッシュする方法(WSLでも無理やり操作できる)
 rostopic pub -1 /joy sensor_msgs/Joy "{header: auto, axes: [0,0,0,0,0,0,0,0], buttons: [0,0,0,0,0,0,0,0,0,0]}" 
+
+・グローバル空間において、Stew_から始まる...なんていうんだろ、識別子だっけ...いろんなのの名前は田巻がマクロで使っている可能性があります。
+#undefされてないのもある。Stew_static_warnとかね。もっといい実装があれば教えてください。

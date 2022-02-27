@@ -6,6 +6,9 @@
 
 namespace Harurobo2022
 {
+    namespace
+    {
+
 
     class ShutDownSubscriber final
     {

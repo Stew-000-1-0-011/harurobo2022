@@ -9,6 +9,9 @@
 
 namespace Harurobo2022
 {
+    namespace
+    {
+
     class ActivateSubscriber final
     {
         bool is_active_{false};
