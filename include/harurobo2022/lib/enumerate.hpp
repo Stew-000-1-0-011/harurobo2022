@@ -1,8 +1,12 @@
+/*
+
+<utility>にmake_index_sequenceがあるらしい。こちらは非推奨とする。これからはmake_index_sequenceを使うこと。
+
+*/
+
 #pragma once
 
 #include <cstddef>
-
-
 
 namespace StewLib
 {

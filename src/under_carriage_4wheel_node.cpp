@@ -9,15 +9,15 @@ base_controllerを参考にした。
 
 #include "harurobo2022/lib/vec2d.hpp"
 #include "harurobo2022/config.hpp"
-#include "harurobo2022/topics.hpp"
-#include "harurobo2022/can_publisher.hpp"
-#include "harurobo2022/shutdown_subscriber.hpp"
-#include "harurobo2022/activate_subscriber.hpp"
+
+#include "harurobo2022/lib/macro/define_stringlike_type.hpp"
+Stew_StringlikeType(under_carriage_4wheel)
+#undef Stew_StringlikeType
 
 using namespace StewMath;
 using namespace Harurobo2022;
 
-const char *const node_name = "under_carriage_4wheel";
+
 
 class UnderCarriage4WheelNode final
 {

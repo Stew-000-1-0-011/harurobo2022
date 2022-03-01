@@ -28,11 +28,9 @@ namespace StewLib
             static constexpr std::uint8_t last_size = sizeof(RawData);
             static constexpr std::size_t chunks_size = 0;
 
-            // これだけで未定義動作でないと保証できるわけじゃないけど、無いよりマシだろう。
-            static_assert(sizeof(Serialize) - (last_size % 8) == sizeof(RawData_), "Oh, my Guess is off.");
+            std::uint8_t last_chunk[8]{};
 
             // Chunk last_chunk;
-            std::uint8_t last_chunk[last_size]{};
 
             Serialize(const RawData& raw_data)
             {
@@ -60,9 +58,6 @@ namespace StewLib
         // public:
             static constexpr std::uint8_t last_size = (sizeof(RawData) % 8)? sizeof(RawData) % 8 : 8;
             static constexpr std::size_t chunks_size = (sizeof(RawData) - last_size) / 8;
-
-            // これだけで未定義動作でないと保証できるわけじゃないけど、無いよりマシだろう。
-            static_assert(sizeof(Serialize) - (last_size % 8) == sizeof(RawData_), "Oh, my Guess is off.");
 
             std::uint8_t chunks[chunks_size][8]{};
             alignas(1) std::uint8_t last_chunk[8]{}; // 連続性はこれで保証できているのか？

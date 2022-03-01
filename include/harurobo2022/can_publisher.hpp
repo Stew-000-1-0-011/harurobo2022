@@ -12,9 +12,8 @@
 #include "topic.hpp"
 #include "publisher.hpp"
 
-#include "lib/macro/define_stringlike_type.hpp"
+#include "stringlike_types.hpp"
 
-Stew_stringlikeType(can_tx)
 
 namespace Harurobo2022
 {
@@ -25,7 +24,7 @@ namespace Harurobo2022
             struct CanPublisherBase
             {
             private:
-                using can_tx = Topic<StewLib::StringlikeTypes::can_tx, can_plugins::Frame>;
+                using can_tx = Topic<StringlikeTypes::can_tx, can_plugins::Frame>;
             protected:
                 inline static Publisher<can_tx> canpub{1};
             };
@@ -54,7 +53,7 @@ namespace Harurobo2022
 
             void can_publish(const CanData& can_data) noexcept
             {
-                StewLib::Serialize serialize{can_data};
+                StewLib::Serialize serialize{can_data.data};
 
                 if constexpr(serialize.chunks_size)
                 {
