@@ -24,7 +24,7 @@ namespace StewLib
             constexpr static std::size_t size = StringlikeTypeL::size + StringlikeTypeR::size;
             inline static char str[size];
             inline static const char dummy =
-                []()
+                []() noexcept
                 {
                     for(std::size_t i = 0; i < StringlikeTypeL::size; ++i)
                     {

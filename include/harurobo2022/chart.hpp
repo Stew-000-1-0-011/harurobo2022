@@ -39,7 +39,7 @@ namespace Harurobo2022
 
         std::list<Command> make_trajectory(std::list<Command> chart) noexcept
         {
-            chart.remove_if([](const Command& command){return command.work != Work::transit;});
+            chart.remove_if([](const Command& command) noexcept {return command.work != Work::transit;});
             return chart;
         }
 
