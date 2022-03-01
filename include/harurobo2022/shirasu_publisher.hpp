@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "lib/shirasu_util.hpp"
+#include "shirasu_util.hpp"
 
 #include "can_publisher.hpp"
 #include "can_data/shirasu_target.hpp"
@@ -36,6 +36,28 @@ namespace Harurobo2022
             void send_target(const float target) noexcept
             {
                 target_canpub.can_publish(target);
+            }
+
+            void publish_cmd(const ShirasuUtil::Mode cmd) noexcept
+            {
+                cmd_canpub.publish(cmd);
+            }
+
+            void publish_target(const float target) noexcept
+            {
+                target_canpub.publish(target);
+            }
+
+            void activate() noexcept
+            {
+                cmd_canpub.activate();
+                target_canpub.activate();
+            }
+
+            void deactivate() noexcept
+            {
+                cmd_canpub.deactivate();
+                target_canpub.deactivate();
             }
         };
     }

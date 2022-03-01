@@ -147,9 +147,9 @@ include_directories(
 #   src/manual_commander_node.cpp
 # )
 
-# add_executable(under_carriage_4wheel
-#   src/under_carriage_4wheel_node.cpp
-# )
+add_executable(under_carriage_4wheel
+  src/under_carriage_4wheel_node.cpp
+)
 
 # add_executable(can_subscriber
 #   src/can_subscriber_node.cpp
@@ -190,9 +190,9 @@ add_executable(hoge
 #   ${catkin_LIBRARIES}
 # )
 
-# target_link_libraries(under_carriage_4wheel
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(under_carriage_4wheel
+  ${catkin_LIBRARIES}
+)
 
 # target_link_libraries(can_subscriber
 #   ${catkin_LIBRARIES}

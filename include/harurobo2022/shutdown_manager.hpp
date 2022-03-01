@@ -18,7 +18,7 @@ namespace Harurobo2022
             using shutdown = Topic<StringlikeTypes::shutdown, std_msgs::Empty>;
 
             Publisher<shutdown> pub{1};
-            Subscriber<shutdown> sub{1, [](const typename shutdown::Message::ConstPtr&){ ros::shutdown(); }};
+            Subscriber<shutdown> sub{1, [](const typename shutdown::Message::ConstPtr&) noexcept { ros::shutdown(); }};
 
             void shutdown() noexcept
             {

@@ -7,13 +7,11 @@
 #include <can_plugins/Frame.h>
 
 #include "lib/serialize.hpp"
-
 #include "message_convertor/message_convertor_all.hpp"
 #include "topic.hpp"
 #include "publisher.hpp"
-
 #include "stringlike_types.hpp"
-
+#include "static_init_deinit.hpp"
 
 namespace Harurobo2022
 {
@@ -23,15 +21,13 @@ namespace Harurobo2022
         {
             struct CanPublisherBase
             {
-            private:
                 using can_tx = Topic<StringlikeTypes::can_tx, can_plugins::Frame>;
-            protected:
-                inline static Publisher<can_tx> canpub{1};
+                inline static Publisher<can_tx> * canpub_p{nullptr};
             };
         }
 
         template<class CanTxTopic_>
-        class CanPublisher final : CanPublisherImplement::CanPublisherBase
+        class CanPublisher final : protected CanPublisherImplement::CanPublisherBase
         {
         public:
             using CanTxTopic = CanTxTopic_;
@@ -48,7 +44,7 @@ namespace Harurobo2022
             CanPublisher(const std::uint32_t can_queue_size, const std::uint32_t nomal_queue_size = 0) noexcept:
                 pub{(nomal_queue_size)? nomal_queue_size : can_queue_size}
             {
-                canpub.change_buff_size_if_larger(can_queue_size);
+                canpub_p->change_buff_size_if_larger(can_queue_size);
             }
 
             void can_publish(const CanData& can_data) noexcept
@@ -59,11 +55,11 @@ namespace Harurobo2022
                 {
                     for(std::size_t i = 0; i < serialize.chunks_size; ++i)
                     {
-                        canpub.publish({CanTxTopic::id, 8, serialize.chunks[i]});
+                        canpub_p->publish({CanTxTopic::id, 8, serialize.chunks[i]});
                     }
                 }
 
-                canpub.publish({CanTxTopic::id, serialize.last_size, serialize.last_chunk});
+                canpub_p->publish({CanTxTopic::id, serialize.last_size, serialize.last_chunk});
             }
 
             void publish(const CanData& can_data) noexcept
@@ -78,20 +74,42 @@ namespace Harurobo2022
 
             ros::Publisher get_canpub() const noexcept
             {
-                return canpub.get_pub();
+                return canpub_p->get_pub();
             }
 
             void deactivate() noexcept
             {
-                canpub.deactivate();
+                canpub_p->deactivate();
                 pub.deactivate();
             }
 
             void activate() noexcept
             {
-                canpub.activate();
+                canpub_p->activate();
                 pub.activate();
             }
         };
+
+        namespace CanPublisherImplement
+        {
+            inline const auto init =
+            []() noexcept
+            {
+                CanPublisherImplement::CanPublisherBase::canpub_p = new std::remove_pointer_t<decltype(CanPublisherImplement::CanPublisherBase::canpub_p)>{1};
+            };
+
+            inline const auto deinit = []() noexcept
+            {
+                delete CanPublisherImplement::CanPublisherBase::canpub_p;
+            };
+
+            inline char dummy = 
+            []() noexcept
+            {
+                StaticInitDeinit::initialize_list.push_back(init);
+                StaticInitDeinit::deinitialize_list.push_back(deinit);
+                return 0;
+            }();
+        }
     }
 }

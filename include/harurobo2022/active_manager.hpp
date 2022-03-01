@@ -56,7 +56,7 @@ namespace Harurobo2022
             {
                 for(auto& pubsub_p : pubsub_ptrs)
                 {
-                    std::visit([](auto pubsub_p){pubsub_p->activate();}, pubsub_p);
+                    std::visit([](auto pubsub_p) noexcept {pubsub_p->activate();}, pubsub_p);
                 }
             }
 
@@ -64,7 +64,7 @@ namespace Harurobo2022
             {
                 for(auto& pubsub_p : pubsub_ptrs)
                 {
-                    std::visit([](auto pubsub_p){pubsub_p->deactivate();}, pubsub_p);
+                    std::visit([](auto pubsub_p) noexcept {pubsub_p->deactivate();}, pubsub_p);
                 }
             }
         };

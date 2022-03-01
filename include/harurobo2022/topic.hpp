@@ -13,7 +13,7 @@ namespace Harurobo2022
 {
     namespace
     {
-        namespace TopicsImplement
+        namespace TopicImplement
         {
             struct TopicBase{};
             struct CanTxTopicBase: TopicBase{};
@@ -21,27 +21,27 @@ namespace Harurobo2022
         }
 
         template<class T>
-        using is_topic = std::is_base_of<TopicsImplement::TopicBase, T>;
+        using is_topic = std::is_base_of<TopicImplement::TopicBase, T>;
         template<class T>
-        inline constexpr bool is_topic_v = std::is_base_of_v<TopicsImplement::TopicBase, T>;
+        inline constexpr bool is_topic_v = std::is_base_of_v<TopicImplement::TopicBase, T>;
 
         template<class T>
-        using is_can_tx_topic = std::is_base_of<TopicsImplement::CanTxTopicBase, T>;
+        using is_can_tx_topic = std::is_base_of<TopicImplement::CanTxTopicBase, T>;
         template<class T>
-        inline constexpr bool is_can_tx_topic_v = std::is_base_of_v<TopicsImplement::CanTxTopicBase, T>;
+        inline constexpr bool is_can_tx_topic_v = std::is_base_of_v<TopicImplement::CanTxTopicBase, T>;
 
         template<class T>
-        using is_can_rx_topic = std::is_base_of<TopicsImplement::CanRxTopicBase, T>;
+        using is_can_rx_topic = std::is_base_of<TopicImplement::CanRxTopicBase, T>;
         template<class T>
-        inline constexpr bool is_can_rx_topic_v = std::is_base_of_v<TopicsImplement::CanRxTopicBase, T>;
+        inline constexpr bool is_can_rx_topic_v = std::is_base_of_v<TopicImplement::CanRxTopicBase, T>;
 
         template<class T>
-        using is_can_topic = std::disjunction<std::is_base_of<TopicsImplement::CanTxTopicBase, T>, std::is_base_of<TopicsImplement::CanRxTopicBase, T>>;
+        using is_can_topic = std::disjunction<std::is_base_of<TopicImplement::CanTxTopicBase, T>, std::is_base_of<TopicImplement::CanRxTopicBase, T>>;
         template<class T>
-        inline constexpr bool is_can_topic_v = std::is_base_of_v<TopicsImplement::CanTxTopicBase, T> || std::is_base_of_v<TopicsImplement::CanRxTopicBase, T>;
+        inline constexpr bool is_can_topic_v = std::is_base_of_v<TopicImplement::CanTxTopicBase, T> || std::is_base_of_v<TopicImplement::CanRxTopicBase, T>;
 
         template<class Name_, class Message_>
-        struct Topic: TopicsImplement::TopicBase
+        struct Topic: TopicImplement::TopicBase
         {
             using Name = Name_;
             using Message = Message_;
@@ -51,7 +51,7 @@ namespace Harurobo2022
         };
 
         template<class CanData_, std::uint16_t id_, class Name_>
-        struct CanTxTopic: TopicsImplement::CanTxTopicBase
+        struct CanTxTopic: TopicImplement::CanTxTopicBase
         {
             using CanData = CanData_;
             constexpr static std::uint16_t id = id_;
@@ -64,7 +64,7 @@ namespace Harurobo2022
         };
 
         template<class CanData_, std::uint16_t id_, class Name_>
-        struct CanRxTopic: TopicsImplement::CanRxTopicBase
+        struct CanRxTopic: TopicImplement::CanRxTopicBase
         {
             using CanData = CanData_;
             constexpr static std::uint16_t id = id_;
