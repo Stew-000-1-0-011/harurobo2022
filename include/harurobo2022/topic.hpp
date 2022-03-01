@@ -7,7 +7,7 @@
 
 #include "lib/stringlike_type.hpp"
 
-#include "can_message.hpp"
+#include "can_data_concept.hpp"
 
 namespace Harurobo2022
 {
@@ -57,7 +57,7 @@ namespace Harurobo2022
             constexpr static std::uint16_t id = id_;
             using Name = Name_;
 
-            static_assert(CanMessageC<CanData>, "1st argument dont satisfy CanMessageC.");
+            static_assert(CanDataC<CanData>, "1st argument dont satisfy CanDataC.");
             static_assert(StewLib::is_stringlike_type_v<Name_>, "3rd argument must be StewLib::StringlikeType.");
 
             using Message = CanData::Message;
@@ -70,7 +70,7 @@ namespace Harurobo2022
             constexpr static std::uint16_t id = id_;
             using Name = Name_;
 
-            static_assert(CanMessageC<CanData>, "1st argument dont satisfy CanMessageC.");
+            static_assert(CanDataC<CanData>, "1st argument dont satisfy CanDataC.");
             static_assert(StewLib::is_stringlike_type_v<Name_>, "3rd argument must be StewLib::StringlikeType.");
 
             using Message = CanData::Message;

@@ -41,11 +41,11 @@ namespace Harurobo2022
             // おそらく単なるメモリ不足。やはりStewLib::Stringは重い...。
             // StriglikeTypeで対応した。
             
-            template<class TopicName>
             struct PublisherBase
             {
-                static_assert(StewLib::is_stringlike_type_v<TopicName>, "argument must be StewLib::StringlikeType.");
             protected:
+                // static_assert(StewLib::is_stringlike_type_v<TopicName>, "argument must be StewLib::StringlikeType.");
+                template<class TopicName>  // コンセプト
                 inline static bool is_published{false};
             };
         }
@@ -56,11 +56,13 @@ namespace Harurobo2022
             bool disable_can_tx_topic_warn{false};
         };
 
+        // レイアウトは標準でないとはいえ同じはずなのにそのままコンテナに詰められないのはなんでなんだ。
+        // 詰めるときに無理やりポインタをキャストすれば(逆参照した時点で？)未定義動作だし、共用体も未定義動作になるはず。
         template<class Topic_, PublisherOption opt = PublisherOption()>
-        class Publisher final : PublisherImplement::PublisherBase<typename Topic_::Name>
+        class Publisher final : PublisherImplement::PublisherBase
         {
         public:
-            using Topic = std::remove_cvref_t<Topic_>;
+            using Topic = Topic_;
 
         private:
             static_assert(is_topic_v<Topic>, "argument must be topic.");
@@ -82,17 +84,17 @@ namespace Harurobo2022
                 queue_size{queue_size},
                 pub{nh.advertise<Message>(TopicName::str, queue_size)}
             {
-                if(Publisher::is_published)
+                if(is_published<TopicName>)
                 {
                     ROS_ERROR("Instance of Harurobo2022::Publisher for %s has already constracted and not destructed.", TopicName::str);
                 }
 
-                Publisher::is_published = true;
+                is_published<TopicName> = true;
             }
 
             ~Publisher() noexcept
             {
-                Publisher::is_published = false;
+                is_published<TopicName> = false;
             }
 
             Publisher(const Publisher&) = delete;
@@ -102,12 +104,13 @@ namespace Harurobo2022
 
             void publish(const MessageConvertor<Message>& raw_data) const noexcept
             {
-                pub.publish(raw_data);
+                const Message& msg = raw_data;
+                if(pub) pub.publish(msg);
             }
 
             void publish(const Message& msg) const noexcept
             {
-                pub.publish(msg);
+                if(pub) pub.publish(msg);
             }
 
             void change_buff_size(const std::uint32_t changed_queue_size) noexcept

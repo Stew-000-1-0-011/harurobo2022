@@ -11,6 +11,7 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 
 #include <ros/ros.h>
 
@@ -23,11 +24,11 @@ namespace Harurobo2022
     {
         namespace SubscriberImplement
         {
-            template<class TopicName>
             struct SubscriberBase
             {
-                static_assert(StewLib::is_stringlike_type_v<TopicName>, "argumnt must be StewLib::Stringliketype");
             protected:
+                // static_assert(StewLib::is_stringlike_type_v<TopicName>, "argumnt must be StewLib::Stringliketype");
+                template<class TopicName> // コンセプト使う
                 inline static bool is_subscribed{false};
             };
         }
@@ -38,49 +39,45 @@ namespace Harurobo2022
         };
 
         // ここをもう少し綺麗に推論したかった。
-        template<class Topic_, auto callback_p_, class ClassOfCallback = void, SubscriberOption opt = SubscriberOption()>
-        class Subscriber final : SubscriberImplement::SubscriberBase<typename Topic_::Name>
+        template<class Topic_, SubscriberOption opt = SubscriberOption()>
+        class Subscriber final : SubscriberImplement::SubscriberBase
         {
         public:
             using Topic = Topic_;
-            constexpr static auto callback_p = callback_p_;
-            using CallbackPType = decltype(callback_p_);
         
         private:
             static_assert(is_topic_v<Topic>, "1st argument must be topic.");
-            static_assert(is_can_tx_topic_v<Topic> || opt.disable_can_tx_topic_assert , "1st argument must not be can_tx topic.");
-            static_assert
-                (
-                    std::is_same_v<std::invoke_result_t<CallbackPType, const typename Topic::Message::ConstPtr&>, void>,
-                    "2nd argument must be void(ClassOfCallback:: *)(const Message::Ptr&) opt_const opt_noexcept or void(*)(const Message::Ptr&) opt_const opt_noexcept."
-                );
+            static_assert(!is_can_tx_topic_v<Topic> || opt.disable_can_tx_topic_assert , "1st argument must not be can_tx topic.");
 
         public:
             using Message = Topic::Message;
             using TopicName = Topic::Name;
 
         private:
+            using CallbackSignature = void(const typename Message::ConstPtr&);
             // ros::NodeHandleがわからない...ってかROSわかんないよぉ...
             ros::NodeHandle nh{};
             std::uint32_t queue_size;
+            std::function<CallbackSignature> callback;
             ros::Subscriber sub;
 
         public:
-            Subscriber(const std::uint32_t queue_size) noexcept:
+            Subscriber(const std::uint32_t queue_size,const std::function<CallbackSignature>& callback) noexcept:
                 queue_size{queue_size},
-                sub{nh.subscribe<Message>(TopicName::str, queue_size, callback_p, static_cast<CallbackPType *>(nullptr))}
+                callback{callback},
+                sub{nh.subscribe<Message>(TopicName::str, queue_size, callback)}
             {
-                if(Subscriber::is_subscribed)
+                if(is_subscribed<TopicName>)
                 {
                     ROS_ERROR("Instance of Harurobo2022::Subscriber for %s has already constracted and not destructed.", TopicName::str);
                 }
 
-                Subscriber::is_subscribed = true;
+                is_subscribed<TopicName> = true;
             }
 
             ~Subscriber() noexcept
             {
-                Subscriber::is_subscribed = false;
+                is_subscribed<TopicName> = false;
             }
 
             Subscriber(const Subscriber&) = delete;
@@ -90,7 +87,7 @@ namespace Harurobo2022
 
             void change_buff_size(const std::uint32_t changed_queue_size) noexcept
             {
-                sub = nh.subscribe<Message>(TopicName::str, changed_queue_size, callback_p, static_cast<CallbackPType *>(nullptr));
+                sub = nh.subscribe<Message>(TopicName::str, changed_queue_size, callback);
                 queue_size = changed_queue_size;
             }
 
@@ -100,6 +97,12 @@ namespace Harurobo2022
                 {
                     change_buff_size(changed_queue_size);
                 }
+            }
+
+            void change_callback(const std::function<CallbackSignature>& changed_callback) noexcept
+            {
+                sub = nh.subscribe<Message>(TopicName::str, queue_size, changed_callback);
+                callback = changed_callback;
             }
 
             ros::Subscriber get_sub() const noexcept
@@ -114,87 +117,7 @@ namespace Harurobo2022
 
             void activate() noexcept
             {
-                sub = nh.subscribe<Message>(TopicName::str, queue_size, callback_p, static_cast<ClassOfCallback *>(nullptr));
-            }
-        };
-
-        template<class Topic_, auto callback_p_, SubscriberOption opt>
-        class Subscriber<Topic_, callback_p_, void, opt> final : SubscriberImplement::SubscriberBase<typename Topic_::Name>
-        {
-        public:
-            using Topic = Topic_;
-            constexpr static auto callback_p = callback_p_;
-            using CallbackPType = decltype(callback_p_);
-        
-        private:
-            static_assert(is_topic_v<Topic>, "1st argument must be topic.");
-            static_assert(is_can_tx_topic_v<Topic> || opt.disable_can_tx_topic_assert , "1st argument must not be can_tx topic.");
-            static_assert
-                (
-                    std::is_same_v<std::invoke_result_t<CallbackPType, const typename Topic::Message::ConstPtr&>, void>,
-                    "2nd argument must be void(ClassOfCallback:: *)(const Message::Ptr&) opt_const opt_noexcept or void(*)(const Message::Ptr&) opt_const opt_noexcept."
-                );
-
-        public:
-            using Message = Topic::Message;
-            using TopicName = Topic::Name;
-
-        private:
-            // ros::NodeHandleがわからない...ってかROSわかんないよぉ...
-            ros::NodeHandle nh{};
-            std::uint32_t queue_size;
-            ros::Subscriber sub;
-
-        public:
-            Subscriber(const std::uint32_t queue_size) noexcept:
-                queue_size{queue_size},
-                sub{nh.subscribe<Message>(TopicName::str, queue_size, callback_p)}
-            {
-                if(Subscriber::is_subscribed)
-                {
-                    ROS_ERROR("Instance of Harurobo2022::Subscriber for %s has already constracted and not destructed.", TopicName::str);
-                }
-
-                Subscriber::is_subscribed = true;
-            }
-
-            ~Subscriber() noexcept
-            {
-                Subscriber::is_subscribed = false;
-            }
-
-            Subscriber(const Subscriber&) = delete;
-            Subscriber& operator=(const Subscriber&) = delete;
-            Subscriber(Subscriber&&) = delete;
-            Subscriber& operator=(Subscriber&&) = delete;
-
-            void change_buff_size(const std::uint32_t changed_queue_size) noexcept
-            {
-                sub = nh.subscribe<Message>(TopicName::str, changed_queue_size, callback_p);
-                queue_size = changed_queue_size;
-            }
-
-            void change_buff_size_if_larger(const std::uint32_t changed_queue_size) noexcept
-            {
-                if(changed_queue_size > queue_size)
-                {
-                    change_buff_size(changed_queue_size);
-                }
-            }
-
-            ros::Subscriber get_sub() const noexcept
-            {
-                return sub;
-            }
-
-            void deactivate() noexcept
-            {
-                sub = ros::Subscriber();
-            }
-
-            void activate() noexcept
-            {
-                sub = nh.subscribe<Message>(TopicName::str, queue_size, callback_p);
+                sub = nh.subscribe<Message>(TopicName::str, queue_size, callback);
             }
         };
     }
