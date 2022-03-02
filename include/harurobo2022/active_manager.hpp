@@ -1,7 +1,7 @@
 #pragma once
 
 #include <type_traits>
-#include <vector>
+#include <array>
 #include <variant>
 
 #include <std_msgs/Bool.h>
@@ -22,7 +22,7 @@ namespace Harurobo2022
         public:
             using Name = Name_;
             
-            static_assert(((StewLib::has_activate_v<std::remove_pointer_t<std::remove_cvref_t<PubSubP>>> && StewLib::has_deactivate_v<std::remove_pointer_t<std::remove_cvref_t<PubSubP>>>) && ...), "Some of them dont have activate or deactivate.");
+            static_assert(((StewLib::has_activate_v<std::remove_cvref_t<PubSubP>> && StewLib::has_deactivate_v<std::remove_cvref_t<PubSubP>>) && ...), "Some of them dont have activate or deactivate.");
             static_assert(StewLib::is_stringlike_type_v<Name>, "argument must be StringlikeType.");
 
         private:
@@ -45,7 +45,7 @@ namespace Harurobo2022
                 }
             };
             
-            std::vector<std::variant<PubSubP * ...>> pubsub_ptrs{nullptr};
+            std::array<std::variant<PubSubP * ...>, sizeof...(PubSubP)> pubsub_ptrs{nullptr};
 
         public:
             ActiveManager(PubSubP& ... pubsubs) noexcept:

@@ -7,7 +7,7 @@
 #include <can_plugins/Frame.h>
 
 #include "lib/serialize.hpp"
-#include "message_convertor/message_convertor_all.hpp"
+#include "message_convertor/all.hpp"
 #include "topic.hpp"
 #include "publisher.hpp"
 #include "stringlike_types.hpp"
@@ -34,8 +34,8 @@ namespace Harurobo2022
 
             static_assert(is_can_tx_topic_v<CanTxTopic>, "argument must be can tx topic.");
 
-            using CanData = CanTxTopic::CanData;
-            using Message = CanTxTopic::CanData::Message;
+            using MessageConvertor = CanTxTopic::MessageConvertor;
+            using Message = CanTxTopic::Message;
         
         private:
             Publisher<CanTxTopic, PublisherOption{.disable_can_tx_topic_warn{true}}> pub;
@@ -47,24 +47,19 @@ namespace Harurobo2022
                 canpub_p->change_buff_size_if_larger(can_queue_size);
             }
 
-            void can_publish(const CanData& can_data) noexcept
+            void can_publish(const MessageConvertor& conv) noexcept
             {
-                StewLib::Serialize serialize{can_data.data};
+                StewLib::Serialize<8, typename MessageConvertor::CanData> serialize{conv};
 
-                if constexpr(serialize.chunks_size)
+                for(std::size_t i = 0; i < serialize.chunks_size; ++i)
                 {
-                    for(std::size_t i = 0; i < serialize.chunks_size; ++i)
-                    {
-                        canpub_p->publish({CanTxTopic::id, 8, serialize.chunks[i]});
-                    }
+                    canpub_p->publish({CanTxTopic::id, 8, serialize.chunks[i]});
                 }
-
-                canpub_p->publish({CanTxTopic::id, serialize.last_size, serialize.last_chunk});
             }
 
-            void publish(const CanData& can_data) noexcept
+            void publish(const MessageConvertor& conv) noexcept
             {
-                pub.publish(can_data);
+                pub.publish(conv);
             }
 
             ros::Publisher get_pub() const noexcept

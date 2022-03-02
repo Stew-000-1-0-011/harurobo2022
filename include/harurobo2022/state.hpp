@@ -6,6 +6,7 @@
 #include "stringlike_types.hpp"
 #include "publisher.hpp"
 #include "subscriber.hpp"
+#include "topics.hpp"
 
 namespace Harurobo2022
 {
@@ -15,7 +16,6 @@ namespace Harurobo2022
         {
             disable,
             reset,
-            shutdown,
             automatic,
             manual,
             over_fence
@@ -23,16 +23,17 @@ namespace Harurobo2022
 
         class StateManager final
         {
-            using state_topic = Topic<StringlikeTypes::state, std_msgs::UInt8>;
+            using state_topic = Topics::state_topic;
     
             Publisher<state_topic> pub{1};
-            Subscriber<state_topic> sub{1, [&state](const typename state_topic::Message::ConstPtr& msg_p){ state = static_cast<State>(msg_p.data); }};
 
             State state{State::disable};
+            Subscriber<state_topic> sub{1, [this](const typename state_topic::Message::ConstPtr& msg_p){ state = static_cast<State>(msg_p->data); }};
 
         public:
-            StateManager(auto callback) noexcept
-                sub{1, [&state](const typename state_topic::Message::ConstPtr& msg_p){ state = static_cast<State>(msg_p.data); callback(); }}
+            template<class F>
+            StateManager(F callback) noexcept:
+                sub{1, [this, &callback](const typename state_topic::Message::ConstPtr& msg_p){ state = static_cast<State>(msg_p->data); callback(msg_p); }}
             {}
 
             StateManager() = default;

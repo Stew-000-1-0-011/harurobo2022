@@ -10,7 +10,6 @@ add_compile_options(-std=c++2a -g -O3 -Wall -Wextra -pedantic-errors)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
-  geometry_msgs
   message_generation
   can_plugins
 )
@@ -52,6 +51,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Odometry.msg
+  Twist.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -72,7 +72,6 @@ add_message_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
-  geometry_msgs
 )
 
 ################################################
@@ -107,7 +106,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES harurobo2022
-  CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs message_runtime
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -139,29 +138,25 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/harurobo2022_node.cpp)
 
-# add_executable(auto_commander
-#   src/auto_commander_node.cpp
-# )
+add_executable(auto_commander
+  src/auto_commander_node.cpp
+)
 
-# add_executable(manual_commander
-#   src/manual_commander_node.cpp
-# )
+add_executable(manual_commander
+  src/manual_commander_node.cpp
+)
 
 add_executable(under_carriage_4wheel
   src/under_carriage_4wheel_node.cpp
 )
 
-# add_executable(can_subscriber
-#   src/can_subscriber_node.cpp
-# )
+add_executable(can_subscriber
+  src/can_subscriber_node.cpp
+)
 
-# add_executable(emergency_controller
-#   src/emergency_controller_node.cpp
-# )
-
-# add_executable(state_manager
-#   src/state_manager_node.cpp
-# )
+add_executable(state_manager
+  src/state_manager_node.cpp
+)
 
 add_executable(hoge
   src/hoge_node.cpp
@@ -182,29 +177,25 @@ add_executable(hoge
 #   ${catkin_LIBRARIES}
 # )
 
-# target_link_libraries(auto_commander
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(auto_commander
+  ${catkin_LIBRARIES}
+)
 
-# target_link_libraries(manual_commander
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(manual_commander
+  ${catkin_LIBRARIES}
+)
 
 target_link_libraries(under_carriage_4wheel
   ${catkin_LIBRARIES}
 )
 
-# target_link_libraries(can_subscriber
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(can_subscriber
+  ${catkin_LIBRARIES}
+)
 
-# target_link_libraries(emergency_controller
-#   ${catkin_LIBRARIES}
-# )
-
-# target_link_libraries(state_manager
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(state_manager
+  ${catkin_LIBRARIES}
+)
 
 target_link_libraries(hoge
   ${catkin_LIBRARIES}

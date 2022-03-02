@@ -5,8 +5,7 @@
 #include <can_plugins/Frame.h>
 
 #include "harurobo2022/lib/enumerate.hpp"
-
-#include "harurobo2022/message_convertor/message_convertor_template.hpp"
+#include "../template.hpp"
 
 
 
@@ -18,6 +17,7 @@ namespace Harurobo2022
         struct MessageConvertor<can_plugins::Frame>
         {
             using Message = can_plugins::Frame;
+            using CanData = void;
 
             std::uint32_t id{};
             bool is_rtr{false};
@@ -70,7 +70,7 @@ namespace Harurobo2022
                     const std::uint32_t id,
                     const bool is_rtr, const bool is_extended, const bool is_error,
                     const std::uint8_t dlc, const std::uint8_t (&data)[8],
-                    [[maybe_unused]] const StewLib::Enumerate<index8 ...> enumerate
+                    const StewLib::Enumerate<index8 ...>
                 ) noexcept:
                 id{id},
                 is_rtr{is_rtr},

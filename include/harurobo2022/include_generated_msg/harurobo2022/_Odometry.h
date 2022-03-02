@@ -1,1 +1,0 @@
-/home/shnsk/catkin_ws/devel/.private/harurobo2022/include/harurobo2022/Odometry.h

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "harurobo2022/Odometry.h"
+#include "harurobo2022/Twist.h"
 
 #include "../../lib/reverse_buffer.hpp"
 #include "../template.hpp"
@@ -11,30 +11,30 @@ namespace Harurobo2022
     namespace
     {
         template<>
-        struct MessageConvertor<harurobo2022::Odometry>
+        struct MessageConvertor<harurobo2022::Twist>
         {
-            using Message = harurobo2022::Odometry;
+            using Message = harurobo2022::Twist;
 
             struct RawData final
             {
-                float pos_x{};
-                float pos_y{};
-                float rot_z{};
+                float linear_x{};
+                float linear_y{};
+                float angular_z{};
             };
 
             struct CanData final
             {
-                StewLib::ReverseBuffer<float> pos_x{};
-                StewLib::ReverseBuffer<float> pos_y{};
-                StewLib::ReverseBuffer<float> rot_z{};
+                StewLib::ReverseBuffer<float> linear_x{};
+                StewLib::ReverseBuffer<float> linear_y{};
+                StewLib::ReverseBuffer<float> angular_z{};
                 
                 CanData() = default;
 
                 void reverse() noexcept
                 {
-                    pos_x.reverse();
-                    pos_y.reverse();
-                    rot_z.reverse();
+                    linear_x.reverse();
+                    linear_y.reverse();
+                    angular_z.reverse();
                 }
             };
 
@@ -48,7 +48,7 @@ namespace Harurobo2022
             ~MessageConvertor() = default;
 
             constexpr MessageConvertor(const Message& msg) noexcept:
-                MessageConvertor({msg.pos_x, msg.pos_y, msg.rot_z})
+                MessageConvertor({msg.linear_x, msg.linear_y, msg.angular_z})
             {}
 
             constexpr MessageConvertor(const RawData& raw_data) noexcept:
@@ -63,9 +63,9 @@ namespace Harurobo2022
             operator Message() const noexcept
             {
                 Message msg;
-                msg.pos_x = raw_data.pos_x;
-                msg.pos_y = raw_data.pos_y;
-                msg.rot_z = raw_data.rot_z;
+                msg.linear_x = raw_data.linear_x;
+                msg.linear_y = raw_data.linear_y;
+                msg.angular_z = raw_data.angular_z;
 
                 return msg;
             }

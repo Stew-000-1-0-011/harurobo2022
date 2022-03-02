@@ -36,8 +36,10 @@ namespace Harurobo2022
             inline constexpr double body_radius{/*TODO*/+Wheel::Pos::FR};
             inline constexpr double wheel_radius{/*TODO*/30};
 
-            inline constexpr double collector_top_position{/*TODO*/};
             inline constexpr double collector_bottom_position{/*TODO*/};
+            inline constexpr double collector_step1_position{/*TODO*/};
+            inline constexpr double collector_step2_position{/*TODO*/};
+            inline constexpr double collector_step3_position{/*TODO*/};
 
             namespace Limitation
             {
@@ -85,11 +87,15 @@ namespace Harurobo2022
                         inline constexpr std::uint16_t subX{/*TODO*/};
                         inline constexpr std::uint16_t subY{/*TODO*/};
 
-                        inline constexpr std::uint16_t collect{/*TODO*/};
+                        inline constexpr std::uint16_t collector{/*TODO*/};
                     }
 
-                    inline constexpr std::uint16_t position_controll_ids[] = {LiftMotor::FR, LiftMotor::FL, LiftMotor::BL, LiftMotor::BR, LiftMotor::subX, LiftMotor::subY, LiftMotor::collect};
+                    inline constexpr std::uint16_t position_controll_ids[] = {LiftMotor::FR, LiftMotor::FL, LiftMotor::BL, LiftMotor::BR, LiftMotor::subX, LiftMotor::subY, LiftMotor::collector};
                     inline constexpr std::size_t position_controll_ids_size = sizeof(position_controll_ids) / sizeof(position_controll_ids[0]);
+
+                    inline constexpr std::uint16_t stepping_motor{/*TODO*/};
+                    inline constexpr std::uint16_t table_cloth{/*TODO*/};
+
 
                     namespace Emergency
                     {

@@ -11,60 +11,64 @@ namespace Harurobo2022
 {
     namespace
     {
-
-    enum class Work : std::uint8_t
-    {
-        transit = 0,
-
-        collector_up,
-        collector_down,
-        collector_shovel,
-        collector_tablecloth,
-
-        change_to_over_fence
-    };
-
-    struct Command final
-    {
-        StewMath::Circle<float> pass_near_circle{};
-        Work work{Work::transit};
-    };
-
-    namespace Chart::Implement
-    {
-        inline std::list<Command> chart
+        enum class Work : std::uint8_t
         {
-            #include "../../others/chart.csv"
+            transit = 0,
+
+            collector_bottom,
+            collector_step1,
+            collector_step2,
+            collector_step3,
+            collector_shovel_open,
+            collector_shovel_close,
+            collector_tablecloth_push,
+            collector_tablecloth_pull,
+
+            change_to_over_fence
         };
 
-        std::list<Command> make_trajectory(std::list<Command> chart) noexcept
+        struct Command final
         {
-            chart.remove_if([](const Command& command) noexcept {return command.work != Work::transit;});
-            return chart;
-        }
+            StewLib::Circle<float> pass_near_circle{};
+            Work work{Work::transit};
+        };
 
-        std::list<std::list<Command>> make_steps(const std::list<Command>& chart) noexcept
+        namespace Chart::Implement
         {
-            std::list<std::list<Command>> steps;
-            steps.emplace_back();
-            auto part_steps = steps.end();
-            --part_steps;
-
-            for(const auto& command: chart)
+            inline std::list<Command> chart
             {
-                if(command.work == Work::transit)
-                {
-                    steps.emplace_back();
-                    ++part_steps;
-                }
+                #include "../../others/chart.csv"
+            };
 
-                part_steps->emplace_back(command);
+            std::list<Command> make_trajectory(std::list<Command> chart) noexcept
+            {
+                chart.remove_if([](const Command& command) noexcept {return command.work != Work::transit;});
+                return chart;
             }
 
-            return steps;
-        }
-    }
+            std::list<std::list<Command>> make_steps(const std::list<Command>& chart) noexcept
+            {
+                std::list<std::list<Command>> steps;
+                steps.emplace_back();
+                auto part_steps = steps.end();
+                --part_steps;
 
-    inline const std::list<Command> trajectory = Chart::Implement::make_trajectory(Chart::Implement::chart);
-    inline std::list<std::list<Command>> steps = Chart::Implement::make_steps(Chart::Implement::chart);
+                for(const auto& command: chart)
+                {
+                    if(command.work == Work::transit)
+                    {
+                        steps.emplace_back();
+                        ++part_steps;
+                    }
+
+                    part_steps->emplace_back(command);
+                }
+
+                return steps;
+            }
+        }
+
+        inline const std::list<Command> trajectory = Chart::Implement::make_trajectory(Chart::Implement::chart);
+        inline std::list<std::list<Command>> steps = Chart::Implement::make_steps(Chart::Implement::chart);
+    }
 }

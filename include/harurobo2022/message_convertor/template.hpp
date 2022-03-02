@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstring>
+
 #include <ros/ros.h>
 
-
+#include "../lib/reverse_buffer.hpp"
 
 namespace Harurobo2022
 {
@@ -16,8 +18,9 @@ namespace Harurobo2022
             static_assert(ros::message_traits::IsMessage<Message_>::value, "1st argument must be message.");
 
             using RawData = Message_::_data_type;
+            using CanData = StewLib::ReverseBuffer<RawData>;
 
-            RawData data{};
+            RawData raw_data{};
 
             MessageConvertor() = default;
             MessageConvertor(const MessageConvertor&) = default;
@@ -26,24 +29,37 @@ namespace Harurobo2022
             MessageConvertor& operator=(MessageConvertor&&) = default;
             ~MessageConvertor() = default;
 
-            constexpr MessageConvertor(const RawData& data) noexcept:
-                data(data)
+            constexpr MessageConvertor(const Message& msg) noexcept:
+                raw_data(msg.data)
             {}
 
-            constexpr MessageConvertor(const Message& msg) noexcept:
-                data(msg.data)
+            constexpr MessageConvertor(const RawData& raw_data) noexcept:
+                raw_data(raw_data)
             {}
+
+            MessageConvertor(CanData can_data) noexcept
+            {
+                can_data.reverse();
+                std::memcpy(&raw_data, &can_data, sizeof(RawData));
+            }
 
             operator Message() const noexcept
             {
                 Message msg;
-                msg.data = data;
+                msg.data = raw_data;
                 return msg;
             }
 
             operator RawData() const noexcept
             {
-                return data;
+                return raw_data;
+            }
+
+            operator CanData() const noexcept
+            {
+                CanData ret = raw_data;
+                ret.reverse();
+                return ret;
             }
         };
     }
