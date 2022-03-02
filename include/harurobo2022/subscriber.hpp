@@ -66,7 +66,7 @@ namespace Harurobo2022
             Subscriber(const std::uint32_t queue_size,const F& callback) noexcept:
                 queue_size{queue_size},
                 callback{callback},
-                sub{nh.subscribe<Message>(TopicName::str, queue_size, callback)}
+                sub{nh.subscribe<Message>(TopicName::str, queue_size, this->callback)}
             {
                 if(is_subscribed<TopicName>)
                 {

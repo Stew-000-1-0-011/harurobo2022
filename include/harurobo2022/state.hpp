@@ -18,7 +18,9 @@ namespace Harurobo2022
             reset,
             automatic,
             manual,
-            over_fence
+            over_fence,
+            game_over,
+            game_clear
         };
 
         class StateManager final
@@ -33,7 +35,7 @@ namespace Harurobo2022
         public:
             template<class F>
             StateManager(F callback) noexcept:
-                sub{1, [this, &callback](const typename state_topic::Message::ConstPtr& msg_p){ state = static_cast<State>(msg_p->data); callback(msg_p); }}
+                sub{1, [this, &callback](const typename state_topic::Message::ConstPtr& msg_p){ state = static_cast<State>(msg_p->data); callback(state); }}
             {}
 
             StateManager() = default;

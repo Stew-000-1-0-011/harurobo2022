@@ -45,7 +45,7 @@ namespace Harurobo2022
                 }
             };
             
-            std::array<std::variant<PubSubP * ...>, sizeof...(PubSubP)> pubsub_ptrs{nullptr};
+            std::array<std::variant<PubSubP * ...>, sizeof...(PubSubP)> pubsub_ptrs{};
 
         public:
             ActiveManager(PubSubP& ... pubsubs) noexcept:
@@ -54,17 +54,23 @@ namespace Harurobo2022
 
             void activate() noexcept
             {
-                for(auto& pubsub_p : pubsub_ptrs)
+                if constexpr(sizeof...(PubSubP))
                 {
-                    std::visit([](auto pubsub_p) noexcept {pubsub_p->activate();}, pubsub_p);
+                    for(auto& pubsub_p : pubsub_ptrs)
+                    {
+                        std::visit([](auto pubsub_p) noexcept {pubsub_p->activate();}, pubsub_p);
+                    }
                 }
             }
 
             void deactivate() noexcept
             {
-                for(auto& pubsub_p : pubsub_ptrs)
+                if constexpr(sizeof...(PubSubP))
                 {
-                    std::visit([](auto pubsub_p) noexcept {pubsub_p->deactivate();}, pubsub_p);
+                    for(auto& pubsub_p : pubsub_ptrs)
+                    {
+                        std::visit([](auto pubsub_p) noexcept {pubsub_p->deactivate();}, pubsub_p);
+                    }
                 }
             }
         };

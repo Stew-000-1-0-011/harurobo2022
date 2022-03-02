@@ -45,9 +45,18 @@ namespace
 
         Subscriber<Topics::odometry> odometry_sub{1, [this](const typename Topics::odometry::Message::ConstPtr& msg_p) noexcept { odometry_callback(msg_p); }};
         
-        Timer check_work{1.0 / Config::ExecutionInterval::auto_commander_freq, [this](const auto& event){ check_work_callback(event); }};
+        Timer check_work{1.0 / Config::ExecutionInterval::auto_commander_freq, [this](const auto& event){ check_work_callback(); }};
 
-        StateManager state_manager{};
+        StateManager state_manager
+        {
+            [this](const State& state) noexcept
+            {
+                if(state == State::reset)
+                {
+                    chart_reset();
+                }
+            }
+        };
 
         ActiveManager
         <
@@ -61,9 +70,12 @@ namespace
         // ひとまずは位置と姿勢を速度上限つきP制御で追う。目標位置姿勢と現在位置姿勢の差を定数倍して並進速度角速度にする。
         Vec2D<float> now_pos{};
         float now_rot_z{};
+
+        Vec2D<float> target_pos{};
+        float target_rot_z{};
         
-        std::list<Command>::const_iterator target_iter{trajectory.cbegin()};
-        std::list<std::list<Command>>::iterator missions_iter{steps.begin()};
+        typename decltype(trajectory)::const_iterator transit_iter{trajectory.cbegin()};
+
 
     public:
         AutoCommanderNode() noexcept
@@ -78,7 +90,7 @@ namespace
             now_rot_z = msg_p->rot_z;
         }
 
-        void check_work_callback(const ros::TimerEvent&) noexcept
+        void check_work_callback() noexcept
         {
             if(missions_iter->empty()) return;
 
@@ -96,14 +108,32 @@ namespace
             }
         }
 
+        void aim_at_dest_callback() noexcept
+        {
+            if()
+        }
+
+        void reach_transit_point() noexcept
+        {
+            // ここらへんchartへの入力によって端が変わるので要注意。
+            ++missions_iter;
+            if(missions_iter == steps.end())
+            {
+                state_manager.set_state(State::game_clear);
+                return;
+            }
+
+            ++target_iter;
+            const auto& target_circle = target_iter->pass_near_circle;
+            target_pos = target_circle.center;
+            target_rot_z = target_circle.range;
+        }
+
         /* TODO over_fenceの実装 */
         void do_work(const Work work) noexcept
         {
             switch(work)
             {
-            case Work::transit:
-                break;
-            
             case Work::collector_bottom:
                 case_collector_bottom();
                 break;

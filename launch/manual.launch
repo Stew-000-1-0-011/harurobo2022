@@ -1,7 +1,6 @@
 <launch>
   <node name="under_carriage_4wheel" pkg="harurobo2022" type="under_carriage_4wheel" output="screen" />
   <node name="can_subscriber" pkg="harurobo2022" type="can_subscriber" output="screen" />
-  <node name="emergency_controller" pkg="harurobo2022" type="emergency_controller" output="screen" />
   <node name="manual_commander" pkg="harurobo2022" type="manual_commander" output="screen" />
   <node name="state_manager" pkg="harurobo2022" type="state_manager" output="screen" />
   <node name="joy_node" pkg="joy" type="joy_node" output="screen" />

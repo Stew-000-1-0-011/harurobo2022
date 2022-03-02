@@ -21,23 +21,26 @@ namespace StewLib
         template<class StringlikeTypeL, class StringlikeTypeR>
         struct Concat final : StringlikeTypeImplement::StringlikeTypeBase
         {
-            constexpr static std::size_t size = StringlikeTypeL::size + StringlikeTypeR::size;
-            inline static char str[size];
-            inline static const char dummy =
-                []() noexcept
-                {
-                    for(std::size_t i = 0; i < StringlikeTypeL::size; ++i)
-                    {
-                        str[i] = StringlikeTypeL::str[i];
-                    }
+            constexpr static std::size_t size = StringlikeTypeL::size + StringlikeTypeR::size - 1;
 
-                    for(std::size_t i = 0; i < StringlikeTypeR::size; ++i)
-                    {
-                        str[StringlikeTypeL::size + i] = StringlikeTypeR::str[i];
-                    }
-                    
-                    return 0;
-                }();
+            // 訳が分からないよ。  /*<UNDEFINED>*/
+            inline static char * str =
+            []() noexcept
+            {
+                static char str_[size];
+
+                for(std::size_t i = 0; i < StringlikeTypeL::size - 1; ++i)
+                {
+                    str_[i] = StringlikeTypeL::str[i];
+                }
+
+                for(std::size_t i = 0; i < StringlikeTypeR::size; ++i)
+                {
+                    str_[StringlikeTypeL::size - 1 + i] = StringlikeTypeR::str[i];
+                }
+                
+                return str_;
+            }();
         };
     }
 }
