@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-
-
 namespace ShirasuUtil
 {
     namespace

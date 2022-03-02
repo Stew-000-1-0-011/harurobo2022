@@ -2,8 +2,6 @@
 
 #include <array>
 
-#include <boost/array.hpp>
-
 #include <can_plugins/Frame.h>
 
 #include "lib/serialize.hpp"

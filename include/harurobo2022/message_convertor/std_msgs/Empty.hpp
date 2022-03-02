@@ -4,7 +4,6 @@
 
 #include <std_msgs/Empty.h>
 
-#include "../../lib/reverse_buffer.hpp"
 #include "../template.hpp"
 
 

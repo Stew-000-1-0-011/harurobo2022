@@ -45,17 +45,17 @@ namespace
 
         Subscriber<Topics::odometry> odometry_sub{1, [this](const typename Topics::odometry::Message::ConstPtr& msg_p) noexcept { odometry_callback(msg_p); }};
         
-        Timer check_position{1.0 / Config::ExecutionInterval::auto_commander_freq, [this](const auto& event){ check_position_callback(event); }};
+        Timer check_work{1.0 / Config::ExecutionInterval::auto_commander_freq, [this](const auto& event){ check_work_callback(event); }};
 
         StateManager state_manager{};
 
         ActiveManager
         <
             StringlikeTypes::auto_commander,
-            decltype(lift_motors), decltype(odometry_sub), decltype(check_position)
+            decltype(lift_motors), decltype(odometry_sub), decltype(check_work)
         > active_manager
         {
-            lift_motors, odometry_sub, check_position
+            lift_motors, odometry_sub, check_work
         };
 
         // ひとまずは位置と姿勢を速度上限つきP制御で追う。目標位置姿勢と現在位置姿勢の差を定数倍して並進速度角速度にする。
@@ -78,7 +78,7 @@ namespace
             now_rot_z = msg_p->rot_z;
         }
 
-        void check_position_callback(const ros::TimerEvent&) noexcept
+        void check_work_callback(const ros::TimerEvent&) noexcept
         {
             if(missions_iter->empty()) return;
 

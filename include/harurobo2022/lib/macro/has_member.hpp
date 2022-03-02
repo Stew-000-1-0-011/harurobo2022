@@ -1,4 +1,5 @@
 // #pragma once 故意
+
 #define Stew_define_has_member(member, func_name)\
 \
 namespace StewLib\

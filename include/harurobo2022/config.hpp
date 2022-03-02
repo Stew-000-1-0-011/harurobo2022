@@ -14,27 +14,27 @@ namespace Harurobo2022
             {
                 namespace Pos
                 {
-                    inline constexpr StewLib::Vec2D<double> FR{/*TODO*/265.51225, 139.42435};
-                    inline constexpr StewLib::Vec2D<double> FL{-FR.x, FR.y};
+                    inline constexpr StewLib::Vec2D<double> FR{99.3931, -290.65685};
+                    inline constexpr StewLib::Vec2D<double> FL{FR.x, -FR.y};
                     inline constexpr StewLib::Vec2D<double> BL{-FR};
-                    inline constexpr StewLib::Vec2D<double> BR{FR.x, -FR.y};
+                    inline constexpr StewLib::Vec2D<double> BR{-FR.x, FR.y};
 
                     inline constexpr StewLib::Vec2D<double> all[4]{FR, FL, BL, BR};
                 }
 
                 namespace Direction
                 {
-                    inline constexpr StewLib::Vec2D<double> FR{/*TODO*/0.819152, -0.573576};
-                    inline constexpr StewLib::Vec2D<double> FL{/*TODO*/0.819152, 0.573576};
-                    inline constexpr StewLib::Vec2D<double> BL{/*TODO*/0.819152, -0.573576};
-                    inline constexpr StewLib::Vec2D<double> BR{/*TODO*/0.819152, 0.573576};
+                    inline constexpr StewLib::Vec2D<double> FR{0.707106, 0.707106};
+                    inline constexpr StewLib::Vec2D<double> FL{-FR.x, FR.y};
+                    inline constexpr StewLib::Vec2D<double> BL{FR};
+                    inline constexpr StewLib::Vec2D<double> BR{FL};
 
                     inline constexpr StewLib::Vec2D<double> all[4]{FR, FL, BL, BR};
                 }
             }
 
-            inline constexpr double body_radius{/*TODO*/+Wheel::Pos::FR};
-            inline constexpr double wheel_radius{/*TODO*/30};
+            inline constexpr double body_radius{+Wheel::Pos::FR};
+            inline constexpr double wheel_radius{30};
 
             inline constexpr double collector_bottom_position{/*TODO*/};
             inline constexpr double collector_step1_position{/*TODO*/};
@@ -50,8 +50,8 @@ namespace Harurobo2022
                 inline constexpr double body_vell_ratio{/*TODO*/0.5};
                 inline constexpr double body_vela_ratio{/*TODO*/0.5};
 
-                inline constexpr double body_vell{/*TODO*/wheel_vela * body_vell_ratio * wheel_radius};
-                inline constexpr double body_vela{/*TODO*/wheel_vela * body_vela_ratio * wheel_radius / body_radius};
+                inline constexpr double body_vell{wheel_vela * body_vell_ratio * wheel_radius};
+                inline constexpr double body_vela{wheel_vela * body_vela_ratio * wheel_radius / body_radius};
             }
 
 
@@ -60,7 +60,7 @@ namespace Harurobo2022
                 inline constexpr double under_carriage_freq{/*TODO*/1000};
                 inline constexpr double manual_commander_freq{/*TODO*/1000};
                 inline constexpr double auto_commander_freq{/*TODO*/1000};
-                inline constexpr double not_emergency_signal_freq{/*TODO*/100};
+                // inline constexpr double not_emergency_signal_freq{/*TODO*/100};
             }
 
             namespace CanId
@@ -106,7 +106,7 @@ namespace Harurobo2022
                 namespace Rx
                 {
                     inline constexpr std::uint16_t odometry{/*TODO*/0x10};
-                    inline constexpr std::uint16_t stopped{/*TODO*/0x8};
+                    // inline constexpr std::uint16_t stopped{/*TODO*/0x8};
                 }
             }
         }

@@ -12,7 +12,6 @@ base_controllerを参考にした。
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/subscriber.hpp"
 #include "harurobo2022/active_manager.hpp"
-#include "harurobo2022/shirasu_publisher.hpp"
 #include "harurobo2022/static_init_deinit.hpp"
 #include "harurobo2022/motors.hpp"
 #include "harurobo2022/timer.hpp"

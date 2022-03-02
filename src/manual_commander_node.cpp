@@ -28,6 +28,8 @@
 #include <sensor_msgs/Joy.h>
 #include <harurobo2022/Twist.h>
 
+#include "harurobo2022/lib/vec2d.hpp"
+
 #include "harurobo2022/config.hpp"
 #include "harurobo2022/topics.hpp"
 #include "harurobo2022/publisher.hpp"
@@ -36,7 +38,7 @@
 #include "harurobo2022/state.hpp"
 #include "harurobo2022/timer.hpp"
 
-
+using namespace StewLib;
 using namespace Harurobo2022;
 
 namespace
@@ -176,9 +178,11 @@ namespace
         {
             harurobo2022::Twist cmd_vel;
 
-            cmd_vel.linear_x = Config::Limitation::body_vell / 2 * joy_input.latest_joy.axes[Axes::l_stick_LR];  //[0]はコントローラーの左スティック左右の割り当て
-            cmd_vel.linear_y = Config::Limitation::body_vell / 2 * joy_input.latest_joy.axes[Axes::l_stick_UD];  //[1]はコントローラーの左スティック上下の割り当て
-            cmd_vel.angular_z = Config::Limitation::body_vela * joy_input.latest_joy.axes[Axes::r_stick_LR];  //[2]はコントローラーの右スティック左右の割り当て
+            const Vec2D<float> input_vec = ~Vec2D<float>{joy_input.latest_joy.axes[Axes::l_stick_UD], joy_input.latest_joy.axes[Axes::l_stick_LR]};
+
+            cmd_vel.linear_x = Config::Limitation::body_vell * input_vec.x;
+            cmd_vel.linear_y = Config::Limitation::body_vell * input_vec.y;
+            cmd_vel.angular_z = Config::Limitation::body_vela * joy_input.latest_joy.axes[Axes::r_stick_LR];
 
             body_twist_pub.publish(cmd_vel);
 
