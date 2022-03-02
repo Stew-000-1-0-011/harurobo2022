@@ -1,7 +1,6 @@
 #pragma once
 
 #include <type_traits>
-#include <string>
 
 #include <ros/ros.h>
 

@@ -1,4 +1,5 @@
 // #pragma once 故意
+
 #include "../stringlike_type.hpp"
 
 #define Stew_StringlikeType(name) \

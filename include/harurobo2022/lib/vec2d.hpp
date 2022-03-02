@@ -3,9 +3,6 @@
 // GCC独自拡張前提(cmath関数のconstexpr化はよ)
 
 #include <cmath>
-#include <utility>
-
-
 
 namespace StewLib
 {
