@@ -3,9 +3,8 @@
 #include <cstdint>
 
 #include "shirasu_util.hpp"
-
+#include "std_msgs_convertor.hpp"
 #include "can_publisher.hpp"
-#include "can_data/shirasu_target.hpp"
 #include "stringlike_types.hpp"
 
 
@@ -21,8 +20,8 @@ namespace Harurobo2022
             constexpr static std::uint16_t bid = bid_;
         
         private:
-            using cmd = CanTxTopic<ShirasuTarget, bid, StewLib::Concat<MotorName, StringlikeTypes::_cmd>>;
-            using target = CanTxTopic<ShirasuTarget, ShirasuUtil::target_id(bid), StewLib::Concat<MotorName, StringlikeTypes::_target>>;
+            using cmd = CanTxTopic<StewLib::Concat<MotorName, StringlikeTypes::_cmd>, StdMsgsConvertor<std::uint8_t>, bid>;
+            using target = CanTxTopic<StewLib::Concat<MotorName, StringlikeTypes::_target>, StdMsgsConvertor<float>, ShirasuUtil::target_id(bid)>;
 
             CanPublisher<cmd> cmd_canpub{10};
             CanPublisher<target> target_canpub{10};

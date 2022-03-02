@@ -24,7 +24,7 @@ ros::AdveriseOptionsを見るといかに貧弱になってるかがわかる。
 
 #include "lib/stringlike_type.hpp"
 #include "topic.hpp"
-#include "message_convertor/message_convertor_all.hpp"
+#include "message_convertor/all.hpp"
 
 #include "harurobo2022/lib/macro/static_warn.hpp"
 
@@ -66,10 +66,11 @@ namespace Harurobo2022
 
         private:
             static_assert(is_topic_v<Topic>, "argument must be topic.");
-            static_assert(!is_can_rx_topic_v<Topic> && !opt.disable_can_rx_topic_assert, "argument must not be can_rx topic.");
-            Stew_static_warn(is_can_tx_topic_v<Topic> && !opt.disable_can_tx_topic_warn, "argument is can tx topic. you should use Harurobo2022::CanPublisher.");
+            static_assert(!is_can_rx_topic_v<Topic> || opt.disable_can_rx_topic_assert, "argument must not be can_rx topic.");
+            Stew_static_warn(is_can_tx_topic_v<Topic> || opt.disable_can_tx_topic_warn, "argument is can tx topic. you should use Harurobo2022::CanPublisher.");
 
         public:
+            using MessageConvertor = Topic::MessageConvertor;
             using Message = Topic::Message;
             using TopicName = Topic::Name;
 
@@ -102,15 +103,9 @@ namespace Harurobo2022
             Publisher(Publisher&&) = delete;
             Publisher& operator=(Publisher&&) = delete;
 
-            void publish(const MessageConvertor<Message>& raw_data) const noexcept
+            void publish(const MessageConvertor& conv) const noexcept
             {
-                const Message& msg = raw_data;
-                if(pub) pub.publish(msg);
-            }
-
-            void publish(const Message& msg) const noexcept
-            {
-                if(pub) pub.publish(msg);
+                if(pub) pub.publish(static_cast<Message>(conv));
             }
 
             void change_buff_size(const std::uint32_t changed_queue_size) noexcept

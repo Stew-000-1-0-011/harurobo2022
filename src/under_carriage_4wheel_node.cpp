@@ -14,6 +14,8 @@ base_controllerを参考にした。
 #include "harurobo2022/active_manager.hpp"
 #include "harurobo2022/shirasu_publisher.hpp"
 #include "harurobo2022/static_init_deinit.hpp"
+#include "harurobo2022/motors.hpp"
+#include "harurobo2022/timer.hpp"
 
 using namespace StewLib;
 using namespace Harurobo2022;
@@ -21,48 +23,31 @@ namespace CanId = Harurobo2022::Config::CanId;
 
 namespace
 {
-    #include "harurobo2022/lib/macro/define_stringlike_type.hpp"
-    Stew_StringlikeType(under_carriage_4wheel)
-    Stew_StringlikeType(FRdrive)
-    Stew_StringlikeType(FLdrive)
-    Stew_StringlikeType(BLdrive)
-    Stew_StringlikeType(BRdrive)
-    #undef Stew_StringlikeType
-
     class UnderCarriage4WheelNode final
     {
         ros::NodeHandle nh{};
 
-        ros::Timer publish_timer
-        {
-            nh.createTimer
-            (
-                ros::Duration(1.0 / Config::ExecutionInterval::under_carriage_freq),
-                &UnderCarriage4WheelNode::publish_timer_callback, this
-            )
-        };
+        Timer publish_timer{1.0 / Config::ExecutionInterval::under_carriage_freq, [this](const auto& event) noexcept { publish_timer_callback(event); }};
 
-        ShirasuPublisher<FRdrive,CanId::Tx::DriveMotor::FR> FR_pub;
-        ShirasuPublisher<FLdrive,CanId::Tx::DriveMotor::FL> FL_pub;
-        ShirasuPublisher<BLdrive,CanId::Tx::DriveMotor::BL> BL_pub;
-        ShirasuPublisher<BRdrive,CanId::Tx::DriveMotor::BR> BR_pub;
+        DriveMotors drive_motors{};
 
         Subscriber<Topics::body_twist> body_twist_sub
         {
             1,
-            [this](const typename Topics::body_twist::Message::ConstPtr& msg_p)
+            [this](const typename Topics::body_twist::MessageConvertor::Message::ConstPtr& msg_p)
             {
-                body_vell = {msg_p->linear.x, msg_p->linear.y};
-                body_vela = msg_p->angular.z;
+                body_vell = {msg_p->linear_x, msg_p->linear_y};
+                body_vela = msg_p->angular_z;
             }
         };
 
         ActiveManager
         <
-            under_carriage_4wheel, decltype(FR_pub), decltype(FL_pub), decltype(BL_pub), decltype(BR_pub), decltype(body_twist_sub)
+            StringlikeTypes::under_carriage_4wheel,
+            decltype(publish_timer), decltype(drive_motors), decltype(body_twist_sub)
         > active_manager
         {
-            FR_pub, FL_pub, BL_pub, BR_pub, body_twist_sub
+            publish_timer, drive_motors, body_twist_sub
         };
 
         Vec2D<double> body_vell{};
@@ -72,20 +57,20 @@ namespace
         double pre_wheels_vela[4]{};
 
     public:
-        UnderCarriage4WheelNode()
+        UnderCarriage4WheelNode() noexcept
         {
             active_manager.deactivate();
         }
 
     private:
-        void publish_timer_callback([[maybe_unused]] const ros::TimerEvent& event) noexcept
+        void publish_timer_callback(const ros::TimerEvent&) noexcept
         {
             calc_wheels_vela();
 
-            FR_pub.send_target(wheels_vela[0]);
-            FL_pub.send_target(wheels_vela[1]);
-            BL_pub.send_target(wheels_vela[2]);
-            BR_pub.send_target(wheels_vela[3]);
+            drive_motors.FR_pub.send_target(wheels_vela[0]);
+            drive_motors.FL_pub.send_target(wheels_vela[1]);
+            drive_motors.BL_pub.send_target(wheels_vela[2]);
+            drive_motors.BR_pub.send_target(wheels_vela[3]);
         }
         
         inline void calc_wheels_vela() noexcept
@@ -125,7 +110,7 @@ namespace
                 
                 if(max > Config::Limitation::wheel_acca)
                 {
-                    ROS_WARN("%s: warning: The accelaretion of the wheels is too high. Speed is limited.", under_carriage_4wheel::str);
+                    ROS_WARN("%s: warning: The accelaretion of the wheels is too high. Speed is limited.", StringlikeTypes::under_carriage_4wheel::str);
                     auto limit_factor = Config::Limitation::wheel_acca / max;
                     for(int i = 0; i < 4; ++i)
                     {
@@ -149,7 +134,7 @@ namespace
                 
                 if(max > Config::Limitation::wheel_vela)
                 {
-                    ROS_WARN("%s: warning: The speed of the wheels is too high. Speed is limited.", under_carriage_4wheel::str);
+                    ROS_WARN("%s: warning: The speed of the wheels is too high. Speed is limited.", StringlikeTypes::under_carriage_4wheel::str);
                     auto limit_factor = Config::Limitation::wheel_vela / max;
                     for(int i = 0; i < 4; ++i)
                     {
@@ -171,16 +156,16 @@ namespace
 
 int main(int argc, char ** argv)
 {
-    ros::init(argc, argv, under_carriage_4wheel::str);
+    ros::init(argc, argv, StringlikeTypes::under_carriage_4wheel::str);
     StaticInitDeinit static_init_deinit;
 
     UnderCarriage4WheelNode under_carriage_4wheel_node;
 
-    ROS_INFO("%s node has started.", under_carriage_4wheel::str);
+    ROS_INFO("%s node has started.", StringlikeTypes::under_carriage_4wheel::str);
 
     ros::spin();
 
-    ROS_INFO("%s node has terminated.", under_carriage_4wheel::str);
+    ROS_INFO("%s node has terminated.", StringlikeTypes::under_carriage_4wheel::str);
 
 }
 

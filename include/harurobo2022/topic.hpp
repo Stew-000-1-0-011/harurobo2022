@@ -6,8 +6,7 @@
 #include <ros/ros.h>
 
 #include "lib/stringlike_type.hpp"
-
-#include "can_data_concept.hpp"
+#include "message_convertor/all.hpp"
 
 namespace Harurobo2022
 {
@@ -48,32 +47,34 @@ namespace Harurobo2022
 
             static_assert(StewLib::is_stringlike_type_v<Name_>, "1st argument must be StewLib::StringlikeType.");
             static_assert(ros::message_traits::IsMessage<Message_>::value, "2nd argument must be message.");
+            
+            using MessageConvertor = Harurobo2022::MessageConvertor<Message_>;
         };
 
-        template<class CanData_, std::uint16_t id_, class Name_>
+        template<class Name_, class Message_, std::uint16_t id_>
         struct CanTxTopic: TopicImplement::CanTxTopicBase
         {
-            using CanData = CanData_;
-            constexpr static std::uint16_t id = id_;
             using Name = Name_;
+            using Message = Message_;
+            constexpr static std::uint16_t id = id_;
 
-            static_assert(CanDataC<CanData>, "1st argument dont satisfy CanDataC.");
-            static_assert(StewLib::is_stringlike_type_v<Name_>, "3rd argument must be StewLib::StringlikeType.");
+            static_assert(StewLib::is_stringlike_type_v<Name_>, "1st argument must be StewLib::StringlikeType.");
+            static_assert(ros::message_traits::IsMessage<Message_>::value, "2nd argument must be message.");
 
-            using Message = CanData::Message;
+            using MessageConvertor = Harurobo2022::MessageConvertor<Message_>;
         };
 
-        template<class CanData_, std::uint16_t id_, class Name_>
+        template<class Name_, class Message_, std::uint16_t id_>
         struct CanRxTopic: TopicImplement::CanRxTopicBase
         {
-            using CanData = CanData_;
-            constexpr static std::uint16_t id = id_;
             using Name = Name_;
+            using Message = Message_;
+            constexpr static std::uint16_t id = id_;
 
-            static_assert(CanDataC<CanData>, "1st argument dont satisfy CanDataC.");
-            static_assert(StewLib::is_stringlike_type_v<Name_>, "3rd argument must be StewLib::StringlikeType.");
+            static_assert(StewLib::is_stringlike_type_v<Name_>, "1st argument must be StewLib::StringlikeType.");
+            static_assert(ros::message_traits::IsMessage<Message_>::value, "2nd argument must be message.");
 
-            using Message = CanData::Message;
+            using MessageConvertor = Harurobo2022::MessageConvertor<Message_>;
         };
     }
 }

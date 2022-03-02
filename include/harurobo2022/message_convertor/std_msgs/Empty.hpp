@@ -1,8 +1,11 @@
 #pragma once
 
+#include <cstdint>
+
 #include <std_msgs/Empty.h>
 
-#include "harurobo2022/message_convertor/message_convertor_template.hpp"
+#include "../../lib/reverse_buffer.hpp"
+#include "../template.hpp"
 
 
 
@@ -14,6 +17,8 @@ namespace Harurobo2022
         struct MessageConvertor<std_msgs::Empty>
         {
             using Message = std_msgs::Empty;
+            using RawData = void;
+            using CanData = std::uint8_t;
 
             MessageConvertor() = default;
             MessageConvertor(const MessageConvertor&) = default;
@@ -22,11 +27,18 @@ namespace Harurobo2022
             MessageConvertor& operator=(MessageConvertor&&) = default;
             ~MessageConvertor() = default;
 
+            constexpr MessageConvertor(const Message&) noexcept
+            {}
 
-            constexpr MessageConvertor([[maybe_unused]] const Message& data) noexcept
+            constexpr MessageConvertor(const CanData&) noexcept
             {}
 
             operator Message() const noexcept
+            {
+                return {};
+            }
+
+            operator CanData() const noexcept
             {
                 return {};
             }

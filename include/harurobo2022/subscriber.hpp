@@ -62,7 +62,8 @@ namespace Harurobo2022
             ros::Subscriber sub;
 
         public:
-            Subscriber(const std::uint32_t queue_size,const std::function<CallbackSignature>& callback) noexcept:
+            template<class F>
+            Subscriber(const std::uint32_t queue_size,const F& callback) noexcept:
                 queue_size{queue_size},
                 callback{callback},
                 sub{nh.subscribe<Message>(TopicName::str, queue_size, callback)}
@@ -99,7 +100,8 @@ namespace Harurobo2022
                 }
             }
 
-            void change_callback(const std::function<CallbackSignature>& changed_callback) noexcept
+            template<class F>
+            void change_callback(const F& changed_callback) noexcept
             {
                 sub = nh.subscribe<Message>(TopicName::str, queue_size, changed_callback);
                 callback = changed_callback;

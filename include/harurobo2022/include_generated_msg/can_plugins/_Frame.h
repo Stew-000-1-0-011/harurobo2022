@@ -1,1 +1,0 @@
-/home/shnsk/catkin_ws/devel/.private/can_plugins/include/can_plugins/Frame.h
