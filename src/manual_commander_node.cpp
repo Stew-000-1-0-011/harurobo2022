@@ -31,12 +31,15 @@
 #include "harurobo2022/lib/vec2d.hpp"
 
 #include "harurobo2022/config.hpp"
-#include "harurobo2022/topics.hpp"
+#include "harurobo2022/topics/body_twist.hpp"
+#include "harurobo2022/topics/stepping_motor.hpp"
+#include "harurobo2022/topics/table_cloth.hpp"
 #include "harurobo2022/publisher.hpp"
 #include "harurobo2022/can_publisher.hpp"
 #include "harurobo2022/subscriber.hpp"
 #include "harurobo2022/state.hpp"
 #include "harurobo2022/timer.hpp"
+#include "harurobo2022/motors.hpp"
 
 using namespace StewLib;
 using namespace Harurobo2022;
@@ -80,11 +83,23 @@ namespace
         };
     }
 
+    namespace CrossKey
+    {
+        enum CrossKey : std::uint8_t
+        {
+            L,
+            R,
+            U,
+            D
+        };
+    }
+
     struct JoyInput final
     {
         sensor_msgs::Joy latest_joy{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Buttons::N, 0); return msg;}()};
         sensor_msgs::Joy old_joy{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Buttons::N, 0); return msg;}()};
-        bool once_pushed[Buttons::N]{};
+        bool button_once_pushed[Buttons::N]{};
+        bool is_cross_keys_pushed_once[4]{};
 
         JoyInput() = default;
 
@@ -95,9 +110,9 @@ namespace
 
         bool is_pushed_once(const Buttons::Buttons button) noexcept
         {
-            if(old_joy.buttons[button] && !latest_joy.buttons[button] && !once_pushed[button])
+            if(old_joy.buttons[button] && !latest_joy.buttons[button] && !button_once_pushed[button])
             {
-                once_pushed[button] = true;
+                button_once_pushed[button] = true;
                 return true;
             }
             return false;
@@ -107,10 +122,16 @@ namespace
         {
             old_joy = latest_joy;
             latest_joy = joy;
+
             for(int i = 0; i < Buttons::N; ++i)
             {
-                once_pushed[i] = false;
+                button_once_pushed[i] = false;
             }
+
+            is_cross_keys_pushed_once[CrossKey::L] = (old_joy.axes[Axes::cross_LR] > 0 && latest_joy.axes[Axes::cross_LR] <= 0);
+            is_cross_keys_pushed_once[CrossKey::R] = (old_joy.axes[Axes::cross_LR] < 0 && latest_joy.axes[Axes::cross_LR] >= 0);
+            is_cross_keys_pushed_once[CrossKey::U] = (old_joy.axes[Axes::cross_UD] > 0 && latest_joy.axes[Axes::cross_UD] <= 0);
+            is_cross_keys_pushed_once[CrossKey::D] = (old_joy.axes[Axes::cross_UD] < 0 && latest_joy.axes[Axes::cross_UD] >= 0);
         }
     };
 
@@ -119,9 +140,14 @@ namespace
         // friend JoyInput;
         using joy_topic = Topic<StringlikeTypes::joy, sensor_msgs::Joy>;
 
-        ros::NodeHandle nh{};
-
         Publisher<Topics::body_twist> body_twist_pub{1};
+
+        LiftMotors lift_motors{};
+
+        CanPublisher<Topics::stepping_motor> stepping_motor_pub{10};
+        bool is_stepping_motor_open{true};
+        CanPublisher<Topics::table_cloth> table_cloth_pub{10};
+        bool is_table_cloth_push{false};
 
         Subscriber<joy_topic> joy_sub{1, [this](const typename joy_topic::Message::ConstPtr& msg_p) noexcept { joyCallback(*msg_p); }};
 
@@ -176,6 +202,11 @@ namespace
 
         void case_manual() noexcept
         {
+            if(joy_input.is_pushed_once(Buttons::start))
+            {
+                state_manager.set_state(State::manual);
+            }
+
             harurobo2022::Twist cmd_vel;
 
             const Vec2D<float> input_vec = ~Vec2D<float>{joy_input.latest_joy.axes[Axes::l_stick_UD], joy_input.latest_joy.axes[Axes::l_stick_LR]};
@@ -186,7 +217,34 @@ namespace
 
             body_twist_pub.publish(cmd_vel);
 
-            /* TODO: ちりとりや足上げの制御 */
+            if(joy_input.is_pushed_once(Buttons::x) && joy_input.is_cross_keys_pushed_once[CrossKey::U])
+            {
+                lift_motors.collector_pub.publish_target(Config::collector_step3_position);
+            }
+            else if(joy_input.is_cross_keys_pushed_once[CrossKey::U])
+            {
+                lift_motors.collector_pub.publish_target(Config::collector_step2_position);
+            }
+            else if(joy_input.is_cross_keys_pushed_once[CrossKey::D])
+            {
+                lift_motors.collector_pub.publish_target(Config::collector_step1_position);
+            }
+            else if(joy_input.is_pushed_once(Buttons::x) && joy_input.is_cross_keys_pushed_once[CrossKey::D])
+            {
+                lift_motors.collector_pub.publish_target(Config::collector_bottom_position);
+            }
+
+            if(joy_input.is_pushed_once(Buttons::y))
+            {
+                if(is_stepping_motor_open) stepping_motor_pub.can_publish(SteppingMotor::close);
+                else stepping_motor_pub.can_publish(SteppingMotor::open);
+            }
+
+            if(joy_input.is_pushed_once(Buttons::b))
+            {
+                if(is_table_cloth_push) table_cloth_pub.can_publish(TableCloth::pull);
+                else table_cloth_pub.can_publish(TableCloth::push);
+            }
         }
 
         void case_reset() noexcept

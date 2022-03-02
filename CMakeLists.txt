@@ -158,9 +158,9 @@ add_executable(state_manager
   src/state_manager_node.cpp
 )
 
-add_executable(hoge
-  src/hoge_node.cpp
-)
+# add_executable(hoge
+#   src/hoge_node.cpp
+# )
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -197,9 +197,9 @@ target_link_libraries(state_manager
   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(hoge
-  ${catkin_LIBRARIES}
-)
+# target_link_libraries(hoge
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
