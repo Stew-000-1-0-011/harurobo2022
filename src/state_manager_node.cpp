@@ -15,24 +15,24 @@ namespace
         using state_topic = Topics::state_topic;
         StateManager state_manager
         {
-            [this](const state_topic::Message::ConstPtr& msg_p) noexcept
+            [this](const State& state) noexcept
             {
-                state_callback(msg_p);
+                state_callback(state);
             }
         };
 
-        // ActiveManager<StringlikeTypes::under_carriage_4wheel> under_carriage_4wheel_active_manager{};
-        // ActiveManager<StringlikeTypes::auto_commander> auto_commander_active_manager{};
+        ActiveManager<StringlikeTypes::under_carriage_4wheel> under_carriage_4wheel_active_manager{};
+        ActiveManager<StringlikeTypes::auto_commander> auto_commander_active_manager{};
 
         DriveMotors drive_motors{};
         LiftMotors lift_motors{};
 
-        void state_callback(const state_topic::Message::ConstPtr& msg_p) noexcept
+        void state_callback(const State& state) noexcept
         {
-            switch(static_cast<State>(msg_p->data))
+            switch(state)
             {
             case State::disable:
-                case_desable();
+                case_disable();
                 break;
             
             case State::manual:
@@ -47,54 +47,81 @@ namespace
                 case_automatic();
                 break;
             
+            case State::game_over:
+                case_game_over();
+                break;
+
+            case State::game_clear:
+                case_game_clear();
+                break;
+            
             default:
+                ROS_INFO("state_manager: Change to unimplemented state.");
                 break;
             }
         }
         
-        inline void case_manual() noexcept
+        void case_manual() noexcept
         {
             ROS_INFO("State changed to Manual.");
 
-            //under_carriage_4wheel_active_manager.activate();
-            //auto_commander_active_manager.deactivate();
+            under_carriage_4wheel_active_manager.activate();
+            auto_commander_active_manager.deactivate();
 
             drive_motors.send_cmd_all(ShirasuUtil::velocity_mode);
             lift_motors.send_cmd_all(ShirasuUtil::position_mode); // ここで零点が初期化されたりとかしないよね...？
         }
 
-        inline void case_reset() noexcept
+        void case_reset() noexcept
         {
             ROS_INFO("State changed to Reset.");
 
-            //under_carriage_4wheel_active_manager.deactivate();
-            //auto_commander_active_manager.deactivate();
+            under_carriage_4wheel_active_manager.deactivate();
+            auto_commander_active_manager.deactivate();
 
             drive_motors.send_cmd_all(ShirasuUtil::disable_mode);
             lift_motors.send_cmd_all(ShirasuUtil::homing_mode);
         }
 
-        inline void case_automatic() noexcept
+        void case_automatic() noexcept
         {
             ROS_INFO("State changed to Automatic.");
 
-            //under_carriage_4wheel_active_manager.activate();
-            //auto_commander_active_manager.activate();
+            under_carriage_4wheel_active_manager.activate();
+            auto_commander_active_manager.activate();
 
             drive_motors.send_cmd_all(ShirasuUtil::velocity_mode);
             lift_motors.send_cmd_all(ShirasuUtil::position_mode);
         }
 
-        inline void case_desable() noexcept
+        void case_disable() noexcept
         {
             ROS_INFO("State changed to Desable.");
 
-            //under_carriage_4wheel_active_manager.deactivate();
-            //auto_commander_active_manager.deactivate();
+            under_carriage_4wheel_active_manager.deactivate();
+            auto_commander_active_manager.deactivate();
 
             drive_motors.send_cmd_all(ShirasuUtil::disable_mode);
             lift_motors.send_cmd_all(ShirasuUtil::disable_mode);
         }
+
+        void case_game_over() noexcept
+        {
+            ROS_INFO("State changed to GameOver.");
+
+            play_mada_kokode_shinubeki_sadame_deha_nai_to();
+        }
+
+        void case_game_clear() noexcept
+        {
+            ROS_INFO("State changed to GameClear.");
+
+            play_umapyoi();
+        }
+
+        // 余裕があれば。
+        void play_mada_kokode_shinubeki_sadame_deha_nai_to() noexcept {}
+        void play_umapyoi() noexcept {}
     };
 }
 

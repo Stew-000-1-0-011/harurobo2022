@@ -30,16 +30,18 @@ namespace Harurobo2022
         struct Command final
         {
             StewLib::Circle<float> pass_near_circle{};
+            float target_rot_z{};
             Work work{Work::transit};
         };
 
-        namespace Chart::Implement
+        // スタートは入れずゴールを入れる。
+        inline std::list<Command> chart
         {
-            inline std::list<Command> chart
-            {
-                #include "../../others/chart.csv"
-            };
+            #include "../../others/chart.csv"
+        };
 
+        namespace ChartImplement
+        {
             std::list<Command> make_trajectory(std::list<Command> chart) noexcept
             {
                 chart.remove_if([](const Command& command) noexcept {return command.work != Work::transit;});
@@ -68,7 +70,7 @@ namespace Harurobo2022
             }
         }
 
-        inline const std::list<Command> trajectory = Chart::Implement::make_trajectory(Chart::Implement::chart);
-        inline std::list<std::list<Command>> steps = Chart::Implement::make_steps(Chart::Implement::chart);
+        inline std::list<Command> trajectory = ChartImplement::make_trajectory(ChartImplement::chart);
+        inline std::list<std::list<Command>> steps = ChartImplement::make_steps(ChartImplement::chart);
     }
 }

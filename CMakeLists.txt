@@ -138,9 +138,9 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/harurobo2022_node.cpp)
 
-add_executable(auto_commander
-  src/auto_commander_node.cpp
-)
+# add_executable(auto_commander
+#   src/auto_commander_node.cpp
+# )
 
 add_executable(manual_commander
   src/manual_commander_node.cpp
@@ -177,9 +177,9 @@ add_executable(hoge
 #   ${catkin_LIBRARIES}
 # )
 
-target_link_libraries(auto_commander
-  ${catkin_LIBRARIES}
-)
+# target_link_libraries(auto_commander
+#   ${catkin_LIBRARIES}
+# )
 
 target_link_libraries(manual_commander
   ${catkin_LIBRARIES}
