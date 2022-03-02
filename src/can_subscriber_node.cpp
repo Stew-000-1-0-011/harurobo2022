@@ -5,7 +5,7 @@
 #include <ros/ros.h>
 
 #include "harurobo2022/topic.hpp"
-#include "harurobo2022/topics.hpp"
+#include "harurobo2022/topics/odometry.hpp"
 #include "harurobo2022/publisher.hpp"
 #include "harurobo2022/subscriber.hpp"
 #include "harurobo2022/static_init_deinit.hpp"

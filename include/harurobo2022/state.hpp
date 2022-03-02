@@ -6,7 +6,7 @@
 #include "stringlike_types.hpp"
 #include "publisher.hpp"
 #include "subscriber.hpp"
-#include "topics.hpp"
+#include "topics/state_topic.hpp"
 
 namespace Harurobo2022
 {

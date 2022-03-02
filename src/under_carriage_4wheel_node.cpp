@@ -9,7 +9,7 @@ base_controllerを参考にした。
 
 #include "harurobo2022/lib/vec2d.hpp"
 #include "harurobo2022/config.hpp"
-#include "harurobo2022/topics.hpp"
+#include "harurobo2022/topics/body_twist.hpp"
 #include "harurobo2022/subscriber.hpp"
 #include "harurobo2022/active_manager.hpp"
 #include "harurobo2022/static_init_deinit.hpp"

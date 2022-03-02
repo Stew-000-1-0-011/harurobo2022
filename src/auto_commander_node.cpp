@@ -9,7 +9,9 @@
 #include "harurobo2022/active_manager.hpp"
 #include "harurobo2022/can_publisher.hpp"
 #include "harurobo2022/motors.hpp"
-#include "harurobo2022/topics.hpp"
+#include "harurobo2022/topics/stepping_motor.hpp"
+#include "harurobo2022/topics/table_cloth.hpp"
+#include "harurobo2022/topics/odometry.hpp"
 #include "harurobo2022/chart.hpp"
 
 using namespace StewLib;
@@ -21,27 +23,9 @@ namespace
     {
         LiftMotors lift_motors{};
 
-        using stepping_motor = CanTxTopic<StringlikeTypes::stepping_motor, std_msgs::UInt8, Config::CanId::Tx::stepping_motor>;
-        CanPublisher<stepping_motor> stepping_motor_pub{1};
-        struct ShovelCmd final
-        {
-            enum Enum : std::uint8_t
-            {
-                open = 0,
-                close
-            };
-        };
+        CanPublisher<Topics::stepping_motor> stepping_motor_pub{1};
 
-        using table_cloth = CanTxTopic<StringlikeTypes::table_cloth, std_msgs::UInt8, Config::CanId::Tx::table_cloth>;
-        CanPublisher<table_cloth> table_cloth_pub{1};
-        struct TableClothCmd
-        {
-            enum Enum : std::uint8_t
-            {
-                push = 0,
-                pull
-            };
-        };
+        CanPublisher<Topics::table_cloth> table_cloth_pub{1};
 
         Subscriber<Topics::odometry> odometry_sub{1, [this](const typename Topics::odometry::Message::ConstPtr& msg_p) noexcept { odometry_callback(msg_p); }};
         
