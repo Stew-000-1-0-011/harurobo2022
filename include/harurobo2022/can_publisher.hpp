@@ -49,10 +49,12 @@ namespace Harurobo2022
             {
                 StewLib::Serialize<8, typename MessageConvertor::CanData> serialize{conv};
 
-                for(std::size_t i = 0; i < serialize.chunks_size; ++i)
+                for(std::size_t i = 0; i < serialize.chunks_size - 1; ++i)
                 {
                     canpub_p->publish({CanTxTopic::id, 8, serialize.chunks[i]});
                 }
+
+                canpub_p->publish({CanTxTopic::id, serialize.last_size, serialize.chunks[serialize.chunks_size - 1]});
             }
 
             void publish(const MessageConvertor& conv) noexcept
@@ -86,7 +88,7 @@ namespace Harurobo2022
             inline const auto init =
             []() noexcept
             {
-                CanPublisherImplement::CanPublisherBase::canpub_p = new std::remove_pointer_t<decltype(CanPublisherImplement::CanPublisherBase::canpub_p)>{1};
+                CanPublisherImplement::CanPublisherBase::canpub_p = new std::remove_pointer_t<decltype(CanPublisherImplement::CanPublisherBase::canpub_p)>{20};
             };
 
             inline const auto deinit = []() noexcept

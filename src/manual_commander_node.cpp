@@ -166,7 +166,7 @@ namespace
 
         StateManager state_manager{};
 
-        Timer timer{1.0 / Config::ExecutionInterval::manual_commander_freq, [this](const auto& event) noexcept { timerCallback(event); }};
+        Timer timer{1.0 / Config::ExecutionInterval::manual_commander_freq, [this](const ros::TimerEvent& event) noexcept { timerCallback(event); }};
 
         JoyInput joy_input{};
 

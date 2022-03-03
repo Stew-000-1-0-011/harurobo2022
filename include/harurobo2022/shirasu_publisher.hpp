@@ -24,7 +24,8 @@ namespace Harurobo2022
             using target = CanTxTopic<StewLib::Concat<MotorName, StringlikeTypes::_target>, StdMsgsConvertor<float>, ShirasuUtil::target_id(bid)>;
 
             CanPublisher<cmd> cmd_canpub{10};
-            CanPublisher<target> target_canpub{10};
+            // debug
+            CanPublisher<target> target_canpub{1000};
 
         public:
             void send_cmd(const ShirasuUtil::Mode cmd) noexcept
