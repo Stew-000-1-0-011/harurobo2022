@@ -90,7 +90,9 @@ namespace
             L,
             R,
             U,
-            D
+            D,
+
+            N
         };
     }
 
@@ -99,6 +101,7 @@ namespace
         sensor_msgs::Joy latest_joy{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Buttons::N, 0); return msg;}()};
         sensor_msgs::Joy old_joy{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Buttons::N, 0); return msg;}()};
         bool button_once_pushed[Buttons::N]{};
+        bool cross_key_once_pushed[CrossKey::N]{};
 
         JoyInput() = default;
 
@@ -117,6 +120,17 @@ namespace
             return false;
         }
 
+        bool is_pushed_once(const CrossKey::CrossKey cross_key) noexcept
+        {
+            if(cross_key_once_pushed[cross_key])
+            {
+                cross_key_once_pushed[cross_key] = false;
+                return true;
+            }
+
+            return false;
+        }
+
         void update(const sensor_msgs::Joy& joy) noexcept
         {
             old_joy = latest_joy;
@@ -126,6 +140,11 @@ namespace
             {
                 button_once_pushed[i] = false;
             }
+
+            cross_key_once_pushed[CrossKey::L] = latest_joy.axes[Axes::cross_LR] <= 0 && old_joy.axes[Axes::cross_LR] > 0;
+            cross_key_once_pushed[CrossKey::R] = latest_joy.axes[Axes::cross_LR] >= 0 && old_joy.axes[Axes::cross_LR] < 0;
+            cross_key_once_pushed[CrossKey::U] = latest_joy.axes[Axes::cross_UD] <= 0 && old_joy.axes[Axes::cross_UD] > 0;
+            cross_key_once_pushed[CrossKey::D] = latest_joy.axes[Axes::cross_UD] >= 0 && old_joy.axes[Axes::cross_UD] < 0;
         }
     };
 
@@ -211,21 +230,21 @@ namespace
 
             body_twist_pub.publish(cmd_vel);
 
-            if(joy_input.is_being_pushed(Buttons::x) && joy_input.is_cross_keys_pushed_once[CrossKey::U])
+            if(joy_input.is_being_pushed(Buttons::x) && joy_input.is_pushed_once(CrossKey::U))
             {
                 lift_motors.collector_pub.publish_target(Config::collector_step3_position);
             }
-            else if(joy_input.is_cross_keys_pushed_once[CrossKey::U])
+            else if(joy_input.is_pushed_once(CrossKey::U))
             {
                 lift_motors.collector_pub.publish_target(Config::collector_step2_position);
             }
-            else if(joy_input.is_cross_keys_pushed_once[CrossKey::D])
-            {
-                lift_motors.collector_pub.publish_target(Config::collector_step1_position);
-            }
-            else if(joy_input.is_being_pushed(Buttons::x) && joy_input.is_cross_keys_pushed_once[CrossKey::D])
+            else if(joy_input.is_being_pushed(Buttons::x) && joy_input.is_pushed_once(CrossKey::D))
             {
                 lift_motors.collector_pub.publish_target(Config::collector_bottom_position);
+            }
+            else if(joy_input.is_pushed_once(CrossKey::D))
+            {
+                lift_motors.collector_pub.publish_target(Config::collector_step1_position);
             }
 
             if(joy_input.is_pushed_once(Buttons::y))
