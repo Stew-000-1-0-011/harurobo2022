@@ -222,10 +222,8 @@ namespace
 
             harurobo2022::Twist cmd_vel;
 
-            const Vec2D<float> input_vec = ~Vec2D<float>{joy_input.latest_joy.axes[Axes::l_stick_UD], joy_input.latest_joy.axes[Axes::l_stick_LR]};
-
-            cmd_vel.linear_x = Config::Limitation::body_vell * input_vec.x;
-            cmd_vel.linear_y = Config::Limitation::body_vell * input_vec.y;
+            cmd_vel.linear_x = Config::Limitation::body_vell / StewLib::Constant::ROOT_2 * joy_input.latest_joy.axes[Axes::l_stick_UD];
+            cmd_vel.linear_y = Config::Limitation::body_vell / StewLib::Constant::ROOT_2 * joy_input.latest_joy.axes[Axes::l_stick_LR];
             cmd_vel.angular_z = Config::Limitation::body_vela * joy_input.latest_joy.axes[Axes::r_stick_LR];
 
             body_twist_pub.publish(cmd_vel);
