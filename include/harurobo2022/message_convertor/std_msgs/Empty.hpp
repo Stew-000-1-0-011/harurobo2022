@@ -29,9 +29,6 @@ namespace Harurobo2022
             constexpr MessageConvertor(const Message&) noexcept
             {}
 
-            constexpr MessageConvertor(const CanData&) noexcept
-            {}
-
             operator Message() const noexcept
             {
                 return {};

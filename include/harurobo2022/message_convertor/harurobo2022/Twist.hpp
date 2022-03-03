@@ -15,14 +15,14 @@ namespace Harurobo2022
         {
             using Message = harurobo2022::Twist;
 
-            struct RawData final
+            struct alignas(1) RawData final
             {
                 float linear_x{};
                 float linear_y{};
                 float angular_z{};
             };
 
-            struct CanData final
+            struct alignas(1) CanData final
             {
                 StewLib::ReverseBuffer<float> linear_x{};
                 StewLib::ReverseBuffer<float> linear_y{};
@@ -52,14 +52,6 @@ namespace Harurobo2022
             constexpr MessageConvertor(const RawData& raw_data) noexcept:
                 raw_data{raw_data}
             {}
-
-            MessageConvertor(CanData can_data) noexcept
-            {
-                can_data.reverse();
-                raw_data.linear_x = can_data.linear_x;
-                raw_data.linear_y = can_data.linear_y;
-                raw_data.angular_z = can_data.angular_z;
-            }
 
             operator Message() const noexcept
             {
