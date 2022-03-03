@@ -105,7 +105,7 @@ namespace Harurobo2022
 
             void publish(const MessageConvertor& conv) const noexcept
             {
-                if(pub) pub.publish(static_cast<Message>(conv));
+                if(pub.getTopic().empty()) pub.publish(static_cast<Message>(conv));
             }
 
             void change_buff_size(const std::uint32_t changed_queue_size) noexcept
