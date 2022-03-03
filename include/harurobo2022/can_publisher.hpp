@@ -72,13 +72,11 @@ namespace Harurobo2022
 
             void deactivate() noexcept
             {
-                canpub_p->deactivate();
                 pub.deactivate();
             }
 
             void activate() noexcept
             {
-                canpub_p->activate();
                 pub.activate();
             }
         };
@@ -96,11 +94,12 @@ namespace Harurobo2022
                 delete CanPublisherImplement::CanPublisherBase::canpub_p;
             };
 
-            inline char dummy = 
+            inline static const char dummy = 
             []() noexcept
             {
                 StaticInitDeinit::initialize_list.push_back(init);
                 StaticInitDeinit::deinitialize_list.push_back(deinit);
+
                 return 0;
             }();
         }

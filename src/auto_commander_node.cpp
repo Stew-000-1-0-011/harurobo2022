@@ -45,10 +45,10 @@ namespace
         ActiveManager
         <
             StringlikeTypes::auto_commander,
-            decltype(lift_motors), decltype(odometry_sub), decltype(check_work)
+            decltype(odometry_sub), decltype(check_work)
         > active_manager
         {
-            lift_motors, odometry_sub, check_work
+            odometry_sub, check_work
         };
 
         // ひとまずは位置と姿勢を速度上限つきP制御で追う。目標位置姿勢と現在位置姿勢の差を定数倍して並進速度角速度にする。
