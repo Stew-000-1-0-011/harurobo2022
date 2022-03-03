@@ -74,7 +74,7 @@ namespace
             y,
             lb,
             rb,
-            back,  // 緊急停止
+            back,
             start,
             l_push,
             r_push,
@@ -99,7 +99,6 @@ namespace
         sensor_msgs::Joy latest_joy{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Buttons::N, 0); return msg;}()};
         sensor_msgs::Joy old_joy{[]{sensor_msgs::Joy msg; msg.axes = std::vector<float>(Axes::N, 0); msg.buttons = std::vector<std::int32_t>(Buttons::N, 0); return msg;}()};
         bool button_once_pushed[Buttons::N]{};
-        bool is_cross_keys_pushed_once[4]{};
 
         JoyInput() = default;
 
@@ -127,11 +126,6 @@ namespace
             {
                 button_once_pushed[i] = false;
             }
-
-            is_cross_keys_pushed_once[CrossKey::L] = (old_joy.axes[Axes::cross_LR] > 0 && latest_joy.axes[Axes::cross_LR] <= 0);
-            is_cross_keys_pushed_once[CrossKey::R] = (old_joy.axes[Axes::cross_LR] < 0 && latest_joy.axes[Axes::cross_LR] >= 0);
-            is_cross_keys_pushed_once[CrossKey::U] = (old_joy.axes[Axes::cross_UD] > 0 && latest_joy.axes[Axes::cross_UD] <= 0);
-            is_cross_keys_pushed_once[CrossKey::D] = (old_joy.axes[Axes::cross_UD] < 0 && latest_joy.axes[Axes::cross_UD] >= 0);
         }
     };
 
@@ -217,7 +211,7 @@ namespace
 
             body_twist_pub.publish(cmd_vel);
 
-            if(joy_input.is_pushed_once(Buttons::x) && joy_input.is_cross_keys_pushed_once[CrossKey::U])
+            if(joy_input.is_being_pushed(Buttons::x) && joy_input.is_cross_keys_pushed_once[CrossKey::U])
             {
                 lift_motors.collector_pub.publish_target(Config::collector_step3_position);
             }
@@ -229,7 +223,7 @@ namespace
             {
                 lift_motors.collector_pub.publish_target(Config::collector_step1_position);
             }
-            else if(joy_input.is_pushed_once(Buttons::x) && joy_input.is_cross_keys_pushed_once[CrossKey::D])
+            else if(joy_input.is_being_pushed(Buttons::x) && joy_input.is_cross_keys_pushed_once[CrossKey::D])
             {
                 lift_motors.collector_pub.publish_target(Config::collector_bottom_position);
             }
