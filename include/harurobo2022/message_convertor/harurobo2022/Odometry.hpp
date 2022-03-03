@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstring>
+
 #include "harurobo2022/Odometry.h"
 
 #include "../../lib/reverse_buffer.hpp"
@@ -27,8 +29,6 @@ namespace Harurobo2022
                 StewLib::ReverseBuffer<float> pos_x{};
                 StewLib::ReverseBuffer<float> pos_y{};
                 StewLib::ReverseBuffer<float> rot_z{};
-                
-                CanData() = default;
 
                 void reverse() noexcept
                 {
@@ -48,7 +48,7 @@ namespace Harurobo2022
             ~MessageConvertor() = default;
 
             constexpr MessageConvertor(const Message& msg) noexcept:
-                MessageConvertor({msg.pos_x, msg.pos_y, msg.rot_z})
+                MessageConvertor(RawData{msg.pos_x, msg.pos_y, msg.rot_z})
             {}
 
             constexpr MessageConvertor(const RawData& raw_data) noexcept:
@@ -58,6 +58,9 @@ namespace Harurobo2022
             MessageConvertor(CanData can_data) noexcept
             {
                 can_data.reverse();
+                raw_data.pos_x = can_data.pos_x;
+                raw_data.pos_y = can_data.pos_y;
+                raw_data.rot_z = can_data.rot_z;
             }
 
             operator Message() const noexcept
@@ -68,6 +71,18 @@ namespace Harurobo2022
                 msg.rot_z = raw_data.rot_z;
 
                 return msg;
+            }
+
+            operator RawData() const noexcept
+            {
+                return raw_data;
+            }
+
+            operator CanData() const noexcept
+            {
+                CanData ret{raw_data.pos_x, raw_data.pos_y, raw_data.rot_z};
+                ret.reverse();
+                return ret;
             }
         };
     }

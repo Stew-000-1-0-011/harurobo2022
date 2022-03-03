@@ -22,7 +22,6 @@ namespace StewLib
             ReverseBuffer(const T& obj) noexcept
             {
                 std::memcpy(buffer, &obj, size);
-                reverse();
             }
 
             void reverse() noexcept
@@ -34,6 +33,13 @@ namespace StewLib
                     buffer[i] = buffer[size - 1 - i];
                     buffer[size - 1 - i] = tmp[i];
                 }
+            }
+
+            operator T() const noexcept
+            {
+                T ret;
+                std::memcpy(&ret, buffer, sizeof(T));
+                return ret;
             }
         };
     }
