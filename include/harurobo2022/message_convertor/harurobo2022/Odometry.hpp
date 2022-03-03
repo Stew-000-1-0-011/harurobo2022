@@ -17,14 +17,14 @@ namespace Harurobo2022
         {
             using Message = harurobo2022::Odometry;
 
-            struct RawData final
+            struct alignas(1) RawData final
             {
                 float pos_x{};
                 float pos_y{};
                 float rot_z{};
             };
 
-            struct CanData final
+            struct alignas(1) CanData final
             {
                 StewLib::ReverseBuffer<float> pos_x{};
                 StewLib::ReverseBuffer<float> pos_y{};
@@ -54,14 +54,6 @@ namespace Harurobo2022
             constexpr MessageConvertor(const RawData& raw_data) noexcept:
                 raw_data{raw_data}
             {}
-
-            MessageConvertor(CanData can_data) noexcept
-            {
-                can_data.reverse();
-                raw_data.pos_x = can_data.pos_x;
-                raw_data.pos_y = can_data.pos_y;
-                raw_data.rot_z = can_data.rot_z;
-            }
 
             operator Message() const noexcept
             {

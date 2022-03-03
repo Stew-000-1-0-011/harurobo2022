@@ -37,12 +37,6 @@ namespace Harurobo2022
                 raw_data(raw_data)
             {}
 
-            MessageConvertor(CanData can_data) noexcept
-            {
-                can_data.reverse();
-                std::memcpy(&raw_data, &can_data, sizeof(RawData));
-            }
-
             operator Message() const noexcept
             {
                 Message msg;
