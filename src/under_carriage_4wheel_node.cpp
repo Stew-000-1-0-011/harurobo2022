@@ -10,8 +10,8 @@ base_controllerを参考にした。
 #include "harurobo2022/lib/vec2d.hpp"
 #include "harurobo2022/config.hpp"
 #include "harurobo2022/topics/body_twist.hpp"
+#include "harurobo2022/topics/under_carriage_4wheel_active.hpp"
 #include "harurobo2022/subscriber.hpp"
-#include "harurobo2022/active_manager.hpp"
 #include "harurobo2022/static_init_deinit.hpp"
 #include "harurobo2022/motors.hpp"
 #include "harurobo2022/timer.hpp"
@@ -24,29 +24,24 @@ namespace
 {
     class UnderCarriage4WheelNode final
     {
-        ros::NodeHandle nh{};
 
-        Timer publish_timer{1.0 / Config::ExecutionInterval::under_carriage_freq, [this](const auto& event) noexcept { publish_timer_callback(event); }};
+
+        // Timer publish_timer{1.0 / Config::ExecutionInterval::under_carriage_freq, [this](const ros::TimerEvent& event) noexcept { publish_timer_callback(event); }};
+        Timer publish_timer{1.0, [this](const ros::TimerEvent& event) noexcept { publish_timer_callback(event); }};
 
         DriveMotors drive_motors{};
+
+        bool is_active{false};
+        Subscriber<Topics::under_carriage_4wheel_active> active_sub{1, [this](const typename std_msgs::Bool::ConstPtr& msg_p){ is_active = msg_p->data; }};
 
         Subscriber<Topics::body_twist> body_twist_sub
         {
             1,
-            [this](const typename Topics::body_twist::MessageConvertor::Message::ConstPtr& msg_p)
+            [this](const typename Topics::body_twist::Message::ConstPtr& msg_p)
             {
                 body_vell = {msg_p->linear_x, msg_p->linear_y};
                 body_vela = msg_p->angular_z;
             }
-        };
-
-        ActiveManager
-        <
-            StringlikeTypes::under_carriage_4wheel,
-            decltype(publish_timer), decltype(body_twist_sub)
-        > active_manager
-        {
-            publish_timer, body_twist_sub
         };
 
         Vec2D<double> body_vell{};
@@ -57,13 +52,13 @@ namespace
 
     public:
         UnderCarriage4WheelNode() noexcept
-        {
-            active_manager.deactivate();
-        }
+        {}
 
     private:
         void publish_timer_callback(const ros::TimerEvent&) noexcept
         {
+            if(!is_active) return;
+            
             calc_wheels_vela();
 
             drive_motors.FR_pub.send_target(wheels_vela[0]);
@@ -161,6 +156,7 @@ int main(int argc, char ** argv)
     UnderCarriage4WheelNode under_carriage_4wheel_node;
 
     ROS_INFO("%s node has started.", StringlikeTypes::under_carriage_4wheel::str);
+    ROS_INFO("sizeof(MessageConvertor<std_msgs::Float32>::CanData) %ld", sizeof(MessageConvertor<std_msgs::Float32>::CanData));
 
     ros::spin();
 

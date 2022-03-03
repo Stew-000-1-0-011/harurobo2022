@@ -1,10 +1,11 @@
 
 #include "harurobo2022/state.hpp"
-#include "harurobo2022/active_manager.hpp"
 #include "harurobo2022/shirasu_publisher.hpp"
 #include "harurobo2022/subscriber.hpp"
 #include "harurobo2022/config.hpp"
 #include "harurobo2022/motors.hpp"
+#include "harurobo2022/topics/auto_commander_active.hpp"
+#include "harurobo2022/topics/under_carriage_4wheel_active.hpp"
 
 using namespace Harurobo2022;
 
@@ -21,8 +22,8 @@ namespace
             }
         };
 
-        ActiveManager<StringlikeTypes::under_carriage_4wheel> under_carriage_4wheel_active_manager{};
-        ActiveManager<StringlikeTypes::auto_commander> auto_commander_active_manager{};
+        Publisher<Topics::under_carriage_4wheel_active> under_carriage_4wheel_active_pub{1};
+        Publisher<Topics::auto_commander_active> auto_commander_active_pub{1};
 
         DriveMotors drive_motors{};
         LiftMotors lift_motors{};
@@ -65,8 +66,8 @@ namespace
         {
             ROS_INFO("State changed to Manual.");
 
-            under_carriage_4wheel_active_manager.activate();
-            auto_commander_active_manager.deactivate();
+            under_carriage_4wheel_active_pub.publish(true);
+            auto_commander_active_pub.publish(false);
 
             drive_motors.send_cmd_all(ShirasuUtil::velocity_mode);
             lift_motors.send_cmd_all(ShirasuUtil::position_mode); // ここで零点が初期化されたりとかしないよね...？
@@ -76,8 +77,8 @@ namespace
         {
             ROS_INFO("State changed to Reset.");
 
-            under_carriage_4wheel_active_manager.deactivate();
-            auto_commander_active_manager.deactivate();
+            under_carriage_4wheel_active_pub.publish(false);
+            auto_commander_active_pub.publish(false);
 
             drive_motors.send_cmd_all(ShirasuUtil::disable_mode);
             lift_motors.send_cmd_all(ShirasuUtil::homing_mode);
@@ -87,8 +88,8 @@ namespace
         {
             ROS_INFO("State changed to Automatic.");
 
-            under_carriage_4wheel_active_manager.activate();
-            auto_commander_active_manager.activate();
+            under_carriage_4wheel_active_pub.publish(true);
+            auto_commander_active_pub.publish(true);
 
             drive_motors.send_cmd_all(ShirasuUtil::velocity_mode);
             lift_motors.send_cmd_all(ShirasuUtil::position_mode);
@@ -96,10 +97,10 @@ namespace
 
         void case_disable() noexcept
         {
-            ROS_INFO("State changed to Desable.");
+            ROS_INFO("State changed to Disable.");
 
-            under_carriage_4wheel_active_manager.deactivate();
-            auto_commander_active_manager.deactivate();
+            under_carriage_4wheel_active_pub.publish(false);
+            auto_commander_active_pub.publish(false);
 
             drive_motors.send_cmd_all(ShirasuUtil::disable_mode);
             lift_motors.send_cmd_all(ShirasuUtil::disable_mode);

@@ -77,6 +77,7 @@ namespace StewLib
             constexpr static std::size_t unit_size = unit_size_;
 
             static constexpr std::size_t chunks_size = sizeof(RawData) / unit_size_ + (sizeof(RawData) % unit_size)? 1 : 0;
+            static constexpr std::uint8_t last_size = (sizeof(RawData) % unit_size) ? (sizeof(RawData) % unit_size) : 8;
 
             std::uint8_t chunks[chunks_size][unit_size]{};
 

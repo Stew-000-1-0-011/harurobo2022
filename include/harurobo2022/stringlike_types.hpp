@@ -9,8 +9,10 @@ namespace Harurobo2022
         namespace StringlikeTypes
         {
             Stew_StringlikeType(under_carriage_4wheel)
+            Stew_StringlikeType(under_carriage_4wheel_active)
             Stew_StringlikeType(state_manager)
             Stew_StringlikeType(auto_commander)
+            Stew_StringlikeType(auto_commander_active)
             Stew_StringlikeType(manual_commander)
             Stew_StringlikeType(can_tx)
             Stew_StringlikeType(shutdown)
@@ -34,6 +36,7 @@ namespace Harurobo2022
             // グローバル名前空間でないのでいいはず。
             Stew_StringlikeType(_cmd)
             Stew_StringlikeType(_target)
+            Stew_StringlikeType(_active_manager)
         }
     }
 }

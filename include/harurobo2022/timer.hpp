@@ -14,8 +14,8 @@ namespace Harurobo2022
 
             ros::NodeHandle nh{};
 
-            double period;
             std::function<CallbackSignature> callback;
+            std::function<CallbackSignature> inner_callback;
             ros::Timer tim;
 
             Timer(const Timer&) = delete;
@@ -26,21 +26,15 @@ namespace Harurobo2022
         public:
             template<class F>
             Timer(const double period, const F& callback) noexcept:
-                period{period},
                 callback{callback},
-                tim{nh.createTimer(ros::Duration(period), callback)}
+                inner_callback{callback},
+                tim{nh.createTimer(ros::Duration(period), &Timer::callback_wrapper, this)}
             {}
-
-            void change_period(const double changed_period) noexcept
-            {
-                tim = nh.createTimer(ros::Duration(changed_period), callback);
-                period = changed_period;
-            }
 
             template<class F>
             void change_callback(const F& changed_callback) noexcept
             {
-                tim = nh.createTimer(ros::Duration(period), changed_callback);
+                inner_callback = changed_callback;
                 callback = changed_callback;
             }
 
@@ -51,12 +45,18 @@ namespace Harurobo2022
 
             void activate() noexcept
             {
-                tim = nh.createTimer(ros::Duration(period), callback);
+                inner_callback = callback;
             }
 
             void deactivate() noexcept
             {
-                tim = nh.createTimer(ros::Duration(100000), [](const auto&) noexcept {});
+                inner_callback = [](const auto&){};
+            }
+
+        private:
+            void callback_wrapper(const ros::TimerEvent& event) noexcept
+            {
+                inner_callback(event);
             }
 
         };
