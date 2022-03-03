@@ -43,10 +43,10 @@ namespace
         ActiveManager
         <
             StringlikeTypes::under_carriage_4wheel,
-            decltype(publish_timer), decltype(drive_motors), decltype(body_twist_sub)
+            decltype(publish_timer), decltype(body_twist_sub)
         > active_manager
         {
-            publish_timer, drive_motors, body_twist_sub
+            publish_timer, body_twist_sub
         };
 
         Vec2D<double> body_vell{};

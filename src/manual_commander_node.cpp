@@ -217,7 +217,7 @@ namespace
         {
             if(joy_input.is_pushed_once(Buttons::start))
             {
-                state_manager.set_state(State::manual);
+                state_manager.set_state(State::disable);
             }
 
             harurobo2022::Twist cmd_vel;
