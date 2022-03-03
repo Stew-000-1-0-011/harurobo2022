@@ -28,12 +28,19 @@ namespace Harurobo2022
         private:
             using active_manager_topic = Topic<Name, std_msgs::Bool>;
 
+            bool send_self{false};
             Publisher<active_manager_topic> pub{10};
             Subscriber<active_manager_topic> sub
             {
                 10,
                 [this](const typename active_manager_topic::Message::ConstPtr& msg_p)
                 {
+                    if(send_self)
+                    {
+                        send_self = false;
+                        return;
+                    }
+
                     if(msg_p->data)
                     {
                         activate();
@@ -61,6 +68,10 @@ namespace Harurobo2022
                         std::visit([](auto pubsub_p) noexcept {pubsub_p->activate();}, pubsub_p);
                     }
                 }
+
+                send_self = true;
+
+                pub.publish(true);
             }
 
             void deactivate() noexcept
@@ -72,6 +83,10 @@ namespace Harurobo2022
                         std::visit([](auto pubsub_p) noexcept {pubsub_p->deactivate();}, pubsub_p);
                     }
                 }
+
+                send_self = true;
+
+                pub.publish(false);
             }
         };
     }

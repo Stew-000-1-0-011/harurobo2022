@@ -109,7 +109,7 @@ namespace
         {
             ROS_INFO("State changed to GameOver.");
 
-            play_mada_kokode_shinubeki_sadame_deha_nai_to();
+            play_kokode_shinubeki_sadame_deha_nai_to();
         }
 
         void case_game_clear() noexcept
@@ -120,7 +120,7 @@ namespace
         }
 
         // 余裕があれば。
-        void play_mada_kokode_shinubeki_sadame_deha_nai_to() noexcept {}
+        void play_kokode_shinubeki_sadame_deha_nai_to() noexcept {}
         void play_umapyoi() noexcept {}
     };
 }
