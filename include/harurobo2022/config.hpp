@@ -57,7 +57,7 @@ namespace Harurobo2022
 
             namespace ExecutionInterval
             {
-                inline constexpr double under_carriage_freq{/1000};
+                inline constexpr double under_carriage_freq{1000};
                 inline constexpr double manual_commander_freq{1000};
                 inline constexpr double auto_commander_freq{1000};
             }
@@ -93,7 +93,7 @@ namespace Harurobo2022
                     inline constexpr std::size_t position_controll_ids_size = sizeof(position_controll_ids) / sizeof(position_controll_ids[0]);
 
                     inline constexpr std::uint16_t stepping_motor{0x500};
-                    inline constexpr std::uint16_t table_cloth{/*TODO*/};
+                    inline constexpr std::uint16_t table_cloth{0x101};
                 }
 
                 namespace Rx

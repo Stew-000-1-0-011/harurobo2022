@@ -28,7 +28,7 @@ namespace
         CanPublisher<Topics::table_cloth> table_cloth_pub{1};
 
         Subscriber<Topics::odometry> odometry_sub{1, [this](const typename Topics::odometry::Message::ConstPtr& msg_p) noexcept { odometry_callback(msg_p); }};
-        
+
         Timer check_work{1.0 / Config::ExecutionInterval::auto_commander_freq, [this](const auto& event){ check_work_callback(); }};
 
         StateManager state_manager
@@ -40,15 +40,6 @@ namespace
                     chart_reset();
                 }
             }
-        };
-
-        ActiveManager
-        <
-            StringlikeTypes::auto_commander,
-            decltype(odometry_sub), decltype(check_work)
-        > active_manager
-        {
-            odometry_sub, check_work
         };
 
         // ひとまずは位置と姿勢を速度上限つきP制御で追う。目標位置姿勢と現在位置姿勢の差を定数倍して並進速度角速度にする。
