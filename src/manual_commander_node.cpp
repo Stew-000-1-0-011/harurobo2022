@@ -162,6 +162,9 @@ namespace
         CanPublisher<Topics::table_cloth> table_cloth_pub{10};
         bool is_table_cloth_push{false};
 
+        // debug
+        std::uint8_t collector_height{0};
+
         Subscriber<joy_topic> joy_sub{1, [this](const typename joy_topic::Message::ConstPtr& msg_p) noexcept { joyCallback(*msg_p); }};
 
         StateManager state_manager{};
@@ -255,6 +258,13 @@ namespace
             {
                 if(is_table_cloth_push) table_cloth_pub.can_publish(TableCloth::pull);
                 else table_cloth_pub.can_publish(TableCloth::push);
+            }
+
+            if(joy_input.is_pushed_once(Buttons::a))
+            {
+                ++collector_height;
+                if(collector_height > 3) collector_height = 0;
+                lift_motors.collector_pub.send_target(collector_height);
             }
         }
 
