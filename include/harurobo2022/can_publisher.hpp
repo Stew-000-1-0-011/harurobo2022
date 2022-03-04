@@ -55,6 +55,7 @@ namespace Harurobo2022
                 }
 
                 canpub_p->publish({CanTxTopic::id, serialize.last_size, serialize.chunks[serialize.chunks_size - 1]});
+                pub.publish(conv);
             }
 
             void publish(const MessageConvertor& conv) noexcept
