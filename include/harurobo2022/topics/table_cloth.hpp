@@ -17,11 +17,8 @@ namespace Harurobo2022
 
         namespace TableCloth
         {
-            enum TableCloth : std::uint8_t
-            {
-                push = 0,
-                pull
-            };
+            inline constexpr std::uint8_t push = 0xFF;
+            inline constexpr std::uint8_t pull = 0x0;
         }
     }
 }
