@@ -71,7 +71,9 @@ namespace
             }
         };
 
-        CanRxBuffer<Topics::odometry> odometry_unpacker{1};
+        CanRxBuffer<Topics::odometry_x> odometry_x_unpacker{1};
+        CanRxBuffer<Topics::odometry_y> odometry_y_unpacker{1};
+        CanRxBuffer<Topics::odometry_yaw> odometry_yaw_unpacker{1};
 
         void can_rx_callback(const can_rx::Message::ConstPtr& msg_p) noexcept
         {
@@ -79,12 +81,19 @@ namespace
 
             switch(id)
             {
-            case Topics::odometry::id:
-                odometry_unpacker.push(msg_p);
+            case Topics::odometry_x::id:
+                odometry_x_unpacker.push(msg_p);
+                break;
+            
+            case Topics::odometry_y::id:
+                odometry_y_unpacker.push(msg_p);
+                break;
+            
+            case Topics::odometry_yaw::id:
+                odometry_yaw_unpacker.push(msg_p);
                 break;
 
-
-                default:
+            default:
                 ROS_ERROR("Unknown message arrived from usb_can_node.");
             }
         }

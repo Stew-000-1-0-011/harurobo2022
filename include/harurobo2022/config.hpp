@@ -57,10 +57,9 @@ namespace Harurobo2022
 
             namespace ExecutionInterval
             {
-                inline constexpr double under_carriage_freq{/*TODO*/1000};
-                inline constexpr double manual_commander_freq{/*TODO*/1000};
-                inline constexpr double auto_commander_freq{/*TODO*/1000};
-                // inline constexpr double not_emergency_signal_freq{/*TODO*/100};
+                inline constexpr double under_carriage_freq{/1000};
+                inline constexpr double manual_commander_freq{1000};
+                inline constexpr double auto_commander_freq{1000};
             }
 
             namespace CanId
@@ -69,20 +68,20 @@ namespace Harurobo2022
                 {
                     namespace DriveMotor
                     {
-                        inline constexpr std::uint16_t FR{/*TODO*/0x450};
-                        inline constexpr std::uint16_t FL{/*TODO*/0x444};
-                        inline constexpr std::uint16_t BL{/*TODO*/0x458};
-                        inline constexpr std::uint16_t BR{/*TODO*/0x440};
+                        inline constexpr std::uint16_t FR{0x610};
+                        inline constexpr std::uint16_t FL{0x420};
+                        inline constexpr std::uint16_t BL{0x450};
+                        inline constexpr std::uint16_t BR{0x520};
 
                         inline constexpr std::uint16_t all[4]{FR, FL, BL, BR};
                     }
 
                     namespace LiftMotor
                     {
-                        inline constexpr std::uint16_t FR{/*TODO*/};
+                        inline constexpr std::uint16_t FR{0x620};
                         inline constexpr std::uint16_t FL{/*TODO*/};
                         inline constexpr std::uint16_t BL{/*TODO*/};
-                        inline constexpr std::uint16_t BR{/*TODO*/};
+                        inline constexpr std::uint16_t BR{0x444};
 
                         inline constexpr std::uint16_t subX{/*TODO*/};
                         inline constexpr std::uint16_t subY{/*TODO*/};
@@ -93,20 +92,15 @@ namespace Harurobo2022
                     inline constexpr std::uint16_t position_controll_ids[] = {LiftMotor::FR, LiftMotor::FL, LiftMotor::BL, LiftMotor::BR, LiftMotor::subX, LiftMotor::subY, LiftMotor::collector};
                     inline constexpr std::size_t position_controll_ids_size = sizeof(position_controll_ids) / sizeof(position_controll_ids[0]);
 
-                    inline constexpr std::uint16_t stepping_motor{/*TODO*/};
+                    inline constexpr std::uint16_t stepping_motor{0x500};
                     inline constexpr std::uint16_t table_cloth{/*TODO*/};
-
-
-                    namespace Emergency
-                    {
-                        inline constexpr std::uint16_t power{/*TODO*/0x0};
-                    }
                 }
 
                 namespace Rx
                 {
-                    inline constexpr std::uint16_t odometry{/*TODO*/0x10};
-                    // inline constexpr std::uint16_t stopped{/*TODO*/0x8};
+                    inline constexpr std::uint16_t odometry_x{/*TODO*/0x205};
+                    inline constexpr std::uint16_t odometry_y{/*TODO*/0x206};
+                    inline constexpr std::uint16_t odometry_yaw{/*TODO*/0x207};
                 }
             }
         }

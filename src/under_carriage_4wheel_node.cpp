@@ -26,8 +26,7 @@ namespace
     {
 
 
-        // Timer publish_timer{1.0 / Config::ExecutionInterval::under_carriage_freq, [this](const ros::TimerEvent& event) noexcept { publish_timer_callback(event); }};
-        Timer publish_timer{1.0, [this](const ros::TimerEvent& event) noexcept { publish_timer_callback(event); }};
+        Timer publish_timer{1.0 / Config::ExecutionInterval::under_carriage_freq, [this](const ros::TimerEvent& event) noexcept { publish_timer_callback(event); }};
 
         DriveMotors drive_motors{};
 
