@@ -94,7 +94,7 @@ namespace
                 break;
 
             default:
-                ROS_ERROR("Unknown message arrived from usb_can_node.");
+                ROS_ERROR("Unknown message arrived from usb_can_node. id: %d", id);
             }
         }
     };
