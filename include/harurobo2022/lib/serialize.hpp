@@ -2,9 +2,6 @@
 
 #include <cstring>
 
-#include <array>
-
-
 
 namespace StewLib
 {

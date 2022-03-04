@@ -1,6 +1,6 @@
 #pragma once
 
-#include <harurobo2022/Odometry.h>
+#include <std_msgs/Float32.h>
 
 #include "../stringlike_types.hpp"
 #include "../topic.hpp"
@@ -12,7 +12,9 @@ namespace Harurobo2022
     {
         namespace Topics
         {
-            using odometry = CanRxTopic<StringlikeTypes::odometry, harurobo2022::Odometry, Config::CanId::Rx::odometry>;
+            using odometry_x = CanRxTopic<StringlikeTypes::odometry_x, std_msgs::Float32, Config::CanId::Rx::odometry_x>;
+            using odometry_y = CanRxTopic<StringlikeTypes::odometry_y, std_msgs::Float32, Config::CanId::Rx::odometry_y>;
+            using odometry_yaw = CanRxTopic<StringlikeTypes::odometry_yaw, std_msgs::Float32, Config::CanId::Rx::odometry_yaw>;
         }
     }
 }
