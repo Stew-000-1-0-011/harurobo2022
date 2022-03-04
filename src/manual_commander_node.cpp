@@ -233,19 +233,19 @@ namespace
 
             if(joy_input.is_being_pushed(Buttons::x) && joy_input.is_pushed_once(CrossKey::U))
             {
-                lift_motors.collector_pub.publish_target(Config::collector_step3_position);
+                lift_motors.collector_pub.send_target(Config::collector_step3_position);
             }
             else if(joy_input.is_pushed_once(CrossKey::U))
             {
-                lift_motors.collector_pub.publish_target(Config::collector_step2_position);
+                lift_motors.collector_pub.send_target(Config::collector_step2_position);
             }
             else if(joy_input.is_being_pushed(Buttons::x) && joy_input.is_pushed_once(CrossKey::D))
             {
-                lift_motors.collector_pub.publish_target(Config::collector_bottom_position);
+                lift_motors.collector_pub.send_target(Config::collector_bottom_position);
             }
             else if(joy_input.is_pushed_once(CrossKey::D))
             {
-                lift_motors.collector_pub.publish_target(Config::collector_step1_position);
+                lift_motors.collector_pub.send_target(Config::collector_step1_position);
             }
 
             if(joy_input.is_pushed_once(Buttons::y))
@@ -258,13 +258,6 @@ namespace
             {
                 if(is_table_cloth_push) table_cloth_pub.can_publish(TableCloth::pull);
                 else table_cloth_pub.can_publish(TableCloth::push);
-            }
-
-            if(joy_input.is_pushed_once(Buttons::a))
-            {
-                ++collector_height;
-                if(collector_height > 3) collector_height = 0;
-                lift_motors.collector_pub.send_target(collector_height);
             }
         }
 
