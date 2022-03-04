@@ -70,7 +70,7 @@ namespace Harurobo2022
                     {
                         inline constexpr std::uint16_t FR{0x610};
                         inline constexpr std::uint16_t FL{0x420};
-                        inline constexpr std::uint16_t BL{0x450};
+                        inline constexpr std::uint16_t BL{0x430};
                         inline constexpr std::uint16_t BR{0x520};
 
                         inline constexpr std::uint16_t all[4]{FR, FL, BL, BR};
@@ -81,12 +81,12 @@ namespace Harurobo2022
                         inline constexpr std::uint16_t FR{0x620};
                         inline constexpr std::uint16_t FL{/*TODO*/};
                         inline constexpr std::uint16_t BL{/*TODO*/};
-                        inline constexpr std::uint16_t BR{0x444};
+                        inline constexpr std::uint16_t BR{/*TODO*/};
 
                         inline constexpr std::uint16_t subX{/*TODO*/};
                         inline constexpr std::uint16_t subY{/*TODO*/};
 
-                        inline constexpr std::uint16_t collector{/*TODO*/};
+                        inline constexpr std::uint16_t collector{0x530};
                     }
 
                     inline constexpr std::uint16_t position_controll_ids[] = {LiftMotor::FR, LiftMotor::FL, LiftMotor::BL, LiftMotor::BR, LiftMotor::subX, LiftMotor::subY, LiftMotor::collector};
