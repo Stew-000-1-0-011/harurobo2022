@@ -158,7 +158,7 @@ namespace
         LiftMotors lift_motors{};
 
         CanPublisher<Topics::stepping_motor> stepping_motor_pub{10};
-        bool is_stepping_motor_open{true};
+        bool is_stepping_motor_open{false};
         CanPublisher<Topics::table_cloth> table_cloth_pub{10};
         bool is_table_cloth_push{false};
 
@@ -250,8 +250,16 @@ namespace
 
             if(joy_input.is_pushed_once(Buttons::y))
             {
-                if(is_stepping_motor_open) stepping_motor_pub.can_publish(SteppingMotor::close);
-                else stepping_motor_pub.can_publish(SteppingMotor::open);
+                if(is_stepping_motor_open)
+                {
+                    stepping_motor_pub.can_publish(SteppingMotor::close);
+                    is_stepping_motor_open = false;
+                }
+                else
+                {
+                    stepping_motor_pub.can_publish(SteppingMotor::open);
+                    is_stepping_motor_open = true;
+                }
             }
 
             if(joy_input.is_pushed_once(Buttons::b))
