@@ -93,6 +93,10 @@ namespace
                 odometry_yaw_unpacker.push(msg_p);
                 break;
 
+            // debug
+            case 1058:
+                break;
+
             default:
                 ROS_ERROR("Unknown message arrived from usb_can_node. id: %d", id);
             }
