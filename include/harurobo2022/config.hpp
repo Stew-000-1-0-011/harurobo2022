@@ -36,10 +36,10 @@ namespace Harurobo2022
             inline constexpr double body_radius{+Wheel::Pos::FR};
             inline constexpr double wheel_radius{30};
 
-            inline constexpr double collector_bottom_position{/*TODO*/};
-            inline constexpr double collector_step1_position{/*TODO*/};
-            inline constexpr double collector_step2_position{/*TODO*/};
-            inline constexpr double collector_step3_position{/*TODO*/};
+            inline constexpr double collector_bottom_position{3};
+            inline constexpr double collector_step1_position{6};
+            inline constexpr double collector_step2_position{9};
+            inline constexpr double collector_step3_position{12};
 
             namespace Limitation
             {
