@@ -262,6 +262,26 @@ namespace
                 }
             }
 
+            if(joy_input.is_pushed_once(Buttons::a))
+            {
+                if(joy_input.is_pushed_once(CrossKey::U))
+                {
+                    lift_motors.FR_pub.send_target(Config::leg_top_position);
+                }
+                else if(joy_input.is_pushed_once(CrossKey::L))
+                {
+                    lift_motors.FL_pub.send_target(Config::leg_top_position);
+                }
+                else if(joy_input.is_pushed_once(CrossKey::D))
+                {
+                    lift_motors.BL_pub.send_target(Config::leg_top_position);
+                }
+                else if(joy_input.is_pushed_once(CrossKey::R))
+                {
+                    lift_motors.BR_pub.send_target(Config::leg_top_position);
+                }
+            }
+
             if(joy_input.is_pushed_once(Buttons::b))
             {
                 if(is_table_cloth_push) table_cloth_pub.can_publish(TableCloth::pull);

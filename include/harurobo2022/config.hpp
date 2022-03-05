@@ -36,10 +36,13 @@ namespace Harurobo2022
             inline constexpr double body_radius{+Wheel::Pos::FR};
             inline constexpr double wheel_radius{30};
 
-            inline constexpr double collector_bottom_position{3};
-            inline constexpr double collector_step1_position{6};
-            inline constexpr double collector_step2_position{9};
-            inline constexpr double collector_step3_position{12};
+            inline constexpr double collector_bottom_position{/*TODO*/0};
+            inline constexpr double collector_step1_position{/*TODO*/3};
+            inline constexpr double collector_step2_position{/*TODO*/9};
+            inline constexpr double collector_step3_position{/*TODO*/12};
+
+            inline constexpr double leg_bottom_position{/*TODO*/0};
+            inline constexpr double leg_top_position{/*TODO*/0};
 
             namespace Limitation
             {
@@ -60,6 +63,23 @@ namespace Harurobo2022
                 inline constexpr double under_carriage_freq{1000};
                 inline constexpr double manual_commander_freq{1000};
                 inline constexpr double auto_commander_freq{1000};
+            }
+
+            namespace Pid
+            {
+                inline constexpr double position_k_p{/*TODO*/10};
+                inline constexpr double position_k_i{/*TODO*/0};
+                inline constexpr double position_k_d{/*TODO*/0};
+
+                inline constexpr double rot_z_k_p{/*TODO*/10};
+                inline constexpr double rot_z_k_i{/*TODO*/0};
+                inline constexpr double rot_z_k_d{/*TODO*/0};
+            }
+
+            namespace InitialState
+            {
+                inline constexpr StewLib::Vec2D<double> position{/*TODO*/ 0, 0};
+                inline constexpr double rot_z{/*TODO*/ StewLib::Constant::PI_2};
             }
 
             namespace CanId
