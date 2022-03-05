@@ -3,13 +3,16 @@
 */
 
 #include <std_msgs/UInt8.h>
+#include <harurobo2022/Twist.h>
 
+#include "harurobo2022/lib/pid_functor.hpp"
 #include "harurobo2022/timer.hpp"
 #include "harurobo2022/state.hpp"
-#include "harurobo2022/active_manager.hpp"
 #include "harurobo2022/can_publisher.hpp"
+#include "harurobo2022/publisher.hpp"
 #include "harurobo2022/motors.hpp"
 #include "harurobo2022/topics/stepping_motor.hpp"
+#include "harurobo2022/topics/body_twist.hpp"
 #include "harurobo2022/topics/table_cloth.hpp"
 #include "harurobo2022/topics/odometry.hpp"
 #include "harurobo2022/chart.hpp"
@@ -21,15 +24,21 @@ namespace
 {
     class AutoCommanderNode final
     {
+        ChartManager chart_manager;
+
         LiftMotors lift_motors{};
+
+        Publisher<Topics::body_twist> twist_pub{1};
 
         CanPublisher<Topics::stepping_motor> stepping_motor_pub{1};
 
         CanPublisher<Topics::table_cloth> table_cloth_pub{1};
 
-        Subscriber<Topics::odometry> odometry_sub{1, [this](const typename Topics::odometry::Message::ConstPtr& msg_p) noexcept { odometry_callback(msg_p); }};
+        Subscriber<Topics::odometry_x> odometry_x_sub{1, [this](const typename Topics::odometry_x::Message::ConstPtr& msg_p) noexcept { odometry_x_callback(msg_p); }};
+        Subscriber<Topics::odometry_y> odometry_y_sub{1, [this](const typename Topics::odometry_y::Message::ConstPtr& msg_p) noexcept { odometry_y_callback(msg_p); }};
+        Subscriber<Topics::odometry_yaw> odometry_yaw_sub{1, [this](const typename Topics::odometry_yaw::Message::ConstPtr& msg_p) noexcept { odometry_yaw_callback(msg_p); }};
 
-        Timer check_work{1.0 / Config::ExecutionInterval::auto_commander_freq, [this](const auto& event){ check_work_callback(); }};
+        Timer timer{1.0 / Config::ExecutionInterval::auto_commander_freq, [this](const auto&){ timer_callback(); }};
 
         StateManager state_manager
         {
@@ -37,7 +46,7 @@ namespace
             {
                 if(state == State::reset)
                 {
-                    chart_reset();
+                    chart_manager.reset_chart();
                 }
             }
         };
@@ -46,62 +55,44 @@ namespace
         Vec2D<float> now_pos{};
         float now_rot_z{};
 
-        Vec2D<float> target_pos{};
-        float target_rot_z{};
-        
-        typename decltype(trajectory)::const_iterator transit_iter{trajectory.cbegin()};
-
+        StewLib::Pid<StewLib::Vec2D<float>> position_pid{Config::Pid::position_k_p, Config::Pid::position_k_i, Config::Pid::position_k_d};
+        StewLib::Pid<float> rot_z_pid{Config::Pid::rot_z_k_p, Config::Pid::rot_z_k_i, Config::Pid::rot_z_k_d};
 
     public:
-        AutoCommanderNode() noexcept
-        {
-            active_manager.deactivate();
-        }
+        AutoCommanderNode() = default;
 
     private:
-        void odometry_callback(const Topics::odometry::Message::ConstPtr& msg_p) noexcept
+        void odometry_x_callback(const Topics::odometry_x::Message::ConstPtr& msg_p) noexcept
         {
-            now_pos = {msg_p->pos_x, msg_p->pos_y};
-            now_rot_z = msg_p->rot_z;
+            now_pos.x = msg_p->data + Config::InitialState::position.x;
         }
 
-        void check_work_callback() noexcept
+        void odometry_y_callback(const Topics::odometry_y::Message::ConstPtr& msg_p) noexcept
         {
-            if(missions_iter->empty()) return;
+            now_pos.y = msg_p->data + Config::InitialState::position.y;
+        }
 
-            for(auto mission_iter = missions_iter->begin(); mission_iter != missions_iter->end();)
+        void odometry_yaw_callback(const Topics::odometry_yaw::Message::ConstPtr& msg_p) noexcept
+        {
+            now_rot_z = msg_p->data + Config::InitialState::rot_z;
+        }
+
+        void timer_callback() noexcept
+        {
+            if(chart_manager.current_work->pass_near_circle.is_in(now_pos))
             {
-                if(mission_iter->pass_near_circle.is_in(now_pos))
-                {
-                    do_work(mission_iter->work);
-                    mission_iter = missions_iter->erase(mission_iter);
-                }
-                else
-                {
-                    ++mission_iter;
-                }
-            }
-        }
-
-        void aim_at_dest_callback() noexcept
-        {
-            if()
-        }
-
-        void reach_transit_point() noexcept
-        {
-            // ここらへんchartへの入力によって端が変わるので要注意。
-            ++missions_iter;
-            if(missions_iter == steps.end())
-            {
-                state_manager.set_state(State::game_clear);
-                return;
+                do_work(chart_manager.current_work->work);
+                chart_manager.current_work_update();
             }
 
-            ++target_iter;
-            const auto& target_circle = target_iter->pass_near_circle;
-            target_pos = target_circle.center;
-            target_rot_z = target_circle.range;
+            if(chart_manager.target_position->pass_near_circle.is_in(now_pos))
+            {
+                chart_manager.target_position_update();
+            }
+
+            auto twist = calc_twist();
+
+            twist_pub.publish(twist);
         }
 
         /* TODO over_fenceの実装 */
@@ -143,6 +134,11 @@ namespace
 
             case Work::change_to_over_fence:
                 break;
+            
+            case Work::transit:
+            case Work::game_clear:
+            default:
+                break;
             }
         }
 
@@ -168,22 +164,35 @@ namespace
 
         void case_collector_shovel_open() noexcept
         {
-            stepping_motor_pub.can_publish(ShovelCmd::open);
+            stepping_motor_pub.can_publish(SteppingMotor::open);
         }
 
         void case_collector_shovel_close() noexcept
         {
-            stepping_motor_pub.can_publish(ShovelCmd::close);
+            stepping_motor_pub.can_publish(SteppingMotor::close);
         }
 
         void case_collector_tablecloth_push() noexcept
         {
-            table_cloth_pub.can_publish(TableClothCmd::push);
+            table_cloth_pub.can_publish(TableCloth::push);
         }
 
         void case_collector_tablecloth_pull() noexcept
         {
-            table_cloth_pub.can_publish(TableClothCmd::pull);
+            table_cloth_pub.can_publish(TableCloth::pull);
+        }
+
+        Topics::body_twist::MessageConvertor::RawData calc_twist() noexcept
+        {
+            const auto target_pos = chart_manager.target_position->pass_near_circle.center;
+            const auto target_rot_z = chart_manager.current_work->target_rot_z;
+
+            const auto linear_global = position_pid(target_pos - now_pos);
+            const auto angular = rot_z_pid(target_rot_z - now_rot_z);
+
+            const auto linear_onbody = rot(linear_global, -now_rot_z);
+
+            return {static_cast<float>(linear_onbody.x), static_cast<float>(linear_onbody.y), angular};
         }
     };
 }
