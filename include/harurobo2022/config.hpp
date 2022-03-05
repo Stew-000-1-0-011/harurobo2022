@@ -79,7 +79,7 @@ namespace Harurobo2022
             namespace InitialState
             {
                 inline constexpr StewLib::Vec2D<double> position{/*TODO*/ 0, 0};
-                inline constexpr double rot_z{/*TODO*/ StewLib::Constant::PI_2};
+                inline constexpr double rot_z{/*TODO*/ -StewLib::Constant::PI / 4};
             }
 
             namespace CanId
@@ -89,8 +89,8 @@ namespace Harurobo2022
                     namespace DriveMotor
                     {
                         inline constexpr std::uint16_t FR{0x610};
-                        inline constexpr std::uint16_t FL{0x420};
-                        inline constexpr std::uint16_t BL{/*TODO*/};
+                        inline constexpr std::uint16_t FL{0x410};
+                        inline constexpr std::uint16_t BL{0x4C4};
                         inline constexpr std::uint16_t BR{0x520};
 
                         inline constexpr std::uint16_t all[4]{FR, FL, BL, BR};
@@ -99,14 +99,14 @@ namespace Harurobo2022
                     namespace LiftMotor
                     {
                         inline constexpr std::uint16_t FR{0x620};
-                        inline constexpr std::uint16_t FL{/*TODO*/};
-                        inline constexpr std::uint16_t BL{/*TODO*/};
-                        inline constexpr std::uint16_t BR{/*TODO*/};
+                        inline constexpr std::uint16_t FL{0x400};
+                        inline constexpr std::uint16_t BL{0x510};
+                        inline constexpr std::uint16_t BR{0x430};
 
-                        inline constexpr std::uint16_t subX{/*TODO*/};
-                        inline constexpr std::uint16_t subY{/*TODO*/};
+                        inline constexpr std::uint16_t subX{0x448};
+                        inline constexpr std::uint16_t subY{0x440};
 
-                        inline constexpr std::uint16_t collector{0x430};
+                        inline constexpr std::uint16_t collector{0x540};
                     }
 
                     inline constexpr std::uint16_t position_controll_ids[] = {LiftMotor::FR, LiftMotor::FL, LiftMotor::BL, LiftMotor::BR, LiftMotor::subX, LiftMotor::subY, LiftMotor::collector};
