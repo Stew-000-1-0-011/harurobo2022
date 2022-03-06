@@ -32,7 +32,7 @@ namespace
 
         CanPublisher<Topics::stepping_motor> stepping_motor_pub{1};
 
-        CanPublisher<Topics::table_cloth> table_cloth_pub{1};
+        CanPublisher<Topics::table_cloth_command> table_cloth_pub{1};
 
         Subscriber<Topics::odometry_x> odometry_x_sub{1, [this](const typename Topics::odometry_x::Message::ConstPtr& msg_p) noexcept { odometry_x_callback(msg_p); }};
         Subscriber<Topics::odometry_y> odometry_y_sub{1, [this](const typename Topics::odometry_y::Message::ConstPtr& msg_p) noexcept { odometry_y_callback(msg_p); }};
@@ -174,12 +174,12 @@ namespace
 
         void case_collector_tablecloth_push() noexcept
         {
-            table_cloth_pub.can_publish(TableCloth::push);
+            table_cloth_pub.can_publish(TableClothCommand::push);
         }
 
         void case_collector_tablecloth_pull() noexcept
         {
-            table_cloth_pub.can_publish(TableCloth::pull);
+            table_cloth_pub.can_publish(TableClothCommand::pull);
         }
 
         Topics::body_twist::MessageConvertor::RawData calc_twist() noexcept

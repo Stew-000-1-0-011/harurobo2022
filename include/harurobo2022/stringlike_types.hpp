@@ -35,7 +35,8 @@ namespace Harurobo2022
             Stew_StringlikeType(collector_lift)
             Stew_StringlikeType(joy)
             Stew_StringlikeType(stepping_motor)
-            Stew_StringlikeType(table_cloth)
+            Stew_StringlikeType(table_cloth_active)
+            Stew_StringlikeType(table_cloth_command)
             // グローバル名前空間でないのでいいはず。
             Stew_StringlikeType(_cmd)
             Stew_StringlikeType(_target)
