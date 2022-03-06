@@ -37,9 +37,9 @@ namespace Harurobo2022
             inline constexpr double wheel_radius{30};
 
             inline constexpr double collector_bottom_position{/*TODO*/0};
-            inline constexpr double collector_step1_position{/*TODO*/-7};
-            inline constexpr double collector_step2_position{/*TODO*/-14};
-            inline constexpr double collector_step3_position{/*TODO*/-21};
+            inline constexpr double collector_step1_position{/*TODO*/-7.5};
+            inline constexpr double collector_step2_position{/*TODO*/-15};
+            inline constexpr double collector_step3_position{/*TODO*/-22.5};
 
             inline constexpr double leg_bottom_position{/*TODO*/0};
             inline constexpr double leg_top_position{/*TODO*/0};
@@ -47,8 +47,8 @@ namespace Harurobo2022
             namespace Limitation
             {
                 // 0に設定すると制限がかからなくなる。
-                inline constexpr double wheel_vela{/*TODO*/40};
-                inline constexpr double wheel_acca{/*TODO*/40};
+                inline constexpr double wheel_vela{/*TODO*/50};
+                inline constexpr double wheel_acca{/*TODO*/50};
             
                 inline constexpr double body_vell_ratio{/*TODO*/0.5};
                 inline constexpr double body_vela_ratio{/*TODO*/0.5};
