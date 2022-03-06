@@ -20,7 +20,9 @@ namespace Harurobo2022
             enum SteppingMotor : std::uint8_t
             {
                 open = 0,
-                close
+                close,
+                disable,
+                enable
             };
         }
     }
