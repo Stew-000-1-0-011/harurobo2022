@@ -103,10 +103,10 @@ namespace Harurobo2022
                         inline constexpr std::uint16_t BL{0x510};
                         inline constexpr std::uint16_t BR{0x430};
 
-                        inline constexpr std::uint16_t subX{0x448};
+                        inline constexpr std::uint16_t subX{0x620};
                         inline constexpr std::uint16_t subY{0x440};
 
-                        inline constexpr std::uint16_t collector{0x620};
+                        inline constexpr std::uint16_t collector{0x448};
                     }
 
                     inline constexpr std::uint16_t position_controll_ids[] = {LiftMotor::FR, LiftMotor::FL, LiftMotor::BL, LiftMotor::BR, LiftMotor::subX, LiftMotor::subY, LiftMotor::collector};
