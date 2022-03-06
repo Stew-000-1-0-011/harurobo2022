@@ -160,14 +160,24 @@ namespace
         CanPublisher<Topics::stepping_motor> stepping_motor_pub{10};
         bool is_stepping_motor_open{false};
         CanPublisher<Topics::table_cloth_command> table_cloth_pub{10};
-        bool is_table_cloth_push{false};
+        bool is_table_cloth_push{true};
 
         // debug
         std::uint8_t collector_height{0};
 
         Subscriber<joy_topic> joy_sub{1, [this](const typename joy_topic::Message::ConstPtr& msg_p) noexcept { joyCallback(*msg_p); }};
 
-        StateManager state_manager{};
+        StateManager state_manager
+        {
+            [this](const State& state) noexcept
+            {
+                if(state == State::disable)
+                {
+                    is_stepping_motor_open = false;
+                    is_table_cloth_push = true;
+                }
+            }
+        };
 
         Timer timer{1.0 / Config::ExecutionInterval::manual_commander_freq, [this](const ros::TimerEvent& event) noexcept { timerCallback(event); }};
 
