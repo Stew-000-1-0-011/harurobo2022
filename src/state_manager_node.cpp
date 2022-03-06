@@ -102,6 +102,7 @@ namespace
             drive_motors.send_cmd_all(ShirasuUtil::velocity_mode);
             lift_motors.send_cmd_all(ShirasuUtil::position_mode);
             lift_motors.send_target0_all();
+            
 
             table_cloth_active_pub.can_publish(TableClothActive::enable);
         }
