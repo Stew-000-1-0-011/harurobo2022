@@ -168,15 +168,7 @@ namespace
         Subscriber<joy_topic> joy_sub{1, [this](const typename joy_topic::Message::ConstPtr& msg_p) noexcept { joyCallback(*msg_p); }};
 
         StateManager state_manager
-        {
-            [this](const State& state) noexcept
-            {
-                if(state == State::disable)
-                {
-                    disable_init();
-                }
-            }
-        };
+        {};
 
         Timer timer{1.0 / Config::ExecutionInterval::manual_commander_freq, [this](const ros::TimerEvent& event) noexcept { timerCallback(event); }};
 
@@ -221,6 +213,8 @@ namespace
         {
             if(joy_input.is_pushed_once(Buttons::start))
             {
+                is_stepping_motor_open = false;
+                is_table_cloth_push = true;
                 state_manager.set_state(State::reset);
             }
         }
