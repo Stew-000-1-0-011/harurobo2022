@@ -171,11 +171,11 @@ namespace
         {
             [this](const State& state) noexcept
             {
-                if(state == State::disable)
-                {
-                    is_stepping_motor_open = false;
-                    is_table_cloth_push = true;
-                }
+                // if(state == State::disable)
+                // {
+                //     is_stepping_motor_open = false;
+                //     is_table_cloth_push = true;
+                // }
             }
         };
 
