@@ -159,7 +159,7 @@ namespace
 
         CanPublisher<Topics::stepping_motor> stepping_motor_pub{10};
         bool is_stepping_motor_open{false};
-        CanPublisher<Topics::table_cloth> table_cloth_pub{10};
+        CanPublisher<Topics::table_cloth_command> table_cloth_pub{10};
         bool is_table_cloth_push{false};
 
         // debug
@@ -284,8 +284,8 @@ namespace
 
             if(joy_input.is_pushed_once(Buttons::b))
             {
-                if(is_table_cloth_push) table_cloth_pub.can_publish(TableCloth::pull);
-                else table_cloth_pub.can_publish(TableCloth::push);
+                if(is_table_cloth_push) table_cloth_pub.can_publish(TableClothCommand::pull);
+                else table_cloth_pub.can_publish(TableClothCommand::push);
             }
         }
 

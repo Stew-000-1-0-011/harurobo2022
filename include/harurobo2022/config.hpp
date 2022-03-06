@@ -113,7 +113,8 @@ namespace Harurobo2022
                     inline constexpr std::size_t position_controll_ids_size = sizeof(position_controll_ids) / sizeof(position_controll_ids[0]);
 
                     inline constexpr std::uint16_t stepping_motor{0x500};
-                    inline constexpr std::uint16_t table_cloth{0x101};
+                    inline constexpr std::uint16_t table_cloth_active{0x100};
+                    inline constexpr std::uint16_t table_cloth_command{0x101};
                 }
 
                 namespace Rx

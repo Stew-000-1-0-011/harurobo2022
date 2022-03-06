@@ -6,6 +6,7 @@
 #include "harurobo2022/motors.hpp"
 #include "harurobo2022/topics/auto_commander_active.hpp"
 #include "harurobo2022/topics/under_carriage_4wheel_active.hpp"
+#include "harurobo2022/topics/table_cloth.hpp"
 
 using namespace Harurobo2022;
 
@@ -27,6 +28,8 @@ namespace
 
         DriveMotors drive_motors{};
         LiftMotors lift_motors{};
+
+        CanPublisher<Topics::table_cloth_active> table_cloth_active_pub{1};
 
         void state_callback(const State& state) noexcept
         {
@@ -71,6 +74,8 @@ namespace
 
             drive_motors.send_cmd_all(ShirasuUtil::velocity_mode);
             lift_motors.send_cmd_all(ShirasuUtil::position_mode); // ここで零点が初期化されたりとかしないよね...？
+
+            table_cloth_active_pub.can_publish(TableClothActive::enable);
         }
 
         void case_reset() noexcept
@@ -82,6 +87,8 @@ namespace
 
             drive_motors.send_cmd_all(ShirasuUtil::disable_mode);
             lift_motors.send_cmd_all(ShirasuUtil::homing_mode);
+
+            table_cloth_active_pub.can_publish(TableClothActive::disable);
         }
 
         void case_automatic() noexcept
@@ -93,6 +100,8 @@ namespace
 
             drive_motors.send_cmd_all(ShirasuUtil::velocity_mode);
             lift_motors.send_cmd_all(ShirasuUtil::position_mode);
+
+            table_cloth_active_pub.can_publish(TableClothActive::enable);
         }
 
         void case_disable() noexcept
@@ -104,6 +113,8 @@ namespace
 
             drive_motors.send_cmd_all(ShirasuUtil::disable_mode);
             lift_motors.send_cmd_all(ShirasuUtil::disable_mode);
+
+            table_cloth_active_pub.can_publish(TableClothActive::disable);
         }
 
         void case_game_over() noexcept
