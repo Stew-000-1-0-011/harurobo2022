@@ -293,7 +293,8 @@ namespace
         {
             if(joy_input.is_pushed_once(Buttons::start))
             {
-                state_manager.set_state(State::automatic);
+                // state_manager.set_state(State::automatic);  // debug
+                state_manager.set_state(State::manual);
             }
         }
 
