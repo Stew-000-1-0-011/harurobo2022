@@ -65,6 +65,17 @@ namespace Harurobo2022
                 collector_pub.send_cmd(cmd);
             }
 
+            void send_target0_all() noexcept
+            {
+                FR_pub.send_target(0);
+                FL_pub.send_target(0);
+                BL_pub.send_target(0);
+                BR_pub.send_target(0);
+                subX_pub.send_target(0);
+                subY_pub.send_target(0);
+                collector_pub.send_target(0);
+            }
+
             void activate() noexcept
             {
                 FR_pub.activate();
