@@ -47,8 +47,8 @@ namespace Harurobo2022
             namespace Limitation
             {
                 // 0に設定すると制限がかからなくなる。
-                inline constexpr double wheel_vela{/*TODO*/50};
-                inline constexpr double wheel_acca{/*TODO*/50};
+                inline constexpr double wheel_vela{/*TODO*/60};
+                inline constexpr double wheel_acca{/*TODO*/60};
             
                 inline constexpr double body_vell_ratio{/*TODO*/0.5};
                 inline constexpr double body_vela_ratio{/*TODO*/0.5};
@@ -89,9 +89,9 @@ namespace Harurobo2022
                     namespace DriveMotor
                     {
                         inline constexpr std::uint16_t FR{0x610};
-                        inline constexpr std::uint16_t FL{0x410};
-                        inline constexpr std::uint16_t BL{0x4C4};
-                        inline constexpr std::uint16_t BR{0x400};
+                        inline constexpr std::uint16_t FL{0x400};
+                        inline constexpr std::uint16_t BL{0x448};
+                        inline constexpr std::uint16_t BR{0x410};
 
                         inline constexpr std::uint16_t all[4]{FR, FL, BL, BR};
                     }
@@ -100,7 +100,7 @@ namespace Harurobo2022
                     {
                         inline constexpr std::uint16_t FR{0x520};
                         inline constexpr std::uint16_t FL{0x540};
-                        inline constexpr std::uint16_t BL{0x448};
+                        inline constexpr std::uint16_t BL{0x4C4};
                         inline constexpr std::uint16_t BR{0x430};
 
                         inline constexpr std::uint16_t subX{0x620};
