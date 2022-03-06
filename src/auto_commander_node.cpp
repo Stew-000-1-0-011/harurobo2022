@@ -136,7 +136,12 @@ namespace
                 break;
             
             case Work::transit:
+                break;
+            
             case Work::game_clear:
+                ros::shutdown();
+                break;
+
             default:
                 break;
             }
