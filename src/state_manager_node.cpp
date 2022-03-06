@@ -7,6 +7,7 @@
 #include "harurobo2022/topics/auto_commander_active.hpp"
 #include "harurobo2022/topics/under_carriage_4wheel_active.hpp"
 #include "harurobo2022/topics/table_cloth.hpp"
+#include "harurobo2022/topics/stepping_motor.hpp"
 
 using namespace Harurobo2022;
 
@@ -30,6 +31,7 @@ namespace
         LiftMotors lift_motors{};
 
         CanPublisher<Topics::table_cloth_active> table_cloth_active_pub{1};
+        CanPublisher<Topics::stepping_motor> stepping_motor_pub{1};
 
         void state_callback(const State& state) noexcept
         {
@@ -90,6 +92,7 @@ namespace
             lift_motors.send_cmd_all(ShirasuUtil::homing_mode);
 
             table_cloth_active_pub.can_publish(TableClothActive::disable);
+            stepping_motor_pub.can_publish(SteppingMotor::enable);
         }
 
         void case_automatic() noexcept
@@ -118,6 +121,7 @@ namespace
             lift_motors.send_cmd_all(ShirasuUtil::disable_mode);
 
             table_cloth_active_pub.can_publish(TableClothActive::disable);
+            stepping_motor_pub.can_publish(SteppingMotor::disable);
         }
 
         void case_game_over() noexcept
