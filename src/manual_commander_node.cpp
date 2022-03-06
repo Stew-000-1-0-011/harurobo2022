@@ -287,8 +287,16 @@ namespace
 
             if(joy_input.is_pushed_once(Buttons::b))
             {
-                if(is_table_cloth_push) table_cloth_pub.can_publish(TableClothCommand::pull);
-                else table_cloth_pub.can_publish(TableClothCommand::push);
+                if(is_table_cloth_push)
+                {
+                    table_cloth_pub.can_publish(TableClothCommand::pull);
+                    is_table_cloth_push = false;
+                }
+                else
+                {
+                    table_cloth_pub.can_publish(TableClothCommand::push);
+                    is_table_cloth_push = true;
+                }
             }
         }
 
