@@ -228,9 +228,11 @@ namespace
 
             harurobo2022::Twist cmd_vel;
 
-            cmd_vel.linear_x = Config::Limitation::body_vell / StewLib::Constant::ROOT_2 * joy_input.latest_joy.axes[Axes::l_stick_UD];
-            cmd_vel.linear_y = Config::Limitation::body_vell / StewLib::Constant::ROOT_2 * joy_input.latest_joy.axes[Axes::l_stick_LR];
+            cmd_vel.linear_x = Config::Limitation::body_vell * joy_input.latest_joy.axes[Axes::l_stick_UD];
+            cmd_vel.linear_y = Config::Limitation::body_vell * joy_input.latest_joy.axes[Axes::l_stick_LR];
             cmd_vel.angular_z = Config::Limitation::body_vela * joy_input.latest_joy.axes[Axes::r_stick_LR];
+
+            // ROS_INFO("cmd_vel %lf, %lf", cmd_vel.linear_x, cmd_vel.linear_y);
 
             body_twist_pub.publish(cmd_vel);
 
